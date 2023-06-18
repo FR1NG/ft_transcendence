@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ $# -lt 3 ]
+then
+  echo "you must specify the [ domain ] [ region ] [ output name ]"
+  exit 1
+fi
+
+DOMAIN=$1
+REGION=$2
+OUT=$3
+
+openssl req -x509 \
+            -sha256 -days 356 \
+            -nodes \
+            -newkey rsa:2048 \
+            -subj "/CN=$DOMAIN/C=US/L=$REGION" \
+            -keyout "$OUT".key -out "$OUT".crt 
