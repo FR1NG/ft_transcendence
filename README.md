@@ -28,7 +28,7 @@ this broject will be written in this stack:
         -   for development there will be docker-compose-dev.yml that will run the project on the watch mode
         -   for production there will be docker-compose.yml that will build the project for production
 ## colors:
-[![]('./docs/color_palette.png') ]
+![alt color palette](./docs/color_palette.png)
 ## run:
 
 to run the project for dev on the watch mode run the command on the project root direcotry:
