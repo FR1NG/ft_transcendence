@@ -21,6 +21,18 @@ const routes = [
       }
     ],
   },
+  {
+    path: '/chat',
+    name: 'chat',
+    component: () => import('@/layouts/chat/Default.vue'),
+    // children: [
+    //   {
+    //     path: '/user',
+    //     name: 'userChat',
+
+    //   }
+    // ]
+  }
 ]
 
 const router = createRouter({

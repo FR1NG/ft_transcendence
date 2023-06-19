@@ -29,6 +29,7 @@ this broject will be written in this stack:
         -   for production there will be docker-compose.yml that will build the project for production
 ## colors:
 ![alt color palette](./docs/color_palette.png)
+`primary color: #0C134F`
 ## run:
 
 to run the project for dev on the watch mode run the command on the project root direcotry:
