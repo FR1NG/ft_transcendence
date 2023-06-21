@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id String @id @default(uuid())
+  username String
+  email String
+  avatar String?
+  conversations Conversations[]
+  ownedRooms Rooms[] @relation("roomOner")
+  rooms UsersRooms[] @relation("userRooms")
+  hostedGames Games[] @relation("gameHost")
+  guestedGames Games[] @relation("gameGuest")
+  winnedGames Games[] @relation("gameWinner")
+}
+
+model Conversations {
+  id String @id @default(uuid())
+  messages Messages[]
+  users Users[]
+  room Rooms?
+}
+
+model Messages {
+  id String @id @default(uuid())
+  conversationId String
+  converstion Conversations @relation(fields: [conversationId], references: [id])
+  content String
+}
+
+model Rooms {
+  id String @id @default(uuid())
+  ownerId String
+  owner Users @relation("roomOner",fields: [ownerId], references: [id]) 
+  name String
+  type RoomType @default(PUBLIC)
+  password String?
+  users UsersRooms[] @relation("roomUsers")
+  conversation Conversations @relation(fields: [conversationId], references: [id])
+  conversationId String @unique
+}
+
+model UsersRooms {
+  id String @id @default(uuid())
+  user Users @relation("userRooms", fields: [userId], references: [id])
+  room Rooms @relation("roomUsers", fields: [roomId], references: [id])
+  roomId String
+  userId String
+  role RoomRoles @default(USER)
+}
+
+model Games {
+  id String @id @default(uuid())
+  hostId String
+  guestId String
+  status GameStatus @default(CEATED)
+  winnerId String?
+  host Users @relation("gameHost", fields: [hostId], references: [id])
+  guest Users @relation("gameGuest", fields: [guestId], references: [id])
+  winner Users? @relation("gameWinner", fields: [winnerId], references: [id])
+}
+
+// enums 
+enum RoomType {
+  PRIVATE
+  PROTECTED
+  PUBLIC
+}
+
+enum RoomRoles {
+  USER
+  ADMIN
+  OWNER
+}
+
+enum GameStatus {
+  CEATED
+  STARTED
+  FINISHED
+}
+
