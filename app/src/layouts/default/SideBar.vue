@@ -2,10 +2,14 @@
     <v-navigation-drawer
     class='nav'
     permanent
+    elevation="0"
+    border="0"
     v-model='drawer'
     :rail='rail'
-    @click='rail = !rail'
   >
+    <v-list-item prepend-icon="mdi-dotes" title='close' @click="rail = !rail">
+
+    </v-list-item>
     <v-list v-for='item in items'>
     <v-list-item :prepend-icon='item.icon' :title='item.title' :value='item.value'>
     </v-list-item>

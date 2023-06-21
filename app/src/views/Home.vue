@@ -1,8 +1,16 @@
 <template>
-  <v-card class="ma-4 pa-4" min-height="400">
-    hello from main
-  </v-card>
+    <v-card  class="ma-4 pa-0" rounded="xl" elevation="10"  border="0" backgound="#DA032B">
+      <img  class="ppong-image" alt="main image" src="/images/ppong.gif"/>
+    </v-card>
 </template>
 
 <script lang="ts" setup>
 </script>
+
+<style>
+.ppong-image {
+  width: 100%;
+  margin-top: -350px;
+
+}
+</style>
