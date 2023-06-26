@@ -6,7 +6,6 @@ export const useUserStore = defineStore('user', {
   state:() => ({
     profile: [],
     loading: true,
-    updating: false,
   }),
   getters: {
 
