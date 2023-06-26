@@ -8,6 +8,8 @@ services:
       - ft_network
     volumes:
       - ./api/:/api/
+    ports:
+      - "5555:5555"
   app:
     container_name: app
     build:

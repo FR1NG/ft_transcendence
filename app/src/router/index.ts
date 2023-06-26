@@ -15,9 +15,25 @@ const routes = [
         component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
       },
       {
+        path: '/login',
+        name: 'Login',
+        component: () => import('@/components/LoginComponent.vue')
+      },
+      {
         path: '/test',
         name: 'Test',
-        component: () => import('@/components/TestComponent.vue')
+        component: () => import('@/components/TestComponent.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile.vue'),
+        meta: {
+          auth: true
+        }
       }
     ],
   },
@@ -25,19 +41,26 @@ const routes = [
     path: '/chat',
     name: 'chat',
     component: () => import('@/layouts/chat/Default.vue'),
-    // children: [
-    //   {
-    //     path: '/user',
-    //     name: 'userChat',
-
-    //   }
-    // ]
   }
 ]
+
+
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+})
+
+const hasToken = () => {
+  if(sessionStorage.getItem('access_token'))
+    return true
+  return false;
+}
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.auth && to.name !== 'Login' && !hasToken()) next({ name: 'Login' })
+  else if (hasToken() && to.name === 'Login') next({name: 'Home'})
+  else next()
 })
 
 export default router

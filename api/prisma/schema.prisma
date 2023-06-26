@@ -12,8 +12,9 @@ datasource db {
 
 model Users {
   id String @id @default(uuid())
-  username String
-  email String
+  intra_id Int @unique
+  username String @unique
+  email String @unique
   avatar String?
   conversations Conversations[]
   ownedRooms Rooms[] @relation("roomOner")
