@@ -25,7 +25,7 @@ export const useUserStore = defineStore('user', {
           });
       });
     },
-    async updateProfile(data): Promise<any> {
+    async updateProfile(data: any): Promise<any> {
       this.updating = true;
       return new Promise((resolve, reject) => {
         axios.patch('user', data).then(response => {
