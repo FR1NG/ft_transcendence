@@ -1,64 +1,72 @@
 <template>
   <v-card class="ma-4" :loading="loading" rounded="xl">
     <v-form class="pa-4">
-    <v-avatar size="125" rounded="20">
-      <v-img :src="profile.avatar"></v-img>
-    </v-avatar>
-      <v-text-field class="ma-2" label="Username" variant="outlined" v-model="profile.username"></v-text-field>
-      <v-text-field class="ma-2" label="Email" variant="outlined" v-model="profile.email"></v-text-field>
-    <v-card-actions>
-      <v-btn :disabled="updating" :loading="updating" color="info" variant="outlined" @click="update">Update</v-btn>
-    </v-card-actions>
+      <ProfileAvatar :link="profile.avatar" :update="getProfile" />
+      <v-text-field class="ma-2" label="Username" variant="outlined" v-model="profile.username"
+        :error="errors.username.length !== 0" :messages="errors.username"></v-text-field>
+      <v-text-field class="ma-2" label="Email" variant="outlined" v-model="profile.email"
+        :error="errors.email.length !== 0" :messages="errors.email"
+      ></v-text-field>
+      <v-card-actions>
+        <v-btn :disabled="updating" :loading="updating" color="info" variant="outlined" @click="update">Update</v-btn>
+      </v-card-actions>
     </v-form>
   </v-card>
 </template>
 
-<script>
-import { useUserStore } from '@/store/user.ts'
-import { ref } from 'vue'
-import { reactive } from 'vue'
+<script setup lang="ts">
+import { useUserStore } from '@/store/user'
+import { ref, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
-export default {
+import { resetObject, assignObject } from '@/composables/helpers'
+import ProfileAvatar from '@/components/ProfileAvatar.vue'
 
-  setup() {
-    const userStore = useUserStore();
-    const { loading } = storeToRefs(userStore);
-    const updating = ref(false);
+const userStore = useUserStore();
+const { loading } = storeToRefs(userStore);
+const updating = ref(false);
 
-    let profile = reactive({
-      avatar: "",
-      username: "",
-      email: "",
-    });
+const profile = reactive({
+  avatar: "",
+  username: "",
+  email: "",
+});
 
-    // getting profile
-    userStore.getProfile().then(res => {
-      profile.avatar = res.avatar;
-      profile.username = res.username;
-      profile.email = res.email;
-    });
+const errors = reactive({
+  username: '',
+  email: '',
+});
 
-    // update profile function
-    const update = () => {
-      //userStore.update(data)
-      updating.value = true;
-      const { username, email } = profile;
-      userStore.updateProfile({username, email}).then(response => {
-        console.log(response)
-        updating.value = false;
-      }).catch(error => {
-        updating.value = false;
-          console.log('error')
-          console.log(error)
-        })
-    }
+// getting profile
+const getProfile = async () => {
+  // removing old errors
+  resetObject(errors);
+  try {
+    const data = await userStore.getProfile();
+    profile.avatar = data.avatar;
+    profile.username = data.username;
+    profile.email = data.email;
+  } catch (error) {
+    console.log(error)
+  }
+}
 
-    return {
-      profile,
-      loading,
-      updating,
-      update
-    }
+// getting the profile data
+getProfile();
+
+// update profile function
+const update = async () => {
+  // removing old validation errors
+  resetObject(errors);
+  updating.value = true;
+  const { username, email } = profile;
+  try {
+    const response = await userStore.updateProfile({ username, email })
+    updating.value = false;
+    console.log(response)
+  } catch (error: any) {
+    // assignin valiation errors to errors object
+    assignObject(error.errors, errors);
+    updating.value = false;
   }
 }
 </script>
