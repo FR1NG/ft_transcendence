@@ -1,3 +1,4 @@
+import { resolve } from "path";
 
 export function resetObject(object: any) {
   if(!(object instanceof Object))
@@ -21,4 +22,8 @@ export function assignObject(src: any, dst: any) {
     if(dst.hasOwnProperty(key))
       dst[key] = src[key];
   }
+}
+
+export function timeout(time: number) {
+  return new Promise(resolve => setTimeout(resolve, time));
 }
