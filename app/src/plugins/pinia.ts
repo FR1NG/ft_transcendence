@@ -9,8 +9,8 @@ pinia.use(({store}) => {
 })
 
 pinia.use(({ app }) => {
-  $api_url: import.meta.env.VITE_API_URL
-})
+  $api_url: import.meta.env.vite_api_url;
+});
 
 declare module 'pinia' {
   interface PiniaCostumeProperties {
