@@ -8,7 +8,7 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   intra_base_url: string = "https://api.intra.42.fr"
 
-  constructor(private readonly config: ConfigService, private userService: UserService, private jwtService: JwtService) {}
+  constructor(private config: ConfigService, private userService: UserService, private jwtService: JwtService) {}
 
 
   async login(code: string): Promise<any> {
