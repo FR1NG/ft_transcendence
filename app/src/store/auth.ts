@@ -10,11 +10,6 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     IntraUrl: (state) => state.SIntraUrl,
-    getLogged: (state) => {
-        if (state.logged || sessionStorage.getItem('access_token'))
-          return true;
-        return false
-      },
   },
   actions: {
     async attemptLogin(code: string) {
@@ -49,7 +44,20 @@ export const useAuthStore = defineStore('auth', {
       userStore.getProfile();
     },
     redirect() {
-      this.router.push({ name: 'Test' })
+      this.router.push({ name: 'Home' })
+    },
+    logout() {
+      sessionStorage.removeItem('access_token');
+      this.profile = {}
+      this.logged = false;
+      this.router.push({name: 'Login'})
+    },
+    checkAuth() {
+      if (sessionStorage.getItem('access_token')) {
+        this.logged = true;
+        return true;
+      }
+      return false;
     }
   }
 
