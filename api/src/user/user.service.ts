@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private config: ConfigService) { }
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.prisma.users.create({
@@ -65,5 +66,18 @@ export class UserService {
     }
 
     return profile;
+  }
+
+  async updateAvatar(id: string, fileName: string): Promise<any> {
+    const path = `${this.config.get('CDN_URL')}/users/${fileName}`;
+    const result = await this.prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        avatar: path,
+      },
+    });
+    return { message: 'Avatar has been updated successfully' };
   }
 }
