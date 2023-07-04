@@ -19,9 +19,11 @@ import { useUserStore } from '@/store/user'
 import { ref, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { resetObject, assignObject } from '@/composables/helpers'
+import { useSnackBarStore } from '@/store/snackbar'
 import ProfileAvatar from '@/components/ProfileAvatar.vue'
 
 const userStore = useUserStore();
+const snackBarStore = useSnackBarStore();
 const { loading } = storeToRefs(userStore);
 const updating = ref(false);
 
@@ -42,9 +44,7 @@ const getProfile = async () => {
   resetObject(errors);
   try {
     const data = await userStore.getProfile();
-    profile.avatar = data.avatar;
-    profile.username = data.username;
-    profile.email = data.email;
+    assignObject(data, profile);
   } catch (error) {
     console.log(error)
   }
@@ -62,9 +62,10 @@ const update = async () => {
   try {
     const response = await userStore.updateProfile({ username, email })
     updating.value = false;
-    console.log(response)
+    snackBarStore.notify(response.message || 'Updated')
   } catch (error: any) {
     // assignin valiation errors to errors object
+    snackBarStore.notify(error.message || 'Error')
     assignObject(error.errors, errors);
     updating.value = false;
   }
