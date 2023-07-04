@@ -6,8 +6,8 @@ import {
   Patch,
   Param,
   Delete,
-  Request,
   UseGuards,
+  Request,
   UseInterceptors,
   UploadedFile,
   Req,
@@ -24,6 +24,7 @@ import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
+import { AuthPayload } from './dto/auth-payload';
 
 @Controller('user')
 @UseFilters(ValidationExceptionFilterFilter)
@@ -71,11 +72,10 @@ export class UserController {
   @UseInterceptors(FileInterceptor('avatar', {
     storage: diskStorage({
       destination: './uploads/users',
-      filename: (req, file, cb) => {
-        // Generating a 32 random chars long string
-        const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('')
+      filename: (request , file, cb) => {
+        const user: AuthPayload  = request.user as AuthPayload;
         //Calling the callback passing the random name generated with the original extension name
-        cb(null, `${randomName}${extname(file.originalname)}`);
+        cb(null, `${user.sub}${extname(file.originalname)}`);
       },
     }),
   })
