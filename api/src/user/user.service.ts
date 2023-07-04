@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class UserService {
@@ -33,7 +34,7 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const result = this.prisma.users.update({
+    const result = await this.prisma.users.update({
       where: {
         id,
       },
@@ -42,7 +43,7 @@ export class UserService {
         email: updateUserDto.email,
       },
     });
-    return result;
+    return {message: 'profile updated successfully'};
   }
 
   remove(id: number) {

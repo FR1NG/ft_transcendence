@@ -23,7 +23,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ValidationExceptionFilterFilter } from 'src/validation-exception-filter/validation-exception-filter.filter';
+import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
 
 @Controller('user')
 @UseFilters(ValidationExceptionFilterFilter)
