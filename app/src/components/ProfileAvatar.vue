@@ -17,7 +17,7 @@
       </v-col>
     </v-row>
     <v-row justify="center">
-      <v-form @submit.prevent="handleSubmit">
+      <v-form @submit.prevent="handleSubmit" :disabled="loading">
         <v-dialog v-model="dialog" persistent width="500" backgound="red">
           <v-card>
             <v-card-title>
@@ -35,7 +35,7 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn type="submit" @click="handleSubmit">
+              <v-btn type="submit" @click="handleSubmit" :loading="loading">
                 update
               </v-btn>
             </v-card-actions>
@@ -49,8 +49,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import axios from '@/plugins/axios'
+import { useSnackBarStore } from '@/store/snackbar';
 
+const snackBarStore = useSnackBarStore();
 const dialog = ref(false);
+const loading = ref(false);
 const avatar = ref();
 const transparent = 'rgba(255, 255, 255, 0)';
 
@@ -63,19 +66,26 @@ const props = defineProps({
 });
 
 const handleSubmit = async () => {
+  loading.value = true
   const data = new FormData();
   data.append('avatar', avatar.value[0]);
   try {
     const result = await axios.post('/user/avatar', data);
-    props.update();
     callback(result);
   } catch (error) {
     console.log(error)
+    loading.value = false;
   }
 }
 
-const callback = (data: {}) => {
-  console.log(data)
+const callback = async (response: any) => {
+  loading.value = false;
+  dialog.value = false;
+  await props.update();
+  avatar.value = null;
+  if(response.data.message) {
+    snackBarStore.notify(response.data.message);
+  }
 }
 </script>
 
