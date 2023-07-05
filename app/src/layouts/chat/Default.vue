@@ -6,7 +6,11 @@
  import axios from '@/plugins/axios'
 
  const message = ref('');
-  const socket = io();
+ const socket = io('https://game.hchakoub.codes', {
+   query: {
+     token: sessionStorage.getItem('access_token'),
+   }
+ });
  console.log('trying to connect to socket server')
   socket.emit('connection', 'hello server');
   socket.on('connected', function() {
@@ -20,6 +24,9 @@
     console.log('cant sent empty string');
  }
 
+ socket.on('message', (message) => {
+   console.log(message)
+ })
 
  // for test
 
@@ -104,7 +111,9 @@
       </v-responsive>
     </v-app-bar>
 
-    <v-main><!--  --></v-main>
+    <v-main><!--  -->
+
+    </v-main>
 
     <v-navigation-drawer location="right">
       <v-list>
