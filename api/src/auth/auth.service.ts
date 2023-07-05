@@ -35,6 +35,7 @@ export class AuthService {
     if(user) {
       return user;
     }
+    if (user) return user;
     else {
       const result = await this.userService.create({
         intra_id: data.id,
