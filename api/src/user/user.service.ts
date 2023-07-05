@@ -16,8 +16,16 @@ export class UserService {
     return user;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    const users = await this.prisma.users.findMany({
+      select: {
+        username: true,
+        avatar: true,
+        id: true,
+      }
+    });
+    console.log(users);
+    return users;
   }
 
   findOne(id: number) {
