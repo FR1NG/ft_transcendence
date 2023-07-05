@@ -3,7 +3,7 @@ import axios from '@/plugins/axios'
 
 
 export const useUserStore = defineStore('user', {
-  state:() => ({
+  state: () => ({
     profile: [],
     loading: true,
   }),
@@ -20,19 +20,21 @@ export const useUserStore = defineStore('user', {
           this.loading = false;
           resolve(data)
         }).catch(error => {
-            // do some loginc here to handle errors
-            reject(error?.response?.data);
-          });
+          // do some loginc here to handle errors
+          reject(error?.response?.data);
+        });
       });
     },
     async updateProfile(data: any): Promise<any> {
       this.updating = true;
       return new Promise((resolve, reject) => {
         axios.patch('user', data).then(response => {
-            resolve(response.data)
-          }).catch(error => {
-            reject(error?.response?.data);
-          })
+          resolve(response.data)
+          this.getProfile();
+          console.log(this.profile)
+        }).catch(error => {
+          reject(error?.response?.data);
+        })
       })
     }
   },
