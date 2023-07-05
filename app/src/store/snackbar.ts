@@ -3,8 +3,8 @@ import { timeout } from '@/composables/helpers'
 
 export const useSnackBarStore = defineStore('snack-bar', {
   state: () => ({
-    message: 'hello marhaban',
-    open: true,
+    message: '',
+    open: false,
   }),
   getters:  {
 
