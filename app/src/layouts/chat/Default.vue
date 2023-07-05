@@ -1,3 +1,42 @@
+
+<script lang="ts" setup>
+ import AppBar from '../default/AppBar.vue';
+ import { ref } from 'vue';
+ import { io } from 'socket.io-client';
+ import axios from '@/plugins/axios'
+
+ const message = ref('');
+  const socket = io();
+ console.log('trying to connect to socket server')
+  socket.emit('connection', 'hello server');
+  socket.on('connected', function() {
+    console.log('socket connected');
+   socket.emit('message', 'hi server how are you')
+ })
+ const send = () => {
+   if(message.value.length > 0)
+    socket.emit('message', message.value)
+   else
+    console.log('cant sent empty string');
+ }
+
+
+ // for test
+
+  const users: any = ref([]);
+
+ const fetch = async () => {
+   try {
+   const response: any = await axios.get('/user');
+     console.log(response.data)
+     users.value = response.data;
+   } catch(error) {
+     console.log(error)
+   }
+ }
+ fetch();
+</script>
+
  <template>
   <v-app id="inspire">
      <app-bar></app-bar>
@@ -14,12 +53,16 @@
       <v-divider class="mx-3 my-5"></v-divider>
 
       <v-avatar
-        v-for="n in 6"
-        :key="n"
+        v-for="user in users"
+        :key="user.id"
         class="d-block text-center mx-auto mb-9"
         color="grey-lighten-1"
         size="28"
-      ></v-avatar>
+      >
+        <v-img :src="user.avatar">
+
+        </v-img>
+      </v-avatar>
     </v-navigation-drawer>
 
     <v-navigation-drawer
@@ -85,12 +128,11 @@
         density="compact"
         hide-details
         variant="solo"
+        v-model="message"
       ></v-text-field>
+      <v-btn color="primary" variant="outlined" @click="send">send</v-btn>
     </v-footer>
   </v-app>
 
 </template>
 
-<script lang="ts" setup>
- import AppBar from '../default/AppBar.vue'
-</script>
