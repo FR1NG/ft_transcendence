@@ -22,6 +22,16 @@ model Users {
   hostedGames Games[] @relation("gameHost")
   guestedGames Games[] @relation("gameGuest")
   winnedGames Games[] @relation("gameWinner")
+  friendOf Friends[] @relation("friendOf") 
+  friendWith Friends[] @relation("friends")
+}
+
+model Friends {
+  id String @id @default(uuid())
+  friendOfId String 
+  fiendId String
+  friendOf Users @relation("friendOf", fields: [friendOfId], references: [id])
+  friendWith Users @relation("friends", fields: [fiendId], references: [id])
 }
 
 model Conversations {
