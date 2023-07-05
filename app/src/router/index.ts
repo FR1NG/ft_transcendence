@@ -39,7 +39,7 @@ const routes = [
   },
   {
     path: '/chat',
-    name: 'chat',
+    name: 'Chat',
     component: () => import('@/layouts/chat/Default.vue'),
   }
 ]
