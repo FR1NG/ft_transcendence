@@ -84,8 +84,4 @@ export class AuthService {
       return error
     }
   }
-
-  private getUserFromIntraApi(accessToken: string) {
-
-  }
 }
