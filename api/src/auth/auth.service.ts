@@ -8,7 +8,7 @@ import { UserService } from 'src/user/user.service';
 export class AuthService {
   intra_base_url: string = "https://api.intra.42.fr"
 
-  constructor(private readonly config: ConfigService, private userService: UserService, private jwtService: JwtService) {}
+  constructor(private config: ConfigService, private userService: UserService, private jwtService: JwtService) {}
 
 
   async login(code: string): Promise<any> {
@@ -35,6 +35,7 @@ export class AuthService {
     if(user) {
       return user;
     }
+    if (user) return user;
     else {
       const result = await this.userService.create({
         intra_id: data.id,
@@ -83,9 +84,5 @@ export class AuthService {
       console.error('error here')
       return error
     }
-  }
-
-  private getUserFromIntraApi(accessToken: string) {
-
   }
 }

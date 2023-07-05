@@ -34,6 +34,11 @@
           <v-list-item>
             Settings
           </v-list-item>
+
+          <v-list-item @click="logout">
+            logout
+          </v-list-item>
+
         </v-list>
       </v-card>
     </v-menu>
@@ -41,6 +46,7 @@
 </template>
 <script>
 import { useUserStore } from '@/store/user'
+import { useAuthStore } from '@/store/auth'
 import { computed } from 'vue'
   export default {
     data: () => ({
@@ -50,14 +56,19 @@ import { computed } from 'vue'
       hints: true,
     }),
     setup() {
+
       const userStore = useUserStore();
+      const authStore = useAuthStore();
       const profile = computed({
       get() { return userStore.profile },
       set(value) { userStore.profile = value }
     })
-
+    const logout = () => {
+      authStore.logout();
+    }
       return {
-      profile
+      profile,
+      logout
     }
     }
   }

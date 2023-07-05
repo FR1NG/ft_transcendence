@@ -40,6 +40,7 @@ services:
     volumes:
       - ./nginx/config/:/etc/nginx/conf.d/
       - ./nginx/ssl/:/etc/ssl/
+      - ./api/uploads/:/var/www/cdn/
     ports:
       - "80:80"
       - "443:443"

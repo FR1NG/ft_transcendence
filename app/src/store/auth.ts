@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from '../plugins/axios'
+import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -9,11 +10,6 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     IntraUrl: (state) => state.SIntraUrl,
-    getLogged: () => {
-        if (sessionStorage.getItem('access_token'))
-          return true;
-        return false
-      },
   },
   actions: {
     async attemptLogin(code: string) {
@@ -23,9 +19,10 @@ export const useAuthStore = defineStore('auth', {
         try {
           const res = await axios.post('/auth/login', {
             code
-          })
-          console.log(res);
+          });
           this.setToken(res.data?.access_token);
+          this.logged = true;
+          this.getProfile();
           this.redirect();
         } catch (error) {
           console.error(error)
@@ -42,8 +39,25 @@ export const useAuthStore = defineStore('auth', {
         sessionStorage.removeItem('access_token');
       }
     },
+    getProfile() {
+      const userStore = useUserStore();
+      userStore.getProfile();
+    },
     redirect() {
-      this.router.push({ name: 'Test' })
+      this.router.push({ name: 'Home' })
+    },
+    logout() {
+      sessionStorage.removeItem('access_token');
+      this.profile = {}
+      this.logged = false;
+      this.router.push({name: 'Login'})
+    },
+    checkAuth() {
+      if (sessionStorage.getItem('access_token')) {
+        this.logged = true;
+        return true;
+      }
+      return false;
     }
   }
 

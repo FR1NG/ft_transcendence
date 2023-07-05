@@ -15,7 +15,7 @@ export const useAppStore = defineStore('app', {
       const authStore = useAuthStore();
       const userStore = useUserStore();
 
-      if(authStore.getLogged) {
+      if(authStore.checkAuth()) {
         userStore.getProfile();
       }
     }

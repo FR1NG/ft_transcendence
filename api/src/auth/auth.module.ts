@@ -13,7 +13,7 @@ import { PrismaService } from 'src/prisma.service';
       useFactory: async (configService: ConfigService) => ({
         secretOrPrivateKey: configService.get('APP_KEY'),
         signOptions: {
-          expiresIn: 3600,
+          expiresIn: 360000,
         },
       }),
       inject: [ConfigService]
