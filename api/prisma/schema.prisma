@@ -16,6 +16,7 @@ model Users {
   username String @unique
   email String @unique
   avatar String?
+  isOnline Boolean @default(false)
   conversations Conversations[]
   ownedRooms Rooms[] @relation("roomOner")
   rooms UsersRooms[] @relation("userRooms")
