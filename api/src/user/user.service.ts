@@ -3,7 +3,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client'
 
 @Injectable()
 export class UserService {
@@ -88,5 +87,17 @@ export class UserService {
       },
     });
     return { message: 'Avatar has been updated successfully' };
+  }
+
+  async setOnline(id: string, value: boolean): Promise<any> {
+    const result = await this.prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        isOnline: value,
+      }
+    });
+    return result;
   }
 }
