@@ -6,6 +6,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     profile: [],
     loading: true,
+    user: [],
   }),
   getters: {
 
@@ -25,8 +26,8 @@ export const useUserStore = defineStore('user', {
         });
       });
     },
+    // updating profile
     async updateProfile(data: any): Promise<any> {
-      this.updating = true;
       return new Promise((resolve, reject) => {
         axios.patch('user', data).then(response => {
           resolve(response.data)
@@ -36,6 +37,15 @@ export const useUserStore = defineStore('user', {
           reject(error?.response?.data);
         })
       })
-    }
+    },
+    // get user by username
+    async getUser(username: string): Promise<any> {
+      try {
+          const { data } = await axios.get(`/user/filter/?username=${username}`);
+          this.user = data;
+      } catch(error) {
+        console.log(error)
+      }
+    },
   },
 });
