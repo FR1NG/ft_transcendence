@@ -14,6 +14,7 @@ import {
   InternalServerErrorException,
   UseFilters,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,6 +26,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
 import { AuthPayload } from './dto/auth-payload';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Controller('user')
 @UseFilters(ValidationExceptionFilterFilter)
@@ -49,9 +51,14 @@ export class UserController {
     return await this.userService.getProfile(sub);
   }
 
-  @Get(':id')
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
+  }
+
+  @Get('filter')
+  async findUser(@Query() params: FilterUserDto) {
+    return await this.userService.findUser(params);
   }
 
   @Patch()
