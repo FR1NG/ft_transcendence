@@ -41,6 +41,13 @@ const routes = [
     path: '/chat',
     name: 'Chat',
     component: () => import('@/layouts/chat/Default.vue'),
+    children: [
+      {
+        path: '/dm/:id',
+        name: 'Dm',
+        component: () => import('@/layouts/chat/Default.vue'),
+      }
+    ]
   }
 ]
 
