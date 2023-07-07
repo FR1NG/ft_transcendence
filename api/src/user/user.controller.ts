@@ -57,8 +57,10 @@ export class UserController {
   }
 
   @Get('filter')
-  async findUser(@Query() params: FilterUserDto) {
-    return await this.userService.findUser(params);
+  @UseGuards(AuthGuard)
+  async findUser(@Query() params: FilterUserDto, @Req() request: any) {
+    const { user } = request
+    return await this.userService.findUser(params, user);
   }
 
   @Patch()
@@ -95,5 +97,11 @@ export class UserController {
     if (!file) throw new InternalServerErrorException();
     const { sub } = request.user;
     return await this.userService.updateAvatar(sub, file.filename);
+  }
+
+  // send frind request
+  @Post('friend-request')
+  async sendFrienRequest(@Body('id') id: string) {
+    return await this.userService.sendFriendRequest(id);
   }
 }

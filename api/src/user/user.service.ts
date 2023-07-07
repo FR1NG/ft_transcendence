@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { AuthenticatedUser } from 'src/types';
 
 @Injectable()
 export class UserService {
@@ -33,7 +34,7 @@ export class UserService {
     return 'find uno';
   }
 
-  async findUser(where: {}) {
+  async findUser(where: {}, auth: any) {
     const user = await this.prisma.users.findUnique({
       where,
       select: {
@@ -42,15 +43,30 @@ export class UserService {
         email: true,
         avatar: true,
         isOnline: true,
-        rooms: {
-
+        friendRequestsSent : {
+          where: {
+            recieverId: auth.sub
+          },
+          select: {
+            id: true,
+            status: true
+          }
+        },
+        friendRequestsRecieved: {
+          where: {
+            senderId: auth.sub,
+          },
+          select: {
+            id: true,
+            status: true
+          }
         }
       },
     });
-
+    console.log(user)
+    // TODO change this with the correct error
     if(!user)
       console.log('not found');
-      // throw new HttpException('user not found', HttpStatus.NOT_FOUND);
     return user;
   }
 
@@ -122,5 +138,9 @@ export class UserService {
       }
     });
     return result;
+  }
+
+  async sendFriendRequest(id: string) {
+    // this.UserService.
   }
 }
