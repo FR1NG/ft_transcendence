@@ -11,74 +11,85 @@ datasource db {
 }
 
 model Users {
-  id String @id @default(uuid())
-  intra_id Int @unique
-  username String @unique
-  email String @unique
-  avatar String?
-  isOnline Boolean @default(false)
-  conversations Conversations[]
-  ownedRooms Rooms[] @relation("roomOner")
-  rooms UsersRooms[] @relation("userRooms")
-  hostedGames Games[] @relation("gameHost")
-  guestedGames Games[] @relation("gameGuest")
-  winnedGames Games[] @relation("gameWinner")
-  friendOf Friends[] @relation("friendOf") 
-  friendWith Friends[] @relation("friends")
+  id                     String           @id @default(uuid())
+  intra_id               Int              @unique
+  username               String           @unique
+  email                  String           @unique
+  avatar                 String?
+  isOnline               Boolean          @default(false)
+  conversations          Conversations[]
+  ownedRooms             Rooms[]          @relation("roomOner")
+  rooms                  UsersRooms[]     @relation("userRooms")
+  hostedGames            Games[]          @relation("gameHost")
+  guestedGames           Games[]          @relation("gameGuest")
+  winnedGames            Games[]          @relation("gameWinner")
+  friendOf               Friends[]        @relation("friendOf")
+  friendWith             Friends[]        @relation("friends")
+  friendRequestsSent     FriendRequests[] @relation("sent")
+  friendRequestsRecieved FriendRequests[] @relation("recieved")
+}
+
+model FriendRequests {
+  id         Int                 @id @default(autoincrement())
+  senderId   String
+  recieverId String
+  status     FriendRequestStatus @default(PENDING)
+  sender     Users               @relation("sent", fields: [senderId], references: [id])
+  reciever   Users               @relation("recieved", fields: [recieverId], references: [id])
 }
 
 model Friends {
-  id String @id @default(uuid())
-  friendOfId String 
-  fiendId String
-  friendOf Users @relation("friendOf", fields: [friendOfId], references: [id])
-  friendWith Users @relation("friends", fields: [fiendId], references: [id])
+  id         String @id @default(uuid())
+  friendOfId String
+  friendId   String
+  friendOf   Users  @relation("friendOf", fields: [friendOfId], references: [id])
+  friendWith Users  @relation("friends", fields: [friendId], references: [id])
 }
 
 model Conversations {
-  id String @id @default(uuid())
+  id       String     @id @default(uuid())
   messages Messages[]
-  users Users[]
-  room Rooms?
+  users    Users[]
+  room     Rooms?
 }
 
 model Messages {
-  id String @id @default(uuid())
+  id             String        @id @default(uuid())
   conversationId String
-  converstion Conversations @relation(fields: [conversationId], references: [id])
-  content String
+  converstion    Conversations @relation(fields: [conversationId], references: [id])
+  content        String
 }
 
 model Rooms {
-  id String @id @default(uuid())
-  ownerId String
-  owner Users @relation("roomOner",fields: [ownerId], references: [id]) 
-  name String
-  type RoomType @default(PUBLIC)
-  password String?
-  users UsersRooms[] @relation("roomUsers")
-  conversation Conversations @relation(fields: [conversationId], references: [id])
-  conversationId String @unique
+  id             String        @id @default(uuid())
+  ownerId        String
+  owner          Users         @relation("roomOner", fields: [ownerId], references: [id])
+  name           String
+  type           RoomType      @default(PUBLIC)
+  password       String?
+  users          UsersRooms[]  @relation("roomUsers")
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  conversationId String        @unique
 }
 
 model UsersRooms {
-  id String @id @default(uuid())
-  user Users @relation("userRooms", fields: [userId], references: [id])
-  room Rooms @relation("roomUsers", fields: [roomId], references: [id])
+  id     String    @id @default(uuid())
+  user   Users     @relation("userRooms", fields: [userId], references: [id])
+  room   Rooms     @relation("roomUsers", fields: [roomId], references: [id])
   roomId String
   userId String
-  role RoomRoles @default(USER)
+  role   RoomRoles @default(USER)
 }
 
 model Games {
-  id String @id @default(uuid())
-  hostId String
-  guestId String
-  status GameStatus @default(CEATED)
+  id       String     @id @default(uuid())
+  hostId   String
+  guestId  String
+  status   GameStatus @default(CEATED)
   winnerId String?
-  host Users @relation("gameHost", fields: [hostId], references: [id])
-  guest Users @relation("gameGuest", fields: [guestId], references: [id])
-  winner Users? @relation("gameWinner", fields: [winnerId], references: [id])
+  host     Users      @relation("gameHost", fields: [hostId], references: [id])
+  guest    Users      @relation("gameGuest", fields: [guestId], references: [id])
+  winner   Users?     @relation("gameWinner", fields: [winnerId], references: [id])
 }
 
 // enums 
@@ -100,3 +111,8 @@ enum GameStatus {
   FINISHED
 }
 
+enum FriendRequestStatus {
+  PENDING
+  REGECTED
+  CONFIRMED
+}
