@@ -2,14 +2,43 @@
 import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { reactive } from 'vue'
 
 const userStore = useUserStore();
 const route = useRoute()
-const { user } = storeToRefs(userStore);
+const data = reactive({
+  sending: false
+});
+
+const { user, getRequstStatus } = storeToRefs(userStore);
 
 const username = route.params.username;
 if (username) {
-  userStore.getUser(username)
+   userStore.getUser(username)
+  // console.log(user)
+}
+
+// sending frien request function
+const sendFrienRequest = async userId => {
+  try {
+    data.sending = true;
+    const resutl =  await userStore.sendFriendRequest(userId);
+    data.sending = false;
+    console.log('frien request has been sent');
+  } catch (error) {
+    console.log('error sending friend request');
+    console.log(error)
+  }
+}
+
+// cancel frien request function
+const cancelFriendRequest = async requestId => {
+  try {
+    const result = await userStore.cancelFriendRequest(requestId);
+    console.log('success')
+  } catch (error) {
+    console.log('error here')
+  }
 }
 
 </script>
@@ -18,7 +47,7 @@ if (username) {
   <v-card flat min-height='800' class="ma-4">
 
     <v-row no-gutters>
-      <v-col cols="12" md="3">
+      <v-col cols="12" md="4">
         <v-card class='ma-2 pb-8' rounded='xl' min-height="800">
           <!-- user profile here -->
           <v-img cover height="200" src='https://cdn.intra.42.fr/coalition/cover/78/Freax_BG.jpg'>
@@ -41,9 +70,15 @@ if (username) {
               <v-card-subtitle>{{ user.email }}</v-card-subtitle>
             </v-card-item>
             <div class="pa-4 d-flex align-center">
+              <v-btn v-if="getRequstStatus === 'sent'" class="me-2 text-none" :loading="data.sending"  @click="cancelFriendRequest(user.friendRequestsRecieved[0].id)" color="primary" prepend-icon="mdi-plus" variant="flat">
+                cancel request
+              </v-btn>
 
+              <v-btn v-else-if="getRequstStatus === 'recieved'" class="me-2 text-none" :loading="data.sending"  color="primary" prepend-icon="mdi-plus" variant="flat">
+                confirm
+              </v-btn>
 
-              <v-btn class="me-2 text-none" color="primary" prepend-icon="mdi-plus" variant="flat">
+              <v-btn v-else  class="me-2 text-none" :loading="data.sending" @click="sendFrienRequest(user.id)" color="primary" prepend-icon="mdi-plus" variant="flat">
                 add friend
               </v-btn>
 
