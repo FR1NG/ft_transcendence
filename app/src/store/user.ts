@@ -7,17 +7,31 @@ export const useUserStore = defineStore('user', {
     profile: [],
     loading: true,
     user:{
-      friendRequestsSent: [{}],
-      friendRequestsRecieved: [{}]
+      friendRequestsSent: [{
+        id: 0,
+        status: ''
+      }],
+      friendRequestsRecieved: [{
+        id: 0,
+        status : ''
+      }]
     },
     requestStatus: ''
   }),
   getters: {
     getRequstStatus: state => {
-      if(state.user.friendRequestsSent?.length > 0)
-        return 'recieved';
-      else if(state.user.friendRequestsRecieved?.length > 0)
-        return 'sent';
+      if(state.user.friendRequestsSent?.length > 0) {
+        if(state.user.friendRequestsSent[0].status === "PENDING")
+          return 'recieved';
+        else
+          return 'friends'
+      }
+      else if(state.user.friendRequestsRecieved?.length > 0) {
+        if(state.user.friendRequestsRecieved[0].status === "PENDING")
+          return 'sent';
+        else
+          return 'friends'
+      }
       else
         return 'none';
     }
@@ -94,6 +108,21 @@ export const useUserStore = defineStore('user', {
           reject(error)
         }
       })
+    },
+
+  // confirm friend request
+  confirmFriendRequest(id: number): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { data } = await axios.post('/friend/confirm', {
+          id,
+        });
+        resolve(data);
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
+    })
     }
   },
 });

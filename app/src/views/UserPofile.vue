@@ -41,6 +41,16 @@ const cancelFriendRequest = async requestId => {
   }
 }
 
+// confirm friend requst
+const confirmFriendRequest = async requestId => {
+  try {
+    const result = await userStore.confirmFriendRequest(requestId);
+    console.log('success')
+  } catch (error) {
+    console.log('error here')
+  }
+}
+
 </script>
 
 <template>
@@ -70,11 +80,16 @@ const cancelFriendRequest = async requestId => {
               <v-card-subtitle>{{ user.email }}</v-card-subtitle>
             </v-card-item>
             <div class="pa-4 d-flex align-center">
-              <v-btn v-if="getRequstStatus === 'sent'" class="me-2 text-none" :loading="data.sending"  @click="cancelFriendRequest(user.friendRequestsRecieved[0].id)" color="primary" prepend-icon="mdi-plus" variant="flat">
+
+              <v-btn v-if="getRequstStatus === 'friends'" class="me-2 text-none" color="secondary" prepend-icon="mdi-plus" variant="outlined">
+                unfriend
+              </v-btn>
+
+              <v-btn v-else-if="getRequstStatus === 'sent'" class="me-2 text-none" :loading="data.sending"  @click="cancelFriendRequest(user.friendRequestsRecieved[0].id)" color="primary" prepend-icon="mdi-plus" variant="flat">
                 cancel request
               </v-btn>
 
-              <v-btn v-else-if="getRequstStatus === 'recieved'" class="me-2 text-none" :loading="data.sending"  color="primary" prepend-icon="mdi-plus" variant="flat">
+              <v-btn v-else-if="getRequstStatus === 'recieved'" class="me-2 text-none" :loading="data.sending" @click="confirmFriendRequest(user.friendRequestsSent[0].id)"  color="primary" prepend-icon="mdi-plus" variant="flat">
                 confirm
               </v-btn>
 
