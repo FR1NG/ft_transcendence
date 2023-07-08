@@ -13,6 +13,13 @@ export class FriendController {
     return await this.friendService.sendFrienRequest(authUserId, requestedId);
   }
 
+  @Post('confirm')
+  @UseGuards(AuthGuard)
+  async confirmFriendRequest(@Req() request: any, @Body('id') requestId: number) {
+    const { user } = request;
+    return await this.friendService.confirmFriendRequest(user, requestId);
+  }
+
   @Delete()
   @UseGuards(AuthGuard)
   async cancelRequest(@Body('id') requestId: number , @Req() request: any) {
