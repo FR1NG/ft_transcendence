@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -51,6 +51,15 @@ const confirmFriendRequest = async requestId => {
   }
 }
 
+// watching the username change on route parame to refetch data
+watch(
+  () => route.params.username, async newUsername => {
+    console.log(newUsername)
+    userStore.getUser(newUsername)
+  },{
+  immediate: true
+  }
+)
 </script>
 
 <template>
