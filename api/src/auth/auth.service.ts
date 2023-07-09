@@ -1,8 +1,9 @@
-import { HttpException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { UserService } from 'src/user/user.service';
+import { AuthGuard } from './jwt.guard';
 
 @Injectable()
 export class AuthService {
@@ -84,5 +85,24 @@ export class AuthService {
       console.error('error here')
       return error
     }
+  }
+
+
+  // for test only should be removed
+  @UseGuards(AuthGuard)
+  async getFakeToken(@Req() req: any) {
+    const { auth } = req;
+    const user = await this.userService.findUser({username: 'ytaya'}, auth);
+    console.log(user)
+    if(!user)
+      throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+      const payload = {
+        username: user.username,
+        sub: user.id
+      }
+      const token = await this.jwtService.signAsync(payload);
+      return {
+        access_token: token
+      };
   }
 }

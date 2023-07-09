@@ -100,8 +100,14 @@ export class UserController {
   }
 
   // send frind request
-  @Post('friend-request')
-  async sendFrienRequest(@Body('id') id: string) {
-    return await this.userService.sendFriendRequest(id);
+  // @Post('friend-request')
+  // async sendFrienRequest(@Body('id') id: string) {
+  //   return await this.userService.sendFriendRequest(id);
+  // }
+
+  // search for users
+  @Get('search/:pattern')
+  async seartchUser(@Param('pattern') pattern: string) {
+    return await this.userService.searchUser(pattern);
   }
 }

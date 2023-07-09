@@ -140,7 +140,18 @@ export class UserService {
     return result;
   }
 
-  async sendFriendRequest(id: string) {
-    // this.UserService.
+  // search for a user
+  async searchUser(pattern: string): Promise<any> {
+    console.log(pattern);
+    const users = await this.prisma.users.findMany({
+      where: {
+        username: {
+          contains: pattern
+        }
+      }
+    });
+    console.log(users)
+
+    return users;
   }
 }
