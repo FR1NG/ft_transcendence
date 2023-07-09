@@ -1,0 +1,14 @@
+FROM node:20.3-alpine as build
+
+WORKDIR /back
+COPY ./package.json .
+RUN npm install --silent
+COPY ./ .
+RUN  npx prisma generate
+RUN  npm run build
+COPY ./build-tools/entry.sh /usr/bin/entry
+RUN cmod +x /usr/bin/entry
+
+ENTRYPOINT [ "entry" ]
+
+CMD [ "node", "./dist/main.js" ]
