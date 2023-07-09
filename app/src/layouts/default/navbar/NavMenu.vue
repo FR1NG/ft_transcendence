@@ -44,7 +44,7 @@
     </v-menu>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { useUserStore } from '@/store/user'
 import { useAuthStore } from '@/store/auth'
 import { computed } from 'vue'

@@ -14,6 +14,7 @@ import {
   InternalServerErrorException,
   UseFilters,
   HttpException,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -25,6 +26,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
 import { AuthPayload } from './dto/auth-payload';
+import { FilterUserDto } from './dto/filter-user.dto';
 
 @Controller('user')
 @UseFilters(ValidationExceptionFilterFilter)
@@ -49,9 +51,16 @@ export class UserController {
     return await this.userService.getProfile(sub);
   }
 
-  @Get(':id')
+  @Get('find/:id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
+  }
+
+  @Get('filter')
+  @UseGuards(AuthGuard)
+  async findUser(@Query() params: FilterUserDto, @Req() request: any) {
+    const { user } = request
+    return await this.userService.findUser(params, user);
   }
 
   @Patch()
@@ -88,5 +97,17 @@ export class UserController {
     if (!file) throw new InternalServerErrorException();
     const { sub } = request.user;
     return await this.userService.updateAvatar(sub, file.filename);
+  }
+
+  // send frind request
+  // @Post('friend-request')
+  // async sendFrienRequest(@Body('id') id: string) {
+  //   return await this.userService.sendFriendRequest(id);
+  // }
+
+  // search for users
+  @Get('search/:pattern')
+  async seartchUser(@Param('pattern') pattern: string) {
+    return await this.userService.searchUser(pattern);
   }
 }

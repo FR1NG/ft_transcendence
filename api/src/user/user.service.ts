@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { AuthenticatedUser } from 'src/types';
 
 @Injectable()
 export class UserService {
@@ -30,6 +32,42 @@ export class UserService {
 
   findOne(id: number) {
     return 'find uno';
+  }
+
+  async findUser(where: {}, auth: any) {
+    const user = await this.prisma.users.findUnique({
+      where,
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+        isOnline: true,
+        friendRequestsSent : {
+          where: {
+            recieverId: auth.sub
+          },
+          select: {
+            id: true,
+            status: true
+          }
+        },
+        friendRequestsRecieved: {
+          where: {
+            senderId: auth.sub,
+          },
+          select: {
+            id: true,
+            status: true
+          }
+        }
+      },
+    });
+    console.log(user)
+    // TODO change this with the correct error
+    if(!user)
+      console.log('not found');
+    return user;
   }
 
   async findUserById(id: number) {
@@ -100,5 +138,20 @@ export class UserService {
       }
     });
     return result;
+  }
+
+  // search for a user
+  async searchUser(pattern: string): Promise<any> {
+    console.log(pattern);
+    const users = await this.prisma.users.findMany({
+      where: {
+        username: {
+          contains: pattern
+        }
+      }
+    });
+    console.log(users)
+
+    return users;
   }
 }

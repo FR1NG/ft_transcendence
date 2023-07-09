@@ -13,9 +13,8 @@ export class AuthController {
     return await this.authService.login(code);
   }
 
-  @Get('/test')
-  @UseGuards(AuthGuard)
-  testAuth(){
-    return "success";
-  }
+  // @Get('/faketoken')
+  // async getTestToken() {
+  //   return await this.authService.getFakeToken();
+  // }
 }

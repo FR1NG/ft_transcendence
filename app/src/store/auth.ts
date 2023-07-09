@@ -33,7 +33,6 @@ export const useAuthStore = defineStore('auth', {
       if (token) {
         sessionStorage.setItem('access_token', token);
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-        this.loading = true;
       } else {
         this.logged = false;
         sessionStorage.removeItem('access_token');
