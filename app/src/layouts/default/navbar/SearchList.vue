@@ -6,7 +6,7 @@ import {useUserStore } from '@/store/user'
 import { reactive } from 'vue'
 
 const userStore = useUserStore();
-const { searchedUsers, isUserSerched } = storeToRefs(userStore);
+const { searchedUsers: User[], isUserSerched: Boolean } = storeToRefs(userStore);
 
 const data = reactive({
   loaded : false,

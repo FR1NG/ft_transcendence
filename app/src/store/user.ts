@@ -17,7 +17,9 @@ export const useUserStore = defineStore('user', {
       }]
     },
     requestStatus: '',
-    searchedUsers: []
+    searchedUsers: [],
+    search: '',
+    searchLoader: false,
   }),
   getters: {
     getRequstStatus: state => {
@@ -37,7 +39,7 @@ export const useUserStore = defineStore('user', {
         return 'none';
     },
     isUserSerched: state => {
-      return state.searchedUsers.length > 0;
+      return state.search.length != 0;
     }
   },
   actions: {
@@ -130,24 +132,16 @@ export const useUserStore = defineStore('user', {
     },
 
     // search a user
-    searchUsers(pattern: string): Promise<any> {
-      if(pattern === "") {
-        return new Promise((resolve, reject) => {
-          this.searchedUsers = [];
-          reject('empty value')});
-      }
-      return new Promise(async (resolve, reject) => {
-        console.log(pattern)
+    async searchUsers(pattern: string): Promise<any> {
         try {
+          this.searchLoader = true;
           const { data } = await axios.get(`/user/search/${pattern}`);
           this.searchedUsers = data;
-          console.log(data)
-          resolve(data);
+          this.searchLoader = false;
         } catch (error) {
+          this.searchLoader = false;
           console.log(error)
-          reject(error);
         }
-      })
     },
 
     //
