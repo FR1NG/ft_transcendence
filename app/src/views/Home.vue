@@ -1,6 +1,6 @@
 <template>
-    <v-card  class="ma-4 pa-0" rounded="xl" elevation="10"  border="0" backgound="#DA032B">
-      <img  class="ppong-image" alt="main image" src="/images/ppong.gif"/>
+    <v-card min-height="400"  class="ma-4 pa-0" rounded="xl" elevation="10"  border="0" backgound="#DA032B">
+      <!-- <img  class="ppong-image" alt="main image" src="/images/ppong.gif"/> -->
     </v-card>
 </template>
 
