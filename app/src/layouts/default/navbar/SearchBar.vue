@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import { reactive, defineProps, computed } from 'vue';
-  import { useUserStore } from '@/store/user'
-  import { storeToRefs } from 'pinia';
+  import { useSearchStore } from '@/store/search';
+  import { onBeforeRouteLeave } from 'vue-router'
 
-  const userStore = useUserStore();
+  const searchStore = useSearchStore();
 
   const props = defineProps({
     binds: {}
@@ -12,10 +12,10 @@
   const search = computed({
     // getter
     get() {
-      return userStore.search;
+      return searchStore.search;
     },
     set(value) {
-      userStore.search = value;
+      searchStore.search = value;
 
     }
   });
@@ -23,10 +23,10 @@
   const loader = computed({
     // getter
     get() {
-      return userStore.searchLoader;
+      return searchStore.searchLoader;
     },
     set(value) {
-      userStore.searchLoader = value;
+      searchStore.searchLoader = value;
 
     }
   });
@@ -43,15 +43,21 @@
   }
 
   const handleSearch = () => {
-    userStore.searchUsers(search.value);
+    searchStore.searchUsers(search.value);
   }
 
   const handlekeyUp = () => {
-    userStore.clearSearch()
+    searchStore.clearSearch()
     loader.value = true
     clearTimeout();
     setTimeout();
   }
+
+  // before changing the route event
+  onBeforeRouteLeave(() => {
+    searchStore.clearSearch();
+    search.value = '';
+  })
 
 </script>
 

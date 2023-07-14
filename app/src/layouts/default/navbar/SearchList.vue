@@ -2,17 +2,21 @@
 <script setup lang="ts">
 import SearchBar from './SearchBar.vue'
 import { storeToRefs } from 'pinia';
-import {useUserStore } from '@/store/user'
+import { useSearchStore } from '@/store/search'
 import { reactive } from 'vue'
 
-const userStore = useUserStore();
-const { searchedUsers, isUserSerched, searchLoader } = storeToRefs(userStore);
+const searchStore = useSearchStore();
+const { searchedUsers, isUserSerched, searchLoader } = storeToRefs(searchStore);
 
 const data = reactive({
   loaded : false,
   menu: true,
 })
+
+
 </script>
+
+
 
 <template>
   <div class="text-center">
