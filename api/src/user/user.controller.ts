@@ -99,15 +99,11 @@ export class UserController {
     return await this.userService.updateAvatar(sub, file.filename);
   }
 
-  // send frind request
-  // @Post('friend-request')
-  // async sendFrienRequest(@Body('id') id: string) {
-  //   return await this.userService.sendFriendRequest(id);
-  // }
-
   // search for users
   @Get('search/:pattern')
-  async seartchUser(@Param('pattern') pattern: string) {
-    return await this.userService.searchUser(pattern);
+  @UseGuards(AuthGuard)
+  async seartchUser(@Param('pattern') pattern: string, @Req() request) {
+    const { user } = request; 
+    return await this.userService.searchUser(pattern, user);
   }
 }
