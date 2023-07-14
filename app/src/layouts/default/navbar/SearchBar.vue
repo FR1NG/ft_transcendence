@@ -1,17 +1,37 @@
 <script setup lang="ts">
-  import { reactive, defineProps } from 'vue';
+  import { reactive, defineProps, computed } from 'vue';
   import { useUserStore } from '@/store/user'
+  import { storeToRefs } from 'pinia';
 
   const userStore = useUserStore();
 
   const props = defineProps({
     binds: {}
   });
-  const data = reactive({
-    search: ''
-  })
 
-  let timeoutval;
+  const search = computed({
+    // getter
+    get() {
+      return userStore.search;
+    },
+    set(value) {
+      userStore.search = value;
+
+    }
+  });
+
+  const loader = computed({
+    // getter
+    get() {
+      return userStore.searchLoader;
+    },
+    set(value) {
+      userStore.searchLoader = value;
+
+    }
+  });
+  // const { search } = storeToRefs(userStore);
+  let timeoutval: any;
   const setTimeout = () => {
     timeoutval = window.setTimeout(() => {
       handleSearch()
@@ -23,10 +43,12 @@
   }
 
   const handleSearch = () => {
-    userStore.searchUsers(data.search);
+    userStore.searchUsers(search.value);
   }
 
   const handlekeyUp = () => {
+    userStore.clearSearch()
+    loader.value = true
     clearTimeout();
     setTimeout();
   }
@@ -44,7 +66,7 @@
         hide-details
         flat
         v-bind="binds"
-        v-model="data.search"
+        v-model="search"
         @click:append-inner="handleSearch"
         @keyup="handlekeyUp"
       ></v-text-field>

@@ -89,10 +89,8 @@ export class AuthService {
 
 
   // for test only should be removed
-  @UseGuards(AuthGuard)
-  async getFakeToken(@Req() req: any) {
-    const { auth } = req;
-    const user = await this.userService.findUser({username: 'ytaya'}, auth);
+  async getFakeToken(auth) {
+    const user = await this.userService.findUser({username: 'tester'}, auth);
     console.log(user)
     if(!user)
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);

@@ -10,7 +10,8 @@ services:
       - ./api/:/api/
     ports:
       - "5555:5555"
-  app:
+    env_file: .env
+  application:
     container_name: app
     build:
       context: ./app/
@@ -18,6 +19,9 @@ services:
       - ft_network
     volumes:
       - ./app/:/app/
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_INTRA_LOGIN_URL=${VITE_INTRA_LOGIN_URL}
   db:
     image: postgres:15.3
     environment:

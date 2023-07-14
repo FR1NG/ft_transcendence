@@ -34,7 +34,7 @@ export class UserService {
     return 'find uno';
   }
 
-  async findUser(where: {}, auth: any) {
+  async findUser(where, auth: any) {
     const user = await this.prisma.users.findUnique({
       where,
       select: {
@@ -141,17 +141,22 @@ export class UserService {
   }
 
   // search for a user
-  async searchUser(pattern: string): Promise<any> {
+  async searchUser(pattern: string, auth: AuthenticatedUser): Promise<any> {
     console.log(pattern);
     const users = await this.prisma.users.findMany({
       where: {
         username: {
           contains: pattern
-        }
+        },
+      NOT: {
+        id: auth?.sub
       }
+      },
     });
     console.log(users)
 
     return users;
   }
+
+
 }
