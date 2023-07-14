@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { reactive, defineProps } from 'vue';
+  import { reactive, defineProps, computed } from 'vue';
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia';
 
@@ -9,7 +9,28 @@
     binds: {}
   });
 
-  const { search } = storeToRefs(userStore);
+  const search = computed({
+    // getter
+    get() {
+      return userStore.search;
+    },
+    set(value) {
+      userStore.search = value;
+
+    }
+  });
+
+  const loader = computed({
+    // getter
+    get() {
+      return userStore.searchLoader;
+    },
+    set(value) {
+      userStore.searchLoader = value;
+
+    }
+  });
+  // const { search } = storeToRefs(userStore);
   let timeoutval: any;
   const setTimeout = () => {
     timeoutval = window.setTimeout(() => {
@@ -26,6 +47,8 @@
   }
 
   const handlekeyUp = () => {
+    userStore.clearSearch()
+    loader.value = true
     clearTimeout();
     setTimeout();
   }

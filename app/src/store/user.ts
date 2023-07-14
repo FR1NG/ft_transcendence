@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', {
     searchedUsers: [],
     search: '',
     searchLoader: false,
+    searchTyping: false,
   }),
   getters: {
     getRequstStatus: state => {
@@ -144,8 +145,9 @@ export const useUserStore = defineStore('user', {
         }
     },
 
-    //
-
-
+    // clear the list of searched users
+    clearSearch() {
+      this.searchedUsers = []
+    }
   },
 });
