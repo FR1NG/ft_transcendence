@@ -16,11 +16,6 @@ export const useUserStore = defineStore('user', {
         status : ''
       }]
     },
-    requestStatus: '',
-    searchedUsers: [],
-    search: '',
-    searchLoader: false,
-    searchTyping: false,
   }),
   getters: {
     getRequstStatus: state => {
@@ -39,9 +34,6 @@ export const useUserStore = defineStore('user', {
       else
         return 'none';
     },
-    isUserSerched: state => {
-      return state.search.length != 0;
-    }
   },
   actions: {
     async getProfile(): Promise<any> {
@@ -132,22 +124,5 @@ export const useUserStore = defineStore('user', {
     })
     },
 
-    // search a user
-    async searchUsers(pattern: string): Promise<any> {
-        try {
-          this.searchLoader = true;
-          const { data } = await axios.get(`/user/search/${pattern}`);
-          this.searchedUsers = data;
-          this.searchLoader = false;
-        } catch (error) {
-          this.searchLoader = false;
-          console.log(error)
-        }
-    },
-
-    // clear the list of searched users
-    clearSearch() {
-      this.searchedUsers = []
-    }
   },
 });
