@@ -10,16 +10,17 @@ export class ChatService {
 
     const  {  sub:  createorId } = auth;
     const  {  recieverId:  engagerId, content } = payload;
+    let message = {};
 
     let dmConversation: any = await this.getDmConversation(auth.sub, payload.recieverId);
     if(!dmConversation)
-      dmConversation = await this.createDmConversation(createorId, engagerId, content);
+      message = await this.createDmConversation(createorId, engagerId, content);
     else {
       const { id: conversationId } = dmConversation;
       const { content } = payload;
-      this.createMessage(conversationId, createorId, content);
+      message = await this.createMessage(conversationId, createorId, content);
     }
-    return dmConversation;
+    return message;
   }
 
   private async getDmConversation(createorId: string, engagerId: string) {
@@ -59,25 +60,34 @@ export class ChatService {
         conversation: {
           create: {
             messages: {
-              create: [
-                { 
-                  content: messageContent,
-                  sender: {
-                    connect: {
-                      id: createorId
-                    }
+              create: {
+                content: messageContent,
+                sender: {
+                  connect: {
+                    id: createorId
                   }
                 }
-              ]
+              }
+              
             }
-          }
+          },
         }
       },
-      select: {
-        conversation: true,
+      include: {
+        conversation: {
+          select: {
+            messages: {
+              select: {
+                id: true,
+                senderId: true,
+                content: true
+              }
+            }
+          }
+        },
       }
     });
-    return conversation?.conversation;
+    return conversation?.conversation?.messages[0];
   }
 
   // method to add a message to already existing conversation
@@ -96,6 +106,11 @@ export class ChatService {
           }
         }
       },
+      select: {
+        id: true,
+        senderId: true,
+        content: true
+      }
     });
     return message;
   }
@@ -128,7 +143,7 @@ export class ChatService {
     const filtredMessages = [];
     conversation?.conversation?.messages?.forEach(message => {
       let type: string;
-      const {id, senderId, content } = message
+      const {id, content } = message
       if (message.senderId === authUser.sub)
         type = 'sent';
       else
@@ -139,7 +154,10 @@ export class ChatService {
         type
       })
     })
-    return filtredMessages;
+    return {
+      userId,
+      messages: filtredMessages
+    };
   }
 
 
