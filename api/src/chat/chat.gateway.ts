@@ -22,14 +22,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.clients.set(payload.sub, client);
   }
 
-
-  test(sockets) {
-    for(const socket of sockets) {
-      console.log(socket)
-    }
-  }
-
-
   async handleDisconnect(client: any) {
     const payload = await this.getUser(client);
     if(payload?.sub)
@@ -39,17 +31,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('message')
   @UseGuards(WsAuthGuard)
   async handleMessage(client: any, payload: MessagePaylod): Promise<any> {
-    // client.emit('message', 'hello mohfuckeh client');
-    // console.log(payload)
-    // return '';
+    const { user } = client;
     if(payload.type === 'dm') {
-      const conversation = await this.chatService.createDm(payload, client.user);
+      const message = await this.chatService.createDm(payload, user);
       const clientReciever = this.clients.get(payload.recieverId);
-      if(clientReciever)
-        clientReciever.emit('message', payload.content);
-      return conversation;
+      if(clientReciever) {
+        clientReciever.emit('message', message);
+      }
     }
-    return 'not emplimented';
   }
 
   @SubscribeMessage('connection')
