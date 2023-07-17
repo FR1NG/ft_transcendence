@@ -26,7 +26,6 @@ export class UserService {
         isOnline: true,
       }
     });
-    console.log(users);
     return users;
   }
 
@@ -63,7 +62,6 @@ export class UserService {
         }
       },
     });
-    console.log(user)
     // TODO change this with the correct error
     if(!user)
       console.log('not found');
@@ -142,18 +140,17 @@ export class UserService {
 
   // search for a user
   async searchUser(pattern: string, auth: AuthenticatedUser): Promise<any> {
-    console.log(pattern);
     const users = await this.prisma.users.findMany({
       where: {
         username: {
-          contains: pattern
+          contains: pattern,
+          mode: 'insensitive'
         },
       NOT: {
         id: auth?.sub
       }
       },
     });
-    console.log(users)
 
     return users;
   }
