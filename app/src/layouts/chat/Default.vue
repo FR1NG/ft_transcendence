@@ -7,22 +7,25 @@ import axios from '@/plugins/axios'
 import OContainer from './parcials/OContainer.vue'
 import type { Message } from '@/types/chat';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { useChatStore } from '@/store/chat'
+import { storeToRefs } from 'pinia';
 
 const message = ref('');
-const route = useRoute()
+const route = useRoute();
+const chatStore = useChatStore();
+const { activeConversation: messages  } = storeToRefs(chatStore);
 
-
-const messages = ref<Message[]>(
-  [
-    { type: 'sent', content: 'hello my friend' },
-    { type: 'recieved', content: 'hi how are you' },
-    { type: 'sent', content: 'im doing great' },
-    { type: 'sent', content: 'how about you' },
-    { type: 'recieved', content: 'me too' },
-    { type: 'sent', content: 'thats great' },
-    { type: 'recieved', content: 'thank you' },
-  ]
-)
+// const messages = ref<Message[]>(
+//   [
+//     { type: 'sent', content: 'hello my friend' },
+//     { type: 'recieved', content: 'hi how are you' },
+//     { type: 'sent', content: 'im doing great' },
+//     { type: 'sent', content: 'how about you' },
+//     { type: 'recieved', content: 'me too' },
+//     { type: 'sent', content: 'thats great' },
+//     { type: 'recieved', content: 'thank you' },
+//   ]
+// )
 
 
 
@@ -43,25 +46,35 @@ socket.on('connected', function () {
 })
 const send = () => {
   if (message.value.length > 0) {
-    const recieverId = route.params.id
+    const recieverId: string = route.params.id as string;
     socket.emit('message', {content: message.value, recieverId, type: 'dm'})
-    messages.value.push({
+    // messages.value.push({
+    //   content: message.value,
+    //   type: 'sent',
+    //   // loading: true
+    // })
+    // TODO should listen for an event to give the feedback of the message and get the id from it
+    const sentMessage: Message = {
       content: message.value,
       type: 'sent',
-      // loading: true
-    })
+      id: 'somerandomid'
+    }
+
+    chatStore.addMessageToConversation(sentMessage, recieverId);
     message.value = '';
   }
 }
 
-socket.on('message', (message: string) => {
-  const dm: Message = {
-    type: 'recieved',
-    content: message ,
+// TODO add a type to the data
+socket.on('message', (data: any) => {
+  console.log(data)
+  const {id, content, senderId } = data;
+  const message : Message = {
+    id,
+    content,
+    type: 'recieved'
   };
-
-  messages.value.push(dm);
-
+  chatStore.addMessageToConversation(message, senderId);
 })
 
 // for test
@@ -71,7 +84,6 @@ const onlineUsers: any = ref([]);
 const fetch = async () => {
   try {
     const response: any = await axios.get('/user');
-    console.log(response.data)
     users.value = response.data;
   } catch (error) {
     console.log(error)
@@ -88,16 +100,7 @@ const getOnlineUsers = async () => {
 }
 
 const getUsersConversation = async (id: string) => {
-  if(!id)
-    return;
-  try {
-    console.log(`this is the id: ${id}`)
-    const { data } = await axios.get(`/chat/user-conversation/${id}`);
-    messages.value = data;
-  }catch (error) {
-    console.log('error whene getting messages');
-    console.log(error)
-  }
+  chatStore.getUsersConversation(id);
 }
 
 getUsersConversation(route.params.id as string);
