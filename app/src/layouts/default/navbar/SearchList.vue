@@ -8,6 +8,13 @@ import { reactive } from 'vue'
 const searchStore = useSearchStore();
 const { searchedUsers, isUserSerched, searchLoader } = storeToRefs(searchStore);
 
+type SearchedUser =  {
+  id: string
+  username: string
+  avatar: string
+  email: string
+}
+
 const data = reactive({
   loaded : false,
   menu: true,
@@ -33,7 +40,7 @@ const data = reactive({
       <v-card min-width="300" min-height="70" :loading="searchLoader">
         <v-list v-if="searchedUsers.length > 0">
           <v-list-item
-            v-for="user in searchedUsers"
+            v-for="user in searchedUsers as SearchedUser[]"
             :key="user.id"
             :prepend-avatar="user.avatar"
             :title="user.username"
