@@ -94,4 +94,34 @@ export class FriendService {
     });
     return requests;
   }
+
+  // getting online friends
+  async getOnlineFriends(auth: AuthenticatedUser) {
+    const friends = await this.prisma.users.findFirst({
+      where: {
+        id: auth.sub
+      },
+      select: {
+        friendOf: {
+          select: {
+            friendWith: true
+          }
+        },
+        friendWith: {
+          select: {
+            friendOf:true
+         }
+        }
+      }
+    }) 
+    const filtredFriends = []
+    friends?.friendWith.forEach(friend => {
+      if(friend.friendOf.isOnline) filtredFriends.push(friend.friendOf)
+    })
+
+    friends?.friendOf.forEach(friend => {
+      if(friend.friendWith.isOnline) filtredFriends.push(friend.friendWith)
+    })
+    return filtredFriends;
+  }
 }

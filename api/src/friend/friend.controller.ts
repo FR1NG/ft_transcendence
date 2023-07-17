@@ -34,6 +34,12 @@ export class FriendController {
     const { sub }  = request.user;
     return await this.friendService.getSentRequests(sub);
   }
-
+  
+  @Get('online')
+  @UseGuards(AuthGuard)
+  async getOnlineFriends(@Req() request) {
+    const { user } = request;
+    return await this.friendService.getOnlineFriends(user);
+  }
 
 }
