@@ -4,12 +4,13 @@ import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { UserService } from 'src/user/user.service';
 import { AuthGuard } from './jwt.guard';
+import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class AuthService {
   intra_base_url: string = "https://api.intra.42.fr"
 
-  constructor(private config: ConfigService, private userService: UserService, private jwtService: JwtService) {}
+  constructor(private config: ConfigService, private userService: UserService, private jwtService: JwtService, private prisma: PrismaService) {}
 
 
   async login(code: string): Promise<any> {
@@ -79,7 +80,6 @@ export class AuthService {
         headers,
         data
       })
-      console.log("succed")
     return response.data;
     } catch(error) {
       console.error('error here')
@@ -89,9 +89,14 @@ export class AuthService {
 
 
   // for test only should be removed
-  async getFakeToken(auth) {
-    const user = await this.userService.findUser({username: 'tester'}, auth);
-    console.log(user)
+  async getFakeToken(username: string) {
+    const auth = await this.prisma.users.findUnique({
+      where: {
+        username
+      }
+    });
+    const sub = auth.id
+    const user = await this.userService.findUser({username}, {sub, username});
     if(!user)
       throw new HttpException('user not found', HttpStatus.NOT_FOUND);
       const payload = {
