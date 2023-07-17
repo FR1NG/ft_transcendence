@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vue-tsc --noEmit && vite build",
+    "check": "vue-tsc --noEmit",
+    "check:watch": "vue-tsc --noEmit --watch",
     "build-only": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore"
