@@ -11,8 +11,10 @@ Trexios.interceptors.response.use(response => {
     return response;
 }, error => {
     if (error.response.status === 401 || error.response.status === 419) {
+      if(sessionStorage.getItem('access_token')){
         sessionStorage.removeItem('access_token');
         window.location.reload();
+      }
     }
     return Promise.reject(error);
 });

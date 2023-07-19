@@ -9,10 +9,12 @@ import type { Message } from '@/types/chat';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
+import { useSnackBarStore } from '@/store/snackbar'
 
 const message = ref('');
 const route = useRoute();
 const chatStore = useChatStore();
+const snackBarStore = useSnackBarStore();
 const { activeConversation: messages  } = storeToRefs(chatStore);
 
 // const messages = ref<Message[]>(
@@ -38,11 +40,13 @@ const socket = io('https://game.hchakoub.codes', {
   }
 });
 
-console.log('trying to connect to socket server')
-socket.emit('connection', 'hello server');
-socket.on('connected', function () {
-  console.log('socket connected');
-  socket.emit('message', 'hi server how are you')
+// socket.emit('connection', 'hello server');
+// socket.on('connected', function () {
+//   console.log('socket connected');
+//   socket.emit('message', 'hi server how are you')
+// })
+socket.on('error', (data) => {
+  snackBarStore.notify(data)
 })
 const send = () => {
   if (message.value.length > 0) {
