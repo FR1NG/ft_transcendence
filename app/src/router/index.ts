@@ -62,6 +62,12 @@ const routes = [
         }
       }
     ]
+  },
+  // default path for page not found if no route matched
+  {
+    path: '/:catchAll(.*)',
+    name: 'NotFound',
+    component: () => import('@/pages/NotFound.vue')
   }
 ]
 
