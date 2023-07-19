@@ -93,3 +93,4 @@ games:
     - get_id (second user)
     - status (finished | live)
     - winner_id (if finished id of the user that wins)
+test hooks
