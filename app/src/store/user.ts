@@ -1,21 +1,13 @@
 import { defineStore } from 'pinia';
 import axios from '@/plugins/axios'
+import type { User } from '@/types/user'
 
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     profile: [],
     loading: true,
-    user:{
-      friendRequestsSent: [{
-        id: 0,
-        status: ''
-      }],
-      friendRequestsRecieved: [{
-        id: 0,
-        status : ''
-      }]
-    },
+    user:{} as User,
   }),
   getters: {
     getRequstStatus: state => {
@@ -56,7 +48,6 @@ export const useUserStore = defineStore('user', {
         axios.patch('user', data).then(response => {
           resolve(response.data)
           this.getProfile();
-          console.log(this.profile)
         }).catch(error => {
           reject(error?.response?.data);
         })
@@ -67,7 +58,6 @@ export const useUserStore = defineStore('user', {
       try {
           const { data } = await axios.get(`/user/filter/?username=${username}`);
           this.user = data;
-          console.log(data)
       } catch(error) {
         console.log(error)
       }
@@ -81,8 +71,7 @@ export const useUserStore = defineStore('user', {
             id
           });
           resolve(data);
-          console.log(data)
-          this.user.friendRequestsRecieved[0] = {id: data.id, status: 'sent'}
+          this.user.friendRequestsRecieved[0] = {id: data.id, status: 'PENDING'}
         } catch (error) {
           reject(error);
         }
@@ -90,7 +79,7 @@ export const useUserStore = defineStore('user', {
 
     },
     // cancel friend request
-    cancelFriendRequest(id: number): Promise<any> {
+    cancelFriendRequest(id: string): Promise<any> {
       return new Promise(async(resolve, reject) => {
         try {
           const result = await axios.delete('/friend', {
@@ -99,7 +88,6 @@ export const useUserStore = defineStore('user', {
             }
           });
 
-          console.log(result);
           this.user.friendRequestsRecieved = []
           resolve(result)
         } catch (error) {
@@ -110,7 +98,7 @@ export const useUserStore = defineStore('user', {
     },
 
   // confirm friend request
-  confirmFriendRequest(id: number): Promise<any> {
+  confirmFriendRequest(id: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await axios.post('/friend/confirm', {

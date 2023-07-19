@@ -14,12 +14,12 @@ const { user, getRequstStatus } = storeToRefs(userStore);
 
 const username = route.params.username;
 if (username) {
-   userStore.getUser(username)
+   userStore.getUser(username as string)
   // console.log(user)
 }
 
 // sending frien request function
-const sendFrienRequest = async userId => {
+const sendFrienRequest = async (userId: string) => {
   try {
     data.sending = true;
     const resutl =  await userStore.sendFriendRequest(userId);
@@ -32,7 +32,7 @@ const sendFrienRequest = async userId => {
 }
 
 // cancel frien request function
-const cancelFriendRequest = async requestId => {
+const cancelFriendRequest = async (requestId: string) => {
   try {
     const result = await userStore.cancelFriendRequest(requestId);
     console.log('success')
@@ -42,7 +42,7 @@ const cancelFriendRequest = async requestId => {
 }
 
 // confirm friend requst
-const confirmFriendRequest = async requestId => {
+const confirmFriendRequest = async (requestId: string)=> {
   try {
     const result = await userStore.confirmFriendRequest(requestId);
     console.log('success')
@@ -55,7 +55,7 @@ const confirmFriendRequest = async requestId => {
 watch(
   () => route.params.username, async newUsername => {
     console.log(newUsername)
-    userStore.getUser(newUsername)
+    userStore.getUser(newUsername as string)
   },{
   immediate: true
   }
