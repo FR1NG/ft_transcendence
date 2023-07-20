@@ -41,6 +41,11 @@ export const useChatStore = defineStore('chat', {
     addMessageToConversation(message: Message, userId: string) {
       const conversation = this.conversations.get(userId);
       conversation?.push(message);
-    }
+    },
+    playNotificationSound() {
+      const audio = new Audio('../audio/notification.mp3')
+      console.log(audio)
+      audio.play();
+    },
   },
 })

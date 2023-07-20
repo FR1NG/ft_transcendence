@@ -60,7 +60,7 @@ const send = () => {
 
 // TODO add a type to the data
 socket.on('message', (data: any) => {
-  console.log(data)
+  chatStore.playNotificationSound();
   const {id, content, senderId } = data;
   const message : Message = {
     id,
