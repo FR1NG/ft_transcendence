@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -140,6 +140,20 @@ export class ChatService {
         }
       }
     });
+
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id: userId
+      },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        avatar: true,
+      }
+    })
+    if(!user)
+      throw new NotFoundException()
     const filtredMessages = [];
     conversation?.conversation?.messages?.forEach(message => {
       let type: string;
@@ -155,7 +169,7 @@ export class ChatService {
       })
     })
     return {
-      userId,
+      user,
       messages: filtredMessages
     };
   }

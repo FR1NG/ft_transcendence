@@ -3,8 +3,8 @@ export type User = {
   username: string
   avatar: string
   email: string
-  friendRequestsSent: FrienRequest[]
-  friendRequestsRecieved: FrienRequest[]
+  friendRequestsSent?: FrienRequest[]
+  friendRequestsRecieved?: FrienRequest[]
 }
 
 export type FrienRequest = {
