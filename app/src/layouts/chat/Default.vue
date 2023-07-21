@@ -10,7 +10,7 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { useSnackBarStore } from '@/store/snackbar'
-import SidBar from '@/layouts/default/SideBar.vue'
+import DefaultSidBar from '../default/SideBar.vue'
 
 const message = ref('');
 const route = useRoute();
@@ -28,12 +28,6 @@ const socket = io('https://game.hchakoub.codes', {
   }
 });
 
-// socket.emit('connection', 'hello server');
-// socket.on('connected', function () {
-//   console.log('socket connected');
-//   socket.emit('message', 'hi server how are you')
-// })
-
 socket.on('error', (data) => {
   snackBarStore.notify(data)
 })
@@ -41,11 +35,6 @@ const send = () => {
   if (message.value.length > 0) {
     const recieverId: string = route.params.id as string;
     socket.emit('message', {content: message.value, recieverId, type: 'dm'})
-    // messages.value.push({
-    //   content: message.value,
-    //   type: 'sent',
-    //   // loading: true
-    // })
     // TODO should listen for an event to give the feedback of the message and get the id from it
     const sentMessage: Message = {
       content: message.value,
@@ -111,8 +100,6 @@ const handleEnter = () => {
   send()
 }
 
-
-  import DefaultSidBar from '../default/SideBar.vue'
 </script>
 
 <template>
@@ -174,4 +161,3 @@ const handleEnter = () => {
     </v-footer>
   </v-app>
 </template>
-

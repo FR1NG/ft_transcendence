@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { Message } from '@/types/chat'
+import { onMounted } from 'vue'
+import { useChatStore } from '@/store/chat';
+
 defineProps<{
   message: Message,
   loading: boolean
 }>()
 
+const chatStore = useChatStore();
+onMounted(() => {
+  chatStore.scrollDown();
+})
 </script>
 
 

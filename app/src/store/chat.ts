@@ -31,7 +31,7 @@ export const useChatStore = defineStore('chat', {
         this.conversations.set(data.user.id, data.messages);
         this.selectedUser = data.user;
         this.activeConversation = data.messages;
-          console.log(data.user)
+        this.scrollDown()
       } catch (error) {
         console.log('error whene getting messages');
         console.log(error)
@@ -47,5 +47,11 @@ export const useChatStore = defineStore('chat', {
       console.log(audio)
       audio.play();
     },
+    scrollDown() {
+      const html = document.querySelector('html')
+      if (html) {
+        html.scrollTop = html.scrollHeight
+      }
+    }
   },
 })
