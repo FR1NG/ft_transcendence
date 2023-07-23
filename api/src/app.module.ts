@@ -9,9 +9,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { WsAuthGuard } from './auth/ws.guard';
 import { ChatModule } from './chat/chat.module';
 import { FriendModule } from './friend/friend.module';
+import { RoomModule } from './room/room.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule],
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],
 })
