@@ -10,13 +10,18 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { useSnackBarStore } from '@/store/snackbar'
+import { useRoomStore } from '@/store/room'
 import DefaultSidBar from '../default/SideBar.vue'
+import RoomsList from './parcials/RoomsList.vue'
 
 const message = ref('');
 const route = useRoute();
 const chatStore = useChatStore();
 const snackBarStore = useSnackBarStore();
+const roomStore = useRoomStore();
 const { activeConversation: messages, selectedUser  } = storeToRefs(chatStore);
+const usersDrawer = ref(false)
+const {drawer: roomsDrawer } = storeToRefs(roomStore)
 
 
 const socket = io('https://game.hchakoub.codes', {
@@ -106,7 +111,7 @@ const handleEnter = () => {
   <v-app id="inspire">
     <app-bar></app-bar>
     <DefaultSidBar/>
-    <v-navigation-drawer color="grey-lighten-3" :rail='true'>
+    <v-navigation-drawer color="grey-lighten-3" :rail='true' v-model="usersDrawer">
       <v-avatar class="d-block text-center mx-auto mt-4" color="grey-darken-1" size="36"></v-avatar>
       <v-divider class="mx-3 my-5"></v-divider>
 
@@ -116,21 +121,8 @@ const handleEnter = () => {
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-
-    <!-- <v-navigation-drawer width="244"> -->
-    <!--   <v-sheet color="grey-lighten-5" height="128" width="100%"></v-sheet> -->
-
-      <!-- <v-list> -->
-        <!-- online users -->
-      <!--   <v-list-item v-for='user in onlineUsers' :key="user.id" :title="user.username" :prependAvatar="user.avatar" -->
-      <!--     :to="{ name: 'Dm', params: { id: user.id } }" :value='user.username'> -->
-      <!--   </v-list-item> -->
-      <!-- </v-list> -->
-    <!-- </v-navigation-drawer> -->
-
     <v-app-bar class="px-3" color="grey-lighten-4" flat height="72">
-      <!-- TODO selected user name and avatar will go here -->
-
+      <v-btn icon="mdi-menu-open" @click="usersDrawer = !usersDrawer"></v-btn>
       <v-list-item v-if="selectedUser.username" color="primary"  :title="selectedUser.username" :prependAvatar="selectedUser.avatar"
         :to="{name: 'UserProfile', params: {username: selectedUser.username}}" :value='selectedUser.username'>
         </v-list-item>
@@ -140,19 +132,15 @@ const handleEnter = () => {
         <v-text-field bg-color="grey-lighten-2" class="rounded-pill overflow-hidden" density="compact" hide-details
           variant="solo"></v-text-field>
       </v-responsive>
+      <v-btn icon="mdi-menu-open" @click="roomsDrawer = !roomsDrawer"></v-btn>
     </v-app-bar>
 
     <v-main>
       <!-- messages container -->
       <o-container :messages="messages"></o-container>
     </v-main>
-
-    <v-navigation-drawer location="right">
-      <v-list>
-        <v-list-item v-for="n in 5" :key="n" :title="`Item ${n}`" link>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
+    <!-- rooms list component -->
+    <rooms-list :appearance="roomsDrawer"> </rooms-list>
 
     <v-footer app height="72">
       <v-text-field bg-color="grey-lighten-1" class="rounded-pill overflow-hidden" density="compact" hide-details

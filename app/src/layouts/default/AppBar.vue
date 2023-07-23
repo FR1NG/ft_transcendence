@@ -4,9 +4,9 @@
       <v-icon icon="logo mdi-table-tennis" />
       otossa
     </v-app-bar-title>
-    <v-app-bar-action-item>
       <SearchList/>
-    </v-app-bar-action-item>
+    <!-- <v-app-bar-action-item> -->
+    <!-- </v-app-bar-action-item> -->
     <template v-slot:append>
       <NavMenu v-if="logged" />
       <v-btn v-else color="#0C134F" outlined :to="{ name: 'Login' }">Login</v-btn>
