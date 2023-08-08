@@ -4,6 +4,7 @@
       <v-icon icon="logo mdi-table-tennis" />
       otossa
     </v-app-bar-title>
+    <NavNotification />
       <SearchList/>
     <!-- <v-app-bar-action-item> -->
     <!-- </v-app-bar-action-item> -->
@@ -16,7 +17,7 @@
 
 <script lang="ts" setup>
 import NavMenu from './navbar/NavMenu.vue'
-import SearchBar from './navbar/SearchBar.vue'
+import NavNotification from './navbar/NavNotification.vue'
 import SearchList from './navbar/SearchList.vue'
 import { useAuthStore } from '@/store/auth'
 import { storeToRefs } from 'pinia'
