@@ -59,6 +59,12 @@ export class UserService {
             id: true,
             status: true
           }
+        },
+        _count: {
+          select: {
+            friendOf: true,
+            friendWith: true
+          }
         }
       },
     });
