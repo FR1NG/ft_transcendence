@@ -13,6 +13,7 @@ import { useSnackBarStore } from '@/store/snackbar'
 import { useRoomStore } from '@/store/room'
 import DefaultSidBar from '../default/SideBar.vue'
 import RoomsList from './parcials/RoomsList.vue'
+import type { User } from '@/types/user';
 
 const message = ref('');
 const route = useRoute();
@@ -20,11 +21,11 @@ const chatStore = useChatStore();
 const snackBarStore = useSnackBarStore();
 const roomStore = useRoomStore();
 const { activeConversation: messages, selectedUser  } = storeToRefs(chatStore);
-const usersDrawer = ref(false)
+const usersDrawer = ref(true)
 const {drawer: roomsDrawer } = storeToRefs(roomStore)
 
 
-const socket = io('https://game.hchakoub.codes', {
+const socket = io(import.meta.env.DOMAIN, {
   query: {
     token: sessionStorage.getItem('access_token'),
   },
@@ -61,8 +62,15 @@ socket.on('message', (data: any) => {
     content,
     type: 'recieved'
   };
-  chatStore.addMessageToConversation(message, senderId);
+  const conversation = chatStore.addMessageToConversation(message, senderId);
+  console.log(conversation?.user)
+  showNotification(message, conversation?.user);
 })
+
+// show notification
+const showNotification = (message: Message, user: User | undefined) => {
+  snackBarStore.notify(message.content, user?.username)
+}
 
 // for test
 const users: any = ref([]);
@@ -111,21 +119,26 @@ const handleEnter = () => {
   <v-app id="inspire">
     <app-bar></app-bar>
     <DefaultSidBar/>
-    <v-navigation-drawer color="grey-lighten-3" :rail='true' v-model="usersDrawer">
+    <v-navigation-drawer color="grey-lighten-3" :rail='false' v-model="usersDrawer">
       <v-avatar class="d-block text-center mx-auto mt-4" color="grey-darken-1" size="36"></v-avatar>
       <v-divider class="mx-3 my-5"></v-divider>
 
       <v-list>
+
         <v-list-item  v-for='user in users' :key="user.id" :title="user.username" :prependAvatar="user.avatar"
           :to="{ name: 'Dm', params: { id: user.id } }" :value='user.username'>
+      <v-badge dot :color="user.isOnline ? `success` : `secondary`" inline>
+      </v-badge>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-app-bar class="px-3" color="grey-lighten-4" flat height="72">
       <v-btn icon="mdi-menu-open" @click="usersDrawer = !usersDrawer"></v-btn>
+      <v-badge dot :color="selectedUser.isOnline ? `success` : `secondary`" inline>
       <v-list-item v-if="selectedUser.username" color="primary"  :title="selectedUser.username" :prependAvatar="selectedUser.avatar"
         :to="{name: 'UserProfile', params: {username: selectedUser.username}}" :value='selectedUser.username'>
         </v-list-item>
+      </v-badge>
       <v-spacer></v-spacer>
 
       <v-responsive max-width="156">
