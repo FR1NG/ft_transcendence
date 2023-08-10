@@ -38,7 +38,7 @@ const routes = [
       {
         path: '/users/:username',
         name: 'UserProfile',
-        component: () => import('@/views/UserPofile.vue'),
+        component: () => import('@/views/UserProfile.vue'),
         meta: {
           auth: true
         }
