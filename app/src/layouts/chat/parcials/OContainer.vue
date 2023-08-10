@@ -4,7 +4,7 @@ import OMessage from './OMessage.vue'
 import { ref } from 'vue'
 
 const props = defineProps<{messages: Message[]}>()
-const loading = ref(true)
+const loading = ref(false)
 
 // for test
 setTimeout(() => {
