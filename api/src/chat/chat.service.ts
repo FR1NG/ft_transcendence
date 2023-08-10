@@ -150,6 +150,7 @@ export class ChatService {
         username: true,
         email: true,
         avatar: true,
+        isOnline:  true
       }
     })
     if(!user)
