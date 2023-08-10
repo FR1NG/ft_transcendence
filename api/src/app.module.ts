@@ -10,9 +10,10 @@ import { WsAuthGuard } from './auth/ws.guard';
 import { ChatModule } from './chat/chat.module';
 import { FriendModule } from './friend/friend.module';
 import { RoomModule } from './room/room.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule],
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule, NotificationModule],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],
 })
