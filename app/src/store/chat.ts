@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Message } from '@/types/chat'
+import { Conversation, Message } from '@/types/chat'
 import axios from '@/plugins/axios'
 import { User } from '@/types/user';
 
@@ -10,7 +10,7 @@ import { User } from '@/types/user';
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
-    conversations: new Map() as Map<string, Message[]>,
+    conversations: new Map() as Map<string, Conversation>,
     activeConversation: [] as Message[],
     selectedUser: {} as  User
 
@@ -24,11 +24,14 @@ export const useChatStore = defineStore('chat', {
         return;
       const conversation = this.conversations.get(id);
       if(conversation) {
-        this.activeConversation = conversation;
+        this.activeConversation = conversation.messages;
+        this.selectedUser = conversation.user
       } else {
       try {
         const { data } = await axios.get(`/chat/user-conversation/${id}`);
-        this.conversations.set(data.user.id, data.messages);
+        const { messages, user} = data;
+          console.log(data)
+        this.conversations.set(data.user.id, {messages, user});
         this.selectedUser = data.user;
         this.activeConversation = data.messages;
         this.scrollDown()
@@ -38,9 +41,10 @@ export const useChatStore = defineStore('chat', {
       }
       }
     },
-    addMessageToConversation(message: Message, userId: string) {
+    addMessageToConversation(message: Message, userId: string): Conversation | undefined {
       const conversation = this.conversations.get(userId);
-      conversation?.push(message);
+      conversation?.messages.push(message);
+      return conversation;
     },
     playNotificationSound() {
       const audio = new Audio('../audio/notification.mp3')
