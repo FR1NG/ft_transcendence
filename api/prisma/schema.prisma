@@ -29,6 +29,7 @@ model Users {
   conversationsStarted     UsersConversation[] @relation("conversationStarted")
   conversationsEngaged     UsersConversation[] @relation("conversationEngaged")
   messagesSent           Messages[]
+  notification           Notifications[]
 }
 
 model FriendRequests {
@@ -104,6 +105,15 @@ model Games {
   host     Users      @relation("gameHost", fields: [hostId], references: [id])
   guest    Users      @relation("gameGuest", fields: [guestId], references: [id])
   winner   Users?     @relation("gameWinner", fields: [winnerId], references: [id])
+}
+
+model Notifications {
+  id Int @id @default(autoincrement())
+  content String
+  link String?
+  userId String
+  seen  Boolean @default(false)
+  user Users @relation(fields: [userId], references: [id])
 }
 
 // enums 
