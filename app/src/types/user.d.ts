@@ -5,9 +5,16 @@ export type User = {
   email: string
   friendRequestsSent?: FrienRequest[]
   friendRequestsRecieved?: FrienRequest[]
+  isOnline: boolean
+  _count: Count
 }
 
 export type FrienRequest = {
   id: string
   status: 'PENDING' | 'REJECTED' | 'CONFIRMED',
+}
+
+type Count = {
+  friendOf: number
+  friendWith: number
 }
