@@ -26,6 +26,9 @@ export const useUserStore = defineStore('user', {
       else
         return 'none';
     },
+    friendsCount: state => {
+      return state.user._count?.friendOf + state.user._count?.friendWith || 0;
+    }
   },
   actions: {
     async getProfile(): Promise<any> {
@@ -87,8 +90,6 @@ export const useUserStore = defineStore('user', {
               id
             }
           });
-
-          this.user.friendRequestsRecieved = []
           resolve(result)
         } catch (error) {
           console.log(error);
@@ -105,6 +106,7 @@ export const useUserStore = defineStore('user', {
           id,
         });
         resolve(data);
+        this.user.friendRequestsSent[0] = {id: data.id, status: 'CONFIRMED'}
       } catch (error) {
         console.log(error);
         reject(error);
