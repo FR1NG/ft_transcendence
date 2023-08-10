@@ -1,7 +1,16 @@
 <script setup>
-import { ref } from 'vue'
+import axios from '@/plugins/axios';
+import { ref } from 'vue';
+import { useNotificationStore } from '@/store/notification';
+import { storeToRefs } from 'pinia';
+
+const notificationStore = useNotificationStore();
 
 const menu = ref(false);
+const { notifications } = storeToRefs(notificationStore);
+
+// calling get notification action to get user notifications
+notificationStore.getNotifications();
 
 </script>
 
@@ -19,13 +28,13 @@ const menu = ref(false);
           <v-icon class="notification-icon">mdi-bell-outline</v-icon>
         </v-btn>
       </template>
-      <v-card min-width="300" min-height="70">
+      <v-card min-width="300" min-height="70" max-height="300" max-width="300">
         <v-list>
           <v-list-item
-            v-for="notification in 5"
-            :key="notification"
-            :title="`test ${notification}`"
-            subtitle="you have recieved a friend request from otossa"
+            v-for="notification in notifications"
+            :key="notification.id"
+            :title="notification.content"
+            :to="notification.link"
           >
             <!-- <template v-slot:append> -->
             <!--   <v-btn -->
