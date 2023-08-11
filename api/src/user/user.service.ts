@@ -33,7 +33,7 @@ export class UserService {
     return 'find uno';
   }
 
-  async findUser(where, auth: any) {
+  async findUser(where, auth: AuthenticatedUser) {
     const user = await this.prisma.users.findUnique({
       where,
       select: {
@@ -63,7 +63,12 @@ export class UserService {
         _count: {
           select: {
             friendOf: true,
-            friendWith: true
+            friendWith: true,
+            blockedBy: {
+              where: {
+                blockerId: auth.sub
+              }
+            }
           }
         }
       },
@@ -161,5 +166,55 @@ export class UserService {
     return users;
   }
 
+// block a user
+  async blockUser(id: string, auth: AuthenticatedUser) {
+    const user = await this.prisma.users.update({
+        where: {
+          id
+        },
+        data: {
+          blockedBy: {
+            create: {
+              blockerId: auth.sub
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        console.log('user no existoo')
+        throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+      }
+      return user;
+  }
+
+  // unblock user
+  async unblockUser(id: string, auth: AuthenticatedUser) {
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id
+      },
+      select: {
+        blockedBy: {
+          where: {
+            blockerId: auth.sub
+          },
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    if(user.blockedBy.length > 0) {
+      const result = await this.prisma.block.delete({
+        where: {
+          id: user.blockedBy[0].id
+        }
+      });
+      return result;
+    }
+    return user;
+  }
 
 }

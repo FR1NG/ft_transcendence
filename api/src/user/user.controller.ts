@@ -15,6 +15,8 @@ import {
   UseFilters,
   HttpException,
   Query,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -89,6 +91,7 @@ export class UserController {
     }),
   })
   )
+
   async uploadAvatar(
     @UploadedFile() file: Express.Multer.File,
     @Req() request,
@@ -105,5 +108,20 @@ export class UserController {
   async seartchUser(@Param('pattern') pattern: string, @Req() request) {
     const { user } = request; 
     return await this.userService.searchUser(pattern, user);
+  }
+
+  @Post('block')
+  @UseGuards(AuthGuard)
+  async blockUser(@Body('id') id: string, @Req() request) {
+    const { user } = request;
+    const result = await this.userService.blockUser(id, user);
+    return result;
+  }
+
+  @Post('unblock')
+  @UseGuards(AuthGuard)
+  async unblockUser(@Body('id') id: string, @Req() request) {
+    const { user } = request;
+    return await this.userService.unblockUser(id, user);
   }
 }
