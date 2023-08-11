@@ -3,6 +3,9 @@ import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
+import { useSnackBarStore } from '@/store/snackbar'
+// for test
+import axios from '@/plugins/axios'
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -10,13 +13,16 @@ const data = reactive({
   sending: false
 });
 
-const { user, getRequstStatus } = storeToRefs(userStore);
+const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
 
 const username = route.params.username;
 if (username) {
   userStore.getUser(username as string)
 }
 
+// notification store
+
+const snackBarStore = useSnackBarStore();
 // sending frien request function
 const sendFrienRequest = async (userId: string) => {
   try {
@@ -59,6 +65,27 @@ watch(
   immediate: true
 }
 )
+
+// test blocking user
+const blockUser = async () => {
+  try {
+    userStore.blockUser(user.value.id);
+    snackBarStore.notify(`${user.value.username} has been blocked`);
+  } catch (error: any) {
+    snackBarStore.notify(error.response.status === 409 ? `user is aleady blocked` : `some error occured when blocking the ${user.value.username}`);
+  }
+}
+
+// unblock user
+const unblockUser = async () => {
+  try {
+    const result = await userStore.unblockUser(user.value.id);
+    snackBarStore.notify(`${user.value.username} has been unblocked`);
+    console.log(result);
+  } catch(error) {
+    console.log(error)
+  }
+}
 </script>
 
 <template>
@@ -103,7 +130,7 @@ watch(
               </v-btn>
 
               <v-btn v-else class="me-2 text-none" :loading="data.sending" @click="sendFrienRequest(user.id)"
-                color="primary"  variant="flat">
+                color="primary" variant="flat">
                 add friend
               </v-btn>
 
@@ -111,30 +138,29 @@ watch(
                 message
               </v-btn>
               <!-- options [start] -->
-                  <v-menu open-on-hover :close-on-content-click="false">
-                    <template v-slot:activator="{ props }">
-                      <v-btn v-bind="props" class="text-none  ml-2" icon="mdi-dots-horizontal" variant="text"></v-btn>
+              <v-menu open-on-hover :close-on-content-click="false">
+                <template v-slot:activator="{ props }">
+                  <v-btn v-bind="props" class="text-none  ml-2" icon="mdi-dots-horizontal" variant="text"></v-btn>
+                </template>
+                <v-list density="compact">
+                  <v-list-item prepend-icon="mdi-gamepad-variant-outline">
+                    invite
+                  </v-list-item>
+                  <v-list-item v-if="isBlocked" @click="unblockUser" prepend-icon="mdi-lock-open-variant-outline">
+                    <template v-slot:prepend>
+                      <v-icon></v-icon>
                     </template>
-                  <v-list density="compact">
-                    <v-list-item>
-                      <v-btn>
-                        <template v-slot:prepend>
-                          <v-icon>mdi-gamepad-variant-outline</v-icon>
-                        </template>
-                        invite
-                    </v-btn>
-                    </v-list-item>
+                    unblock
+                  </v-list-item>
 
-                    <v-list-item>
-                      <v-btn>
-                        <template v-slot:prepend>
-                          <v-icon>mdi-cancel</v-icon>
-                        </template>
-                        block
-                    </v-btn>
-                    </v-list-item>
-                  </v-list>
-                  </v-menu>
+                  <v-list-item @click="blockUser" v-else>
+                    <template v-slot:prepend>
+                      <v-icon>mdi-account-cancel-outline</v-icon>
+                    </template>
+                    block
+                  </v-list-item>
+                </v-list>
+              </v-menu>
               <!-- options [end] -->
             </div>
           </v-card>
@@ -162,8 +188,9 @@ watch(
     <v-row>
       <v-col cols="12">
         <v-card min-height="300" rounded="xl" class="pa-2 ma-2">
-  here
-      </v-card>
-    </v-col>
-  </v-row>
-</v-card></template>
+          here
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-card>
+</template>

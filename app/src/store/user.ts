@@ -28,6 +28,9 @@ export const useUserStore = defineStore('user', {
     },
     friendsCount: state => {
       return state.user._count?.friendOf + state.user._count?.friendWith || 0;
+    },
+    isBlocked: state => {
+      return state.user._count?.blockedBy > 0;
     }
   },
   actions: {
@@ -58,9 +61,11 @@ export const useUserStore = defineStore('user', {
     },
     // get user by username
     async getUser(username: string): Promise<any> {
+      console.log('getting user')
       try {
           const { data } = await axios.get(`/user/filter/?username=${username}`);
           this.user = data;
+        console.log(this.user)
       } catch(error) {
         console.log(error)
       }
@@ -113,6 +118,38 @@ export const useUserStore = defineStore('user', {
       }
     })
     },
+
+    // blocker user
+    async blockUser(id: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.post('user/block', {
+            id
+          });
+          resolve(response);
+          this.user._count.blockedBy = 1;
+        } catch(error) {
+          reject(error);
+        }
+      });
+    },
+
+    // unblock user
+    async unblockUser(id: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.post('/user/unblock', {
+            id
+          });
+          resolve(response);
+          this.user._count.blockedBy = 0;
+          console.log(this.user)
+        } catch (error) {
+          console.log('erro when unblocking user')
+          reject(error)
+        }
+      })
+    }
 
   },
 });

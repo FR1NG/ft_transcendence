@@ -15,6 +15,7 @@ export type FrienRequest = {
 }
 
 type Count = {
+  blockedBy: number
   friendOf: number
   friendWith: number
 }
