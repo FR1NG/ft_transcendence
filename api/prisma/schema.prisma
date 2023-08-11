@@ -30,6 +30,8 @@ model Users {
   conversationsEngaged     UsersConversation[] @relation("conversationEngaged")
   messagesSent           Messages[]
   notification           Notifications[]
+  blockedBy              Block[] @relation("blockedBy")
+  blocked              Block[] @relation("blocked")
 }
 
 model FriendRequests {
@@ -114,6 +116,15 @@ model Notifications {
   userId String
   seen  Boolean @default(false)
   user Users @relation(fields: [userId], references: [id])
+}
+
+model Block {
+  id Int @id @default(autoincrement())
+  blockerId String
+  blockedId String
+  blocked Users @relation("blocked", fields: [blockerId], references: [id])
+  blockedBy Users @relation("blockedBy", fields: [blockedId], references: [id])
+  @@unique([blockerId, blockedId])
 }
 
 // enums 
