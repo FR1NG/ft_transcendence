@@ -5,3 +5,4 @@ WORKDIR /app/
 RUN npm install -g npm
 
 CMD [ "npm", "run", "dev" ]
+# CMD [ "tail", "-f", "/dev/null" ]
