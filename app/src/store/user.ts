@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from '@/plugins/axios'
 import type { User } from '@/types/user'
+import { useChatStore } from './chat';
 
 
 export const useUserStore = defineStore('user', {
@@ -61,12 +62,12 @@ export const useUserStore = defineStore('user', {
     },
     // get user by username
     async getUser(username: string): Promise<any> {
-      console.log('getting user')
       try {
           const { data } = await axios.get(`/user/filter/?username=${username}`);
           this.user = data;
-        console.log(this.user)
+        console.log('succed')
       } catch(error) {
+        console.log('error')
         console.log(error)
       }
     },
@@ -121,11 +122,13 @@ export const useUserStore = defineStore('user', {
 
     // blocker user
     async blockUser(id: string): Promise<any> {
+      const chatStore = useChatStore();
       return new Promise(async (resolve, reject) => {
         try {
           const response = await axios.post('user/block', {
             id
           });
+          chatStore.deleteConversation(id);
           resolve(response);
           this.user._count.blockedBy = 1;
         } catch(error) {

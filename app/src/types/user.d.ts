@@ -7,6 +7,7 @@ export type User = {
   friendRequestsRecieved?: FrienRequest[]
   isOnline: boolean
   _count: Count
+  block?: boolean
 }
 
 export type FrienRequest = {
