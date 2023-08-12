@@ -8,10 +8,9 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
 
-    if (exception instanceof BadRequestException) {
       const exceptionResponse = exception.getResponse() as Record<string, any>;
-      const { message } = exceptionResponse;
-
+      const { message, statusCode } = exceptionResponse;
+    if (exception instanceof BadRequestException) {
       const costumeMessages = {};
 
       message.forEach(e => {
@@ -23,6 +22,10 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
       response.status(400).json({
         message: 'validation faild',
         errors: costumeMessages,
+      });
+    } else {
+      response.status(statusCode).json({
+        message,
       });
     }
   }
