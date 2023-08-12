@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -68,14 +68,23 @@ export class UserService {
               where: {
                 blockerId: auth.sub
               }
+            },
+            blocked: {
+              where: {
+                blockedId: auth.sub
+              }
             }
           }
         }
       },
     });
     // TODO change this with the correct error
-    if(!user)
-      console.log('not found');
+    if(!user) {
+      console.log(user)
+      throw new NotFoundException();
+    }
+    if(user._count.blocked > 0)
+      throw new ForbiddenException();
     return user;
   }
 
