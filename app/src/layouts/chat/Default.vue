@@ -37,15 +37,23 @@ const socket = io(import.meta.env.DOMAIN, {
 socket.on('error', (data) => {
   snackBarStore.notify(data)
 })
+
+// message feedback from the backed
+socket.on('feedback', (data) => {
+  chatStore.changeMessageStatus(data);
+})
+
 const send = () => {
   if (message.value.length > 0) {
     const recieverId: string = route.params.id as string;
-    socket.emit('message', {content: message.value, recieverId, type: 'dm'})
+    const tmpId = Math.random().toString();
+    socket.emit('message', {content: message.value, recieverId, type: 'dm', id: tmpId})
     // TODO should listen for an event to give the feedback of the message and get the id from it
     const sentMessage: Message = {
       content: message.value,
       type: 'sent',
-      id: 'somerandomid'
+      id: tmpId,
+      loading: true
     }
 
     chatStore.addMessageToConversation(sentMessage, recieverId);
@@ -156,7 +164,7 @@ const handleEnter = () => {
     <rooms-list :appearance="roomsDrawer"> </rooms-list>
 
     <v-footer app height="72">
-      <v-text-field bg-color="grey-lighten-1" class="rounded-pill overflow-hidden" density="compact" hide-details
+      <v-text-field :disabled="selectedUser.block" bg-color="grey-lighten-1" class="rounded-pill overflow-hidden" density="compact" hide-details
         variant="solo" v-model="message" append-inner-icon="mdi-send-circle-outline"
         @click:append-inner="send" @keyup.enter="handleEnter"></v-text-field>
     </v-footer>
