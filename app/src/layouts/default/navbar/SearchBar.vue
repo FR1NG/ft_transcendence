@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { reactive, defineProps, computed } from 'vue';
+  import { computed } from 'vue';
   import { useSearchStore } from '@/store/search';
   import { onBeforeRouteLeave } from 'vue-router'
 

@@ -16,8 +16,7 @@ export class WsAuthGuard implements CanActivate {
     const sock = context.switchToWs();
     const client = sock.getClient();
     const token = client.handshake?.query?.token;
-    console.log(token)
-    if (!token) {
+    if (token === 'null' || token === null) {
       throw new WsException('UnauthorizedException');
     }
     try {
@@ -31,7 +30,6 @@ export class WsAuthGuard implements CanActivate {
       // so that we can access it in our route handlers
       client['user'] = payload;
     } catch {
-      console.log('invalid token')
       throw new WsException('UnauthorizedException');
     }
     return true;

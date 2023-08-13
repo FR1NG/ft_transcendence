@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, Req, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from './jwt.guard';
@@ -14,11 +14,7 @@ export class AuthController {
   }
 
   @Get('/faketoken')
-  async getTestToken() {
-    const user = {
-      sub: "9606ac7d-7f8c-49c7-a024-bebec87f5aea",
-      usename: 'otossa',
-    };
-    return await this.authService.getFakeToken(user);
+  async getTestToken(@Query('username') username) {
+    return await this.authService.getFakeToken(username);
   }
 }

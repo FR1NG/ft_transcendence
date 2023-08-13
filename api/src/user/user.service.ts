@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -26,7 +26,6 @@ export class UserService {
         isOnline: true,
       }
     });
-    console.log(users);
     return users;
   }
 
@@ -34,7 +33,7 @@ export class UserService {
     return 'find uno';
   }
 
-  async findUser(where, auth: any) {
+  async findUser(where, auth: AuthenticatedUser) {
     const user = await this.prisma.users.findUnique({
       where,
       select: {
@@ -60,13 +59,32 @@ export class UserService {
             id: true,
             status: true
           }
+        },
+        _count: {
+          select: {
+            friendOf: true,
+            friendWith: true,
+            blockedBy: {
+              where: {
+                blockerId: auth.sub
+              }
+            },
+            blocked: {
+              where: {
+                blockedId: auth.sub
+              }
+            }
+          }
         }
       },
     });
-    console.log(user)
     // TODO change this with the correct error
-    if(!user)
-      console.log('not found');
+    if(!user) {
+      console.log(user)
+      throw new NotFoundException();
+    }
+    if(user._count.blocked > 0)
+      throw new ForbiddenException();
     return user;
   }
 
@@ -142,21 +160,70 @@ export class UserService {
 
   // search for a user
   async searchUser(pattern: string, auth: AuthenticatedUser): Promise<any> {
-    console.log(pattern);
     const users = await this.prisma.users.findMany({
       where: {
         username: {
-          contains: pattern
+          contains: pattern,
+          mode: 'insensitive'
         },
       NOT: {
         id: auth?.sub
       }
       },
     });
-    console.log(users)
 
     return users;
   }
 
+// block a user
+  async blockUser(id: string, auth: AuthenticatedUser) {
+    const user = await this.prisma.users.update({
+        where: {
+          id
+        },
+        data: {
+          blockedBy: {
+            create: {
+              blockerId: auth.sub
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        console.log('user no existoo')
+        throw new HttpException('user not found', HttpStatus.NOT_FOUND);
+      }
+      return user;
+  }
+
+  // unblock user
+  async unblockUser(id: string, auth: AuthenticatedUser) {
+    const user = await this.prisma.users.findUnique({
+      where: {
+        id
+      },
+      select: {
+        blockedBy: {
+          where: {
+            blockerId: auth.sub
+          },
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    if(user.blockedBy.length > 0) {
+      const result = await this.prisma.block.delete({
+        where: {
+          id: user.blockedBy[0].id
+        }
+      });
+      return result;
+    }
+    return user;
+  }
 
 }

@@ -4,9 +4,10 @@
       <v-icon icon="logo mdi-table-tennis" />
       otossa
     </v-app-bar-title>
-    <v-app-bar-action-item>
+    <NavNotification />
       <SearchList/>
-    </v-app-bar-action-item>
+    <!-- <v-app-bar-action-item> -->
+    <!-- </v-app-bar-action-item> -->
     <template v-slot:append>
       <NavMenu v-if="logged" />
       <v-btn v-else color="#0C134F" outlined :to="{ name: 'Login' }">Login</v-btn>
@@ -16,7 +17,7 @@
 
 <script lang="ts" setup>
 import NavMenu from './navbar/NavMenu.vue'
-import SearchBar from './navbar/SearchBar.vue'
+import NavNotification from './navbar/NavNotification.vue'
 import SearchList from './navbar/SearchList.vue'
 import { useAuthStore } from '@/store/auth'
 import { storeToRefs } from 'pinia'

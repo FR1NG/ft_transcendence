@@ -1,16 +1,19 @@
 import { Controller, Post, Get, Body, UseGuards, Req, Delete } from '@nestjs/common';
 import { FriendService } from './friend.service';
 import { AuthGuard } from 'src/auth/jwt.guard';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Controller('friend')
 export class FriendController {
-  constructor(private friendService: FriendService) {}
+  constructor(private friendService: FriendService, private notificationService: NotificationService) {}
 
   @Post()
   @UseGuards(AuthGuard)
   async sendFrienRequest(@Body('id') requestedId: string, @Req() request: any) {
     const authUserId = request.user.sub;
-    return await this.friendService.sendFrienRequest(authUserId, requestedId);
+    const result = await this.friendService.sendFrienRequest(authUserId, requestedId);
+    this.notificationService.createNotification(requestedId, `${request.user.username} sent you a friend request`, `/users/${request.user.username}`);
+    return result
   }
 
   @Post('confirm')
@@ -34,6 +37,12 @@ export class FriendController {
     const { sub }  = request.user;
     return await this.friendService.getSentRequests(sub);
   }
-
+  
+  @Get('online')
+  @UseGuards(AuthGuard)
+  async getOnlineFriends(@Req() request) {
+    const { user } = request;
+    return await this.friendService.getOnlineFriends(user);
+  }
 
 }

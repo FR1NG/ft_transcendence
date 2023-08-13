@@ -17,7 +17,6 @@ model Users {
   email                  String           @unique
   avatar                 String?
   isOnline               Boolean          @default(false)
-  conversations          Conversations[]
   ownedRooms             Rooms[]          @relation("roomOner")
   rooms                  UsersRooms[]     @relation("userRooms")
   hostedGames            Games[]          @relation("gameHost")
@@ -27,6 +26,12 @@ model Users {
   friendWith             Friends[]        @relation("friends")
   friendRequestsSent     FriendRequests[] @relation("sent")
   friendRequestsRecieved FriendRequests[] @relation("recieved")
+  conversationsStarted     UsersConversation[] @relation("conversationStarted")
+  conversationsEngaged     UsersConversation[] @relation("conversationEngaged")
+  messagesSent           Messages[]
+  notification           Notifications[]
+  blockedBy              Block[] @relation("blockedBy")
+  blocked              Block[] @relation("blocked")
 }
 
 model FriendRequests {
@@ -49,13 +54,25 @@ model Friends {
 model Conversations {
   id       String     @id @default(uuid())
   messages Messages[]
-  users    Users[]
+  usersConversation UsersConversation?
   room     Rooms?
+}
+
+model UsersConversation {
+  id String @id @default(uuid())
+  userOneId String
+  userTwoId String
+  conversationId String @unique
+  userOne Users @relation("conversationStarted", fields: [userOneId], references: [id])
+  userTwo Users @relation("conversationEngaged", fields: [userTwoId], references: [id])
+  conversation Conversations @relation(fields: [conversationId], references: [id])
 }
 
 model Messages {
   id             String        @id @default(uuid())
   conversationId String
+  senderId String
+  sender Users @relation(fields: [senderId], references: [id])
   converstion    Conversations @relation(fields: [conversationId], references: [id])
   content        String
 }
@@ -90,6 +107,24 @@ model Games {
   host     Users      @relation("gameHost", fields: [hostId], references: [id])
   guest    Users      @relation("gameGuest", fields: [guestId], references: [id])
   winner   Users?     @relation("gameWinner", fields: [winnerId], references: [id])
+}
+
+model Notifications {
+  id Int @id @default(autoincrement())
+  content String
+  link String?
+  userId String
+  seen  Boolean @default(false)
+  user Users @relation(fields: [userId], references: [id])
+}
+
+model Block {
+  id Int @id @default(autoincrement())
+  blockerId String
+  blockedId String
+  blocked Users @relation("blocked", fields: [blockerId], references: [id])
+  blockedBy Users @relation("blockedBy", fields: [blockedId], references: [id])
+  @@unique([blockerId, blockedId])
 }
 
 // enums 

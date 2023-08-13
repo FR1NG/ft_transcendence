@@ -1,21 +1,14 @@
 import { defineStore } from 'pinia';
 import axios from '@/plugins/axios'
+import type { User } from '@/types/user'
+import { useChatStore } from './chat';
 
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     profile: [],
     loading: true,
-    user:{
-      friendRequestsSent: [{
-        id: 0,
-        status: ''
-      }],
-      friendRequestsRecieved: [{
-        id: 0,
-        status : ''
-      }]
-    },
+    user:{} as User,
   }),
   getters: {
     getRequstStatus: state => {
@@ -34,6 +27,12 @@ export const useUserStore = defineStore('user', {
       else
         return 'none';
     },
+    friendsCount: state => {
+      return state.user._count?.friendOf + state.user._count?.friendWith || 0;
+    },
+    isBlocked: state => {
+      return state.user._count?.blockedBy > 0;
+    }
   },
   actions: {
     async getProfile(): Promise<any> {
@@ -56,7 +55,6 @@ export const useUserStore = defineStore('user', {
         axios.patch('user', data).then(response => {
           resolve(response.data)
           this.getProfile();
-          console.log(this.profile)
         }).catch(error => {
           reject(error?.response?.data);
         })
@@ -67,8 +65,9 @@ export const useUserStore = defineStore('user', {
       try {
           const { data } = await axios.get(`/user/filter/?username=${username}`);
           this.user = data;
-          console.log(data)
+        console.log('succed')
       } catch(error) {
+        console.log('error')
         console.log(error)
       }
     },
@@ -81,8 +80,7 @@ export const useUserStore = defineStore('user', {
             id
           });
           resolve(data);
-          console.log(data)
-          this.user.friendRequestsRecieved[0] = {id: data.id, status: 'sent'}
+          this.user.friendRequestsRecieved[0] = {id: data.id, status: 'PENDING'}
         } catch (error) {
           reject(error);
         }
@@ -90,7 +88,7 @@ export const useUserStore = defineStore('user', {
 
     },
     // cancel friend request
-    cancelFriendRequest(id: number): Promise<any> {
+    cancelFriendRequest(id: string): Promise<any> {
       return new Promise(async(resolve, reject) => {
         try {
           const result = await axios.delete('/friend', {
@@ -98,9 +96,6 @@ export const useUserStore = defineStore('user', {
               id
             }
           });
-
-          console.log(result);
-          this.user.friendRequestsRecieved = []
           resolve(result)
         } catch (error) {
           console.log(error);
@@ -110,19 +105,54 @@ export const useUserStore = defineStore('user', {
     },
 
   // confirm friend request
-  confirmFriendRequest(id: number): Promise<any> {
+  confirmFriendRequest(id: string): Promise<any> {
     return new Promise(async (resolve, reject) => {
       try {
         const { data } = await axios.post('/friend/confirm', {
           id,
         });
         resolve(data);
+        this.user.friendRequestsSent[0] = {id: data.id, status: 'CONFIRMED'}
       } catch (error) {
         console.log(error);
         reject(error);
       }
     })
     },
+
+    // blocker user
+    async blockUser(id: string): Promise<any> {
+      const chatStore = useChatStore();
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.post('user/block', {
+            id
+          });
+          chatStore.deleteConversation(id);
+          resolve(response);
+          this.user._count.blockedBy = 1;
+        } catch(error) {
+          reject(error);
+        }
+      });
+    },
+
+    // unblock user
+    async unblockUser(id: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.post('/user/unblock', {
+            id
+          });
+          resolve(response);
+          this.user._count.blockedBy = 0;
+          console.log(this.user)
+        } catch (error) {
+          console.log('erro when unblocking user')
+          reject(error)
+        }
+      })
+    }
 
   },
 });

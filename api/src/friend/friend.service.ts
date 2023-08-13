@@ -8,6 +8,22 @@ export class FriendService {
   constructor(private prisma: PrismaService) { }
 
   async sendFrienRequest(authenticatedId: string, requestedId: string) {
+    // finding reqeust
+    const requestSent = await this.prisma.friendRequests.findFirst({
+      where: {
+        senderId: authenticatedId
+      }
+    });
+    if(requestSent)
+      throw new HttpException('request already sent', HttpStatus.CONFLICT);
+    // confirm if other user alredy sent the request
+   const requestRecieved = await this.prisma.friendRequests.findFirst({
+      where: {
+        recieverId: authenticatedId
+      }
+    });
+    if(requestRecieved)
+      return this.confirmFriendRequest({sub: authenticatedId} as AuthenticatedUser, requestRecieved.id);
     const friendShip = await this.prisma.friendRequests.create({
       data: {
         senderId: authenticatedId,
@@ -70,7 +86,6 @@ export class FriendService {
         id
       }
     });
-    console.log(result);
     return result;
   }
 
@@ -93,5 +108,35 @@ export class FriendService {
       }
     });
     return requests;
+  }
+
+  // getting online friends
+  async getOnlineFriends(auth: AuthenticatedUser) {
+    const friends = await this.prisma.users.findFirst({
+      where: {
+        id: auth.sub
+      },
+      select: {
+        friendOf: {
+          select: {
+            friendWith: true
+          }
+        },
+        friendWith: {
+          select: {
+            friendOf:true
+         }
+        }
+      }
+    }) 
+    const filtredFriends = []
+    friends?.friendWith.forEach(friend => {
+      if(friend.friendOf.isOnline) filtredFriends.push(friend.friendOf)
+    })
+
+    friends?.friendOf.forEach(friend => {
+      if(friend.friendWith.isOnline) filtredFriends.push(friend.friendWith)
+    })
+    return filtredFriends;
   }
 }

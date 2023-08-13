@@ -38,10 +38,16 @@ const routes = [
       {
         path: '/users/:username',
         name: 'UserProfile',
-        component: () => import('@/views/UserPofile.vue'),
+        component: () => import('@/views/UserProfile.vue'),
         meta: {
           auth: true
         }
+      },
+      // error pages
+      {
+        path: '/forbidden',
+        name: 'Forbidden',
+        component: () => import('@/pages/Forbidden.vue')
       }
     ],
   },
@@ -49,13 +55,25 @@ const routes = [
     path: '/chat',
     name: 'Chat',
     component: () => import('@/layouts/chat/Default.vue'),
+    meta: {
+      auth: true,
+    },
     children: [
       {
         path: '/dm/:id',
         name: 'Dm',
         component: () => import('@/layouts/chat/Default.vue'),
+        meta: {
+          auth: true,
+        }
       }
     ]
+  },
+  // default path for page not found if no route matched
+  {
+    path: '/:catchAll(.*)',
+    name: 'NotFound',
+    component: () => import('@/pages/NotFound.vue')
   }
 ]
 
