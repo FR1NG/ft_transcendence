@@ -13,27 +13,19 @@ const { loading } = storeToRefs(userStore);
 const updating = ref(false);
 
 const profile = reactive({
-  avatar: "https://cdn.intra.42.fr/users/9a65446eb4e52003992947a9cb266862/ael-rhai.jpg",
-  username: "ael-rhai",
-  email: "el.rhair.amine@gmail.com",
-  oldPassword: "123456789",
-  newPassword: "",
-  confirmPassword: "",
-  fa: 'disabled',
+  avatar: "",
+  username: "",
+  email: "",
+  fa: false,
 });
 
 const showPassword = ref(false)
 
-const switchStatus = ref('disabled')
-
 const errors = reactive({
   username: '',
   email: '',
+  fa: '',
 });
-
-const confirmPassword = computed<boolean>(() => {
-  return 'a' ? profile.newPassword === profile.confirmPassword : false;
-})
 
 // getting profile
 const getProfile = async () => {
@@ -80,34 +72,12 @@ const update = async () => {
       <v-text-field prepend-inner-icon="mdi-email" class="ma-2" label="Email" variant="outlined" v-model="profile.email"
         :error="errors.email.length !== 0" :messages="errors.email"
       ></v-text-field>
-      <!-- <customDivider title="Password"/>
-      <v-text-field
-        type="password" 
-        prepend-inner-icon="mdi-lock"
-        class="ma-2" 
-        label="Old password" variant="outlined" v-model="profile.oldPassword">
-      </v-text-field>
-      <v-text-field
-        type="password" 
-        prepend-inner-icon="mdi-lock"
-        class="ma-2" 
-        label="New password" variant="outlined" v-model="profile.newPassword">
-      </v-text-field>
-      <v-text-field
-        type="password" 
-        prepend-inner-icon="mdi-lock"
-        class="ma-2" 
-        label="Confirm password" variant="outlined" v-model="profile.confirmPassword"
-        :append-inner-icon="confirmPassword ? 'mdi-check' : `mdi-alpha-x` ">
-      </v-text-field> -->
       <customDivider title="2 Factor authentication"/>
         <v-switch class="switch"
         prepend-icon="mdi-two-factor-authentication"
           v-model="profile.fa"
           hide-details
-          true-value="enabled"
-          false-value="disabled"
-          :label="switchStatus"
+          :label="profile.fa ? `Enabled` : `Disabled`"
           @click="profile.fa = !profile.fa"
         ></v-switch>
       <v-card-actions>
