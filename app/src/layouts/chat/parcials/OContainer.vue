@@ -16,7 +16,7 @@ setTimeout(() => {
 <template>
 
   <div class="ma-2 pa-2">
-    <o-message v-for="message in messages" :message="message" :loading="loading"> </o-message>
+    <o-message v-for="message in messages" :message="message" :loading="message.loading"> </o-message>
   </div>
 
 

@@ -1,3 +1,4 @@
+
 <script setup>
 
 </script>
@@ -5,7 +6,7 @@
 <template>
   <v-container>
       <div class="content">
-        not found
+        Forbidden
       </div>
   </v-container>
 </template>

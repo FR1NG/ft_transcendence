@@ -42,6 +42,12 @@ const routes = [
         meta: {
           auth: true
         }
+      },
+      // error pages
+      {
+        path: '/forbidden',
+        name: 'Forbidden',
+        component: () => import('@/pages/Forbidden.vue')
       }
     ],
   },

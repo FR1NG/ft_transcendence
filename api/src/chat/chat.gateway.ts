@@ -39,7 +39,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleMessage(client: any, payload: MessagePaylod): Promise<any> {
     const { user } = client;
     if(payload.type === 'dm') {
-      const message = await this.chatService.createDm(payload, user);
+      const message: any = await this.chatService.createDm(payload, user);
+      client.emit('feedback', {status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId});
       const clientReciever = this.clients.get(payload.recieverId);
       if(clientReciever) {
         clientReciever.emit('message', message);

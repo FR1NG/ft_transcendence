@@ -56,6 +56,17 @@ export const useChatStore = defineStore('chat', {
       if (html) {
         html.scrollTop = html.scrollHeight
       }
+    },
+    changeMessageStatus(feedback: any) {
+      const { recieverId, message } = feedback;
+      const conversation: any = this.conversations.get(recieverId);
+      const index = conversation.messages.findIndex(((el: Message) => el.id === feedback.tmpId));
+      const dm = conversation.messages[index];
+      dm.id = message.id;
+      dm.loading = false;
+    },
+    deleteConversation(userId: string) {
+      this.conversations.delete(userId);
     }
   },
 })

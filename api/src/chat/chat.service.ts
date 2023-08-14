@@ -109,7 +109,7 @@ export class ChatService {
       select: {
         id: true,
         senderId: true,
-        content: true
+        content: true,
       }
     });
     return message;
@@ -153,8 +153,28 @@ export class ChatService {
         isOnline:  true
       }
     })
+
     if(!user)
       throw new NotFoundException()
+
+    // getting if one of the users block the other
+    const block = await this.prisma.block.findFirst({
+      where: {
+        OR: [
+          {
+            blockerId: userId,
+            blockedId: authUser.sub
+          },
+          {
+            blockedId: userId,
+            blockerId: authUser.sub
+          }
+        ]
+      }
+    });
+
+    user['block'] = block ? true : false;
+
     const filtredMessages = [];
     conversation?.conversation?.messages?.forEach(message => {
       let type: string;
@@ -166,7 +186,8 @@ export class ChatService {
       filtredMessages.push({
         id,
         content,
-        type
+        type,
+        loading: false
       })
     })
     return {
