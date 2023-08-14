@@ -27,11 +27,7 @@
         <v-divider></v-divider>
 
         <v-list>
-          <v-list-item :to="{name: 'Profile'}">
-            Profile
-          </v-list-item>
-
-          <v-list-item>
+          <v-list-item :to="{name: 'Settings'}">
             Settings
           </v-list-item>
 
