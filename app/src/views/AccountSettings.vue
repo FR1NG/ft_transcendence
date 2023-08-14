@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { resetObject, assignObject } from '@/composables/helpers'
 import { useSnackBarStore } from '@/store/snackbar'
 import ProfileAvatar from '@/components/ProfileAvatar.vue'
-import customDivider from '@/components/customDivider.vue'
+import CustomDivider from '@/components/CustomDivider.vue'
 
 const userStore = useUserStore();
 const snackBarStore = useSnackBarStore();
@@ -13,7 +13,7 @@ const { loading } = storeToRefs(userStore);
 const updating = ref(false);
 
 const profile = reactive({
-  avatar: "",
+  avatar: "/images/defaultUserAvatar1.jpg",
   username: "",
   email: "",
   fa: false,
@@ -66,13 +66,13 @@ const update = async () => {
     <h1 class="pageHeader">Settings</h1>
     <v-form class="pa-4">
       <ProfileAvatar :link="profile.avatar" :update="getProfile" />
-      <customDivider class="mainDivider" title="General Info" top="2"/>
+      <CustomDivider class="mainDivider" title="General Info" top="2"/>
       <v-text-field prepend-inner-icon="mdi-account-circle" class="ma-2" label="Username" variant="outlined" v-model="profile.username"
         :error="errors.username.length !== 0" :messages="errors.username"></v-text-field>
       <v-text-field prepend-inner-icon="mdi-email" class="ma-2" label="Email" variant="outlined" v-model="profile.email"
         :error="errors.email.length !== 0" :messages="errors.email"
       ></v-text-field>
-      <customDivider title="2 Factor authentication"/>
+      <CustomDivider title="2 Factor authentication"/>
         <v-switch class="switch"
         prepend-icon="mdi-two-factor-authentication"
           v-model="profile.fa"
