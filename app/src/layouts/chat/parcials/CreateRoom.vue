@@ -1,41 +1,62 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, watch, reactive } from 'vue'
 import { useRoomStore } from '@/store/room'
 import { CreateRoomDto } from '@/types/room';
-import { storeToRefs } from 'pinia';
+import { assignObject, resetObject } from '@/composables/helpers';
 
 const roomStore = useRoomStore()
+
 const dialog = ref(false)
 const types = ref([
   'PUBLIC',
-  'RROTECTED',
+  'PROTECTED',
   'PRIVATE'
 ]);
+
 const showPassword = ref(false)
-const form = ref<CreateRoomDto>({
+const form = reactive<CreateRoomDto>({
   name: '',
   type: 'PUBLIC',
   password: ''
 })
 
+const errors = reactive({
+  name: '',
+  type: '',
+  password: '',
+});
+
 watch(
-  () => form.value?.type,
+  () => form.type,
   (newval) => {
-    if (newval === 'RROTECTED')
+    if (newval === 'PROTECTED')
       showPassword.value = true
     else {
       showPassword.value = false
-      form.value.password = ''
+      form.password = ''
     }
   },
   {
     deep: true
   });
 
+const reset = () => {
+  resetObject(form)
+  form.type = 'PUBLIC';
+}
+
 // submit handler
 const handleSubmit = async () => {
-   console.log(form.value);
-  const response = await roomStore.createRoom(form.value);
+  resetObject(errors);
+  roomStore.createRoom(form).then(result => {
+    console.log(result)
+    dialog.value = false;
+    reset();
+  }).catch(error => {
+    console.log(error)
+    console.log(error.data.errors)
+    assignObject(error.data.errors, errors);
+  })
 }
 </script>
 
@@ -58,14 +79,14 @@ const handleSubmit = async () => {
 
               <v-row>
                 <v-col cols="12">
-                  <v-text-field label="Room name*" v-model="form.name"></v-text-field>
+                  <v-text-field label="Room name*" :error="errors.name.length > 0" :error-messages="errors.name" v-model="form.name"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                   <v-select label="type" v-model="form.type" :items="types">
                   </v-select>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field v-if="showPassword" label="Password*" v-model="form.password" type="password"></v-text-field>
+                  <v-text-field v-if="showPassword" label="Password*" :error="errors.password.length > 0" :error-messages="errors.password" v-model="form.password" type="password"></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
