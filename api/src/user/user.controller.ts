@@ -31,7 +31,7 @@ import { AuthPayload } from './dto/auth-payload';
 import { FilterUserDto } from './dto/filter-user.dto';
 
 @Controller('user')
-@UseFilters(ValidationExceptionFilterFilter)
+// @UseFilters(ValidationExceptionFilterFilter)
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
