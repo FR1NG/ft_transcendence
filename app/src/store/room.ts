@@ -20,6 +20,7 @@ export const useRoomStore = defineStore('room', {
     roomSettings: false,
     selectedRoom: {} as UserRoom,
     searchedRooms: [] as UserRoom[],
+    searching: false,
 
   }),
   getters: {
@@ -70,16 +71,18 @@ export const useRoomStore = defineStore('room', {
 
     async searchRoom(pattern: string): Promise<any> {
 
-      console.log('log from store', pattern)
       if(!pattern)
         return;
+      this.searching = true;
       return new Promise(async (resolve, reject) => {
         try {
           const { data } = await axios.get(`/room/search/${pattern}`);
           this.searchedRooms = data;
+          this.searching = false;
           resolve(data);
         } catch (error) {
           console.log(error)
+          this.searching = false
           reject(error)
         }
       })

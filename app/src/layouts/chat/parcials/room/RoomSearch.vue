@@ -8,7 +8,7 @@ import { computed } from 'vue';
 const roomStore = useRoomStore();
 const search = ref('');
 const list = ref(true);
-const { searchedRooms } = storeToRefs(roomStore);
+const { searchedRooms, searching } = storeToRefs(roomStore);
 
 let timeoutValue: any;
 
@@ -34,7 +34,11 @@ const clearTimeout = () => {
 // appearance
 const appearance = computed({
   get() {
-    return search.value.length != 0;
+    if(search.value.length != 0) {
+      searching.value = true;
+      return true;
+    }
+    return false;
   },
   set() {
     // do nothing
@@ -67,10 +71,11 @@ const appearance = computed({
     <v-card
       min-width="300"
       min-height="70"
-      :loading="true"
+      :loading="searching"
     >
       <v-list>
         <v-list-item  v-for="room in searchedRooms" :key="room.id" :title="room.name"></v-list-item>
+        <v-list-item v-if="!searching && searchedRooms.length === 0">no result found</v-list-item>
       </v-list>
     </v-card>
   </v-menu>
