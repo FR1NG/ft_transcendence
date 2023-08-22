@@ -7,10 +7,13 @@ export class ChatController {
   constructor(private chatService: ChatService) {}
 
   @UseGuards(AuthGuard)
-  @Get('user-conversation/:userId')
-  async getUsersConversation(@Req() request, @Param('userId') userId) {
+  @Get('conversation/:id')
+  async getUsersConversation(@Req() request, @Param('id') id, @Query('type') type: string) {
     const { user } = request;
 
-    return await this.chatService.getUsersConversation(user, userId);
+    if(type === 'dm')
+      return await this.chatService.getUsersConversation(user, id);
+    else if (type === 'room')
+      return await this.chatService.getRoomConversation(user, id);
   }
 }

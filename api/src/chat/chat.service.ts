@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -20,6 +21,60 @@ export class ChatService {
       const { content } = payload;
       message = await this.createMessage(conversationId, createorId, content);
     }
+    return message;
+  }
+
+  async createRoomMessage(user: AuthenticatedUser, payload: MessagePaylod) {
+    const { content, recieverId} = payload;
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: recieverId, 
+      },
+      select: {
+        name: true,
+        id: true,
+        users: {
+          where: {
+            userId: user.sub
+          },
+        },
+        conversation: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+    
+    if(!room || room.users.length === 0)
+      throw new WsException('you are not autorized to send message to this room');
+    const message = await this.prisma.messages.create({
+      data: {
+        content,
+        sender: {
+          connect: {
+            id: user.sub
+          }
+        },
+        converstion: {
+          connect: room.conversation
+        },
+      },
+      select: {
+        id: true,
+        content: true,
+        sender: {
+          select: {
+            id: true,
+            username: true,
+          }
+        }
+      }
+    });
+    if(!message)
+      throw new WsException('failed to create message');
+    const { id, name } = room;
+    message['room'] = { id, name };
     return message;
   }
 
@@ -141,6 +196,7 @@ export class ChatService {
       }
     });
 
+
     const user = await this.prisma.users.findUnique({
       where: {
         id: userId
@@ -194,6 +250,35 @@ export class ChatService {
       user,
       messages: filtredMessages
     };
+  }
+
+  async getRoomConversation(user: AuthenticatedUser, roomId) {
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: roomId
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        users: {
+          where: {
+            userId : user.sub
+          }
+        },
+        conversation: {
+          select: {
+            id: true,
+            messages: true,
+          }
+        }
+      }
+    })
+    
+    if(room.users.length === 0)
+      throw new UnauthorizedException('you are not in this room');
+    delete room['users'];
+    return room;
   }
 
 

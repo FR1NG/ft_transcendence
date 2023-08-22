@@ -7,27 +7,44 @@ import { UserService } from 'src/user/user.service';
 import { ChatService } from './chat.service';
 import { MessagePaylod } from './dto/chat';
 import { WebSocketExceptionFilter } from 'src/exception-filters/websocket.filter';
+import { RoomService } from 'src/room/room.service';
+import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private chatService: ChatService, private userService: UserService, private jwtService: JwtService, private config: ConfigService) {}
+  constructor(
+    private chatService: ChatService,
+    private userService: UserService,
+    private jwtService: JwtService,
+    private config: ConfigService,
+    private roomService: RoomService
+  ) {}
 
   @WebSocketServer()
-  private server;
+  private server: Server;
 
   private clients: Map<string, any> = new Map();
 
-  async handleConnection(client: any, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
       const payload = await this.getUser(client);
       if(payload) {
       client['user'] = payload;
-      if(payload?.sub)
-        await this.userService.setOnline(payload.sub, true);
+      if(payload?.sub) {
+        // setting the user status to online
+        this.userService.setOnline(payload.sub, true);
+        // getting all rooms for the authenticated user
+        const rooms = await this.roomService.getUserRooms(payload);
+        // joining the socket of the user rooms
+        rooms.forEach(el => {
+          client.join(el.room.id);
+        });
+      }
+      // adding the user of the connected user map
       this.clients.set(payload.sub, client);
     }
   }
 
-  async handleDisconnect(client: any) {
+  async handleDisconnect(client: Socket) {
       const payload = await this.getUser(client);
       if(payload?.sub)
         await this.userService.setOnline(payload.sub, false);
@@ -45,6 +62,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if(clientReciever) {
         clientReciever.emit('message', message);
       }
+    } else if (payload.type === 'room') {
+      console.log(payload);
+        const message: any = await this.chatService.createRoomMessage(user, payload);
+        console.log(message);
+        this.server.to(payload.recieverId).emit('room-message', message);
     }
   }
 

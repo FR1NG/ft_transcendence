@@ -7,10 +7,19 @@ import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma.service';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
+import { RoomService } from 'src/room/room.service';
 
 @Module({
   imports: [UserModule, JwtModule],
-  providers: [ChatGateway, JwtService, UserService, ConfigService, PrismaService, ChatService],
+  providers: [
+    ChatGateway,
+    JwtService,
+    UserService,
+    ConfigService,
+    PrismaService,
+    ChatService,
+    RoomService
+  ],
   controllers: [ChatController]
 })
 export class ChatModule {}
