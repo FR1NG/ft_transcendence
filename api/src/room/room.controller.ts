@@ -41,8 +41,8 @@ export class RoomController {
   }
 
   @Get('search/:pattern')
-  // @UseGuards(AuthGuard)
-  async searchRoom(@Param('pattern') pattern: string) {
-    return await this.roomService.searchRoom(null, pattern);
+  @UseGuards(AuthGuard)
+  async searchRoom(@User() user: AuthenticatedUser, @Param('pattern') pattern: string) {
+    return await this.roomService.searchRoom(user, pattern);
   }
 }

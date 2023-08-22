@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -107,13 +107,16 @@ export class RoomService {
 
     if (!room)
       throw new NotFoundException();
+
     if (room.type === 'PRIVATE')
       throw new UnauthorizedException();
 
     if (room.type === 'PROTECTED') {
       const passwordMatch = await bcrypt.compare(password, room.password);
       if (!passwordMatch)
-        throw new UnauthorizedException();
+      throw new HttpException({
+        message: 'Invalid password'
+      }, HttpStatus.UNAUTHORIZED);
     }
 
     const joined = await this.prisma.users.update({
@@ -161,14 +164,31 @@ export class RoomService {
           contains: pattern,
           mode: 'insensitive'
         },
+        NOT: {
+          type: 'PRIVATE'
+        }
       },
       select: {
         id: true,
         name: true,
-        type: true
+        type: true,
+        users: {
+          where : {
+            userId: user.sub
+          }
+        }
       }
     });
-    return rooms;
+
+    const filtred = rooms.map(el => {
+      if(el.users.length > 0)
+       el["joined"] = true;
+      else
+       el["joined"] = false;
+      delete el["users"];
+      return el;
+    })
+    return filtred;
   }
 }
 
