@@ -4,7 +4,7 @@ import { Response } from 'express';
 
 @Catch(HttpException)
 export class ValidationExceptionFilterFilter implements ExceptionFilter {
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
 
@@ -24,7 +24,7 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
         errors: costumeMessages,
       });
     } else {
-      response.status(statusCode).json({
+      response.status(exception.status).json({
         message,
       });
     }
