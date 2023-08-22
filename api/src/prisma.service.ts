@@ -39,6 +39,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         }
       });
 
+      if(!conversation.usersConversation)
+        return next(params);
+
       const isBlocked = await this.block.findFirst({
         where: {
           OR: [
