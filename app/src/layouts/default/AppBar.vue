@@ -4,6 +4,22 @@
       <v-icon icon="logo mdi-table-tennis" />
       otossa
     </v-app-bar-title>
+
+    <v-spacer></v-spacer>
+     <v-card min-height="50" width="500" class="d-flex justify-center my-2">
+      <v-btn icon color="secondary">
+        <v-icon>mdi-home-circle-outline</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn icon color="secondary">
+        <v-icon>mdi-chat-outline</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn icon color="secondary">
+        <v-icon>mdi-cog-outline</v-icon>
+      </v-btn>
+      </v-card>
+    <v-spacer></v-spacer>
     <NavNotification />
       <SearchList/>
     <!-- <v-app-bar-action-item> -->
