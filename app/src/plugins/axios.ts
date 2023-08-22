@@ -1,5 +1,4 @@
 import axios from 'axios'
-import router from '../router';
 
 const Trexios = axios.create({
   baseURL:  import.meta.env.VITE_API_URL
@@ -10,18 +9,13 @@ const Trexios = axios.create({
 Trexios.interceptors.response.use(response => {
     return response;
 }, error => {
-    if (error.response.status === 401 || error.response.status === 419) {
-      if(sessionStorage.getItem('access_token')){
-        sessionStorage.removeItem('access_token');
-        window.location.reload();
-      }
-    } else {
-        const newLocation = error.response.statusText.toLowerCase().split(' ').join('_');
-      console.log(router);
-        router.push(`/${newLocation}`)
-        // window.location.replace(`/${newLocation}`);
-      }
-
+    // if (error.response.status === 401 || error.response.status === 419) {
+    //   console.log(error)
+    //   if(sessionStorage.getItem('access_token')){
+    //     sessionStorage.removeItem('access_token');
+    //     window.location.reload();
+    //   }
+    // }
     return Promise.reject(error);
 });
 
