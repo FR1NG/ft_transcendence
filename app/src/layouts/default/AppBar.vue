@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar flat>
+  <v-app-bar flat color="colorOne">
     <v-app-bar-title>
       <v-icon icon="logo mdi-table-tennis" />
       otossa

@@ -51,30 +51,30 @@ const roomSettings = (room: UserRoom) => {
           </v-icon>
         </template>
 
-        <template v-slot:append>
+        <!-- <template v-slot:append> -->
 
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon flat>
-                <v-icon icon="mdi-dots-vertical"> </v-icon>
-              </v-btn>
-            </template>
+        <!--   <v-menu> -->
+        <!--     <template v-slot:activator="{ props }"> -->
+        <!--       <v-btn v-bind="props" icon flat> -->
+        <!--         <v-icon icon="mdi-dots-vertical"> </v-icon> -->
+        <!--       </v-btn> -->
+        <!--     </template> -->
 
-            <v-card>
-              <v-list>
-                <v-list-item @click="roomSettings(room)">
-                  setting
-                </v-list-item>
-                <v-list-item>
-                  setting two
-                </v-list-item>
-                <v-list-item>
-                  setting three
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </v-menu>
-        </template>
+        <!--     <v-card> -->
+        <!--       <v-list> -->
+        <!--         <v-list-item @click="roomSettings(room)"> -->
+        <!--           setting -->
+        <!--         </v-list-item> -->
+        <!--         <v-list-item> -->
+        <!--           setting two -->
+        <!--         </v-list-item> -->
+        <!--         <v-list-item> -->
+        <!--           setting three -->
+        <!--         </v-list-item> -->
+        <!--       </v-list> -->
+        <!--     </v-card> -->
+        <!--   </v-menu> -->
+        <!-- </template> -->
       </v-list-item>
 </template>
 

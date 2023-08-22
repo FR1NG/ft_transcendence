@@ -62,7 +62,7 @@ const props = defineProps<{
   >
     <template v-slot:activator="{ props }">
     <v-text-field
-      bg-color="grey-lighten-4"
+      bg-color="colorThree"
       color="primary"
       class="rounded-pill overflow-hidden"
       density="compact"

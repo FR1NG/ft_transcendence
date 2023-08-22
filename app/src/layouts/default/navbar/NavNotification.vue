@@ -24,9 +24,11 @@ notificationStore.getNotifications();
       :close-on-content-click="false"
     >
       <template v-slot:activator="{ props }">
+        <v-card class="ma-2">
         <v-btn v-bind="props" icon>
-          <v-icon class="notification-icon">mdi-bell-outline</v-icon>
+          <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
         </v-btn>
+        </v-card>
       </template>
       <v-card min-width="300" min-height="70" max-height="300" max-width="300">
         <v-list>

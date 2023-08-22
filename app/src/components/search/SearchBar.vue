@@ -62,9 +62,7 @@
 </script>
 
 <template>
-  <v-card>
       <v-text-field
-        class="search-bar"
         variant="solo"
         density="compact"
         placeholder="search user"
@@ -77,20 +75,4 @@
         @click:append-inner="handleSearch"
         @keyup="handlekeyUp"
       ></v-text-field>
-  </v-card>
 </template>
-
-<style lang="scss">
-@import 'vuetify/_settings.scss';
-
-@media #{map-get($display-breakpoints, 'sm-and-down')} {
-    .search-bar {
-        display: none;
-    }
-}
-
-.search-bar {
-  width: 200px;
-  padding: 2px;
-}
-</style>

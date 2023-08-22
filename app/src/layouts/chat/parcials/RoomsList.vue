@@ -41,7 +41,6 @@ roomStore.getRooms();
 <template>
   <JoinRoom v-if="joinAppearance" :room="roomToJoin" @close="joinClose"/>
   <room-settings v-if="roomSettings"> </room-settings>
-  <v-navigation-drawer v-model="drawer" location="right" min-width="600">
     <v-list>
       <v-list-item>
         <room-search :join="joinRoom"> </room-search>
@@ -51,5 +50,4 @@ roomStore.getRooms();
       </v-list-item>
       <list-element :rooms="rooms"> </list-element>
     </v-list>
-  </v-navigation-drawer>
 </template>

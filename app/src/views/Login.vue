@@ -25,8 +25,6 @@ import { reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
 
-// import { useVuelidate } from '@vuelidate/core'
-// import { email, required } from '@vuelidate/validators'
 const route = useRoute();
 
 const attemptinLoginWithIntra = ref(false)
