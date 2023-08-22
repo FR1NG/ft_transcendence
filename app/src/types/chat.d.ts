@@ -1,4 +1,5 @@
 import { User } from "./user"
+import type { Room } from "./room"
 
 export type Message = {
   id: string
@@ -9,5 +10,5 @@ export type Message = {
 
 export type Conversation = {
   messages: Message[]
-  user: User
+  user: User | Room
 }

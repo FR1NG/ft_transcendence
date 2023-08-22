@@ -11,9 +11,9 @@ import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { useSnackBarStore } from '@/store/snackbar'
 import { useRoomStore } from '@/store/room'
-import DefaultSidBar from '../default/SideBar.vue'
 import RoomsList from './parcials/RoomsList.vue'
 import type { User } from '@/types/user';
+import { Room } from '@/types/room';
 
 const message = ref('');
 const route = useRoute();
@@ -44,10 +44,14 @@ socket.on('feedback', (data) => {
 })
 
 const send = () => {
-  if (message.value.length > 0) {
+
+  if (message.value.length === 0)
+    return;
+
     const recieverId: string = route.params.id as string;
+    const type = route.name?.toString().toLowerCase();
     const tmpId = Math.random().toString();
-    socket.emit('message', {content: message.value, recieverId, type: 'dm', id: tmpId})
+    socket.emit('message', {content: message.value, recieverId, type, id: tmpId})
     // TODO should listen for an event to give the feedback of the message and get the id from it
     const sentMessage: Message = {
       content: message.value,
@@ -56,9 +60,9 @@ const send = () => {
       loading: true
     }
 
-    chatStore.addMessageToConversation(sentMessage, recieverId);
+    if(type === 'dm')
+      chatStore.addMessageToConversation(sentMessage, recieverId);
     message.value = '';
-  }
 }
 
 // TODO add a type to the data
@@ -68,16 +72,30 @@ socket.on('message', (data: any) => {
   const message : Message = {
     id,
     content,
-    type: 'recieved'
+    type: 'recieved',
+    loading: false
   };
   const conversation = chatStore.addMessageToConversation(message, senderId);
-  console.log(conversation?.user)
-  showNotification(message, conversation?.user);
+  showNotification(message, conversation?.user.username as string);
 })
 
+socket.on('room-message', (data: any) => {
+  chatStore.playNotificationSound();
+  const {id, content, senderId, sender, room } = data;
+  const message : Message = {
+    id,
+    content,
+    type: 'recieved',
+    loading: false
+  };
+  console.log(data);
+  chatStore.addMessageToConversation(message, room.id);
+  showNotification(message,`${sender.username}#${room.name}` );
+});
+
 // show notification
-const showNotification = (message: Message, user: User | undefined) => {
-  snackBarStore.notify(message.content, user?.username)
+const showNotification = (message: Message, sender: string) => {
+  snackBarStore.notify(message.content, sender)
 }
 
 // for test
@@ -102,11 +120,11 @@ const getOnlineUsers = async () => {
   }
 }
 
-const getUsersConversation = async (id: string) => {
-  chatStore.getUsersConversation(id);
+const getConversation = async (id: string, type: string) => {
+  chatStore.getConversation(id, type);
 }
 
-getUsersConversation(route.params.id as string);
+getConversation(route.params.id as string, route.name?.toString().toLowerCase() as string);
 
 getOnlineUsers();
 
@@ -114,7 +132,8 @@ fetch();
 
 onBeforeRouteUpdate((to) => {
   const { id }  = to.params;
-  getUsersConversation(id as string)
+  const type = to.name?.toString().toLowerCase()
+  getConversation(id as string, type as string);
 })
 
 const handleEnter = () => {
@@ -126,7 +145,7 @@ const handleEnter = () => {
 <template>
   <v-app id="inspire">
     <app-bar></app-bar>
-    <DefaultSidBar/>
+    <!-- <DefaultSidBar/> -->
     <v-navigation-drawer color="grey-lighten-3" :rail='false' v-model="usersDrawer">
       <v-avatar class="d-block text-center mx-auto mt-4" color="grey-darken-1" size="36"></v-avatar>
       <v-divider class="mx-3 my-5"></v-divider>

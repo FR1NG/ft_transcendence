@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { CreateRoomDto } from '@/types/room'
 import axios from '@/plugins/axios'
-import { log } from 'node:console'
+import { AxiosResponse } from 'axios'
 
 type UserRoom = {
   role: String
@@ -21,7 +21,6 @@ export const useRoomStore = defineStore('room', {
     selectedRoom: {} as UserRoom,
     searchedRooms: [] as UserRoom[],
     searching: false,
-
   }),
   getters: {
     isSearched: (state) => {
@@ -32,7 +31,7 @@ export const useRoomStore = defineStore('room', {
     async createRoom(room: CreateRoomDto): Promise<any> {
       return new Promise(async (resolve, reject) => {
         try {
-          const response: any = await axios.post('/room', {
+          const response: AxiosResponse = await axios.post('/room', {
             ...room
           });
           this.getRooms();
@@ -59,8 +58,8 @@ export const useRoomStore = defineStore('room', {
       console.log(roomId)
       return new Promise(async (resolve, reject) => {
         try {
-        const { data } = await axios.get(`/room/users?id=${roomId}`);
-          console.log(data);
+        const response: AxiosResponse = await axios.get(`/room/users?id=${roomId}`);
+          const { data } = response;
           resolve(data);
         } catch(error) {
           console.log(error)
@@ -79,11 +78,29 @@ export const useRoomStore = defineStore('room', {
           const { data } = await axios.get(`/room/search/${pattern}`);
           this.searchedRooms = data;
           this.searching = false;
+          console.log(data);
           resolve(data);
         } catch (error) {
           console.log(error)
           this.searching = false
           reject(error)
+        }
+      })
+    },
+
+    async joinRoom(id: string, password: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/join', {
+            id,
+            password
+          });
+          const { data } = response;
+          console.log(data);
+          resolve(data);
+        } catch(error: any) {
+          console.log(error.response);
+          reject(error.response);
         }
       })
     }

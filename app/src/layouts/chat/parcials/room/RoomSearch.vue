@@ -3,12 +3,13 @@ import { useRoomStore } from '@/store/room'
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
+import type { SearchedRoom } from '@/types/room'
 
 
 const roomStore = useRoomStore();
-const search = ref('');
-const list = ref(true);
 const { searchedRooms, searching } = storeToRefs(roomStore);
+
+const search = ref('');
 
 let timeoutValue: any;
 
@@ -41,9 +42,14 @@ const appearance = computed({
     return false;
   },
   set() {
-    // do nothing
+    search.value = '';
   }
 })
+
+const props = defineProps<{
+  join: Function
+}>();
+
 </script>
 
 <template>
@@ -74,7 +80,11 @@ const appearance = computed({
       :loading="searching"
     >
       <v-list>
-        <v-list-item  v-for="room in searchedRooms" :key="room.id" :title="room.name"></v-list-item>
+        <v-list-item  v-for="room in searchedRooms" :key="room.id" :title="room.name">
+          <template v-slot:append>
+            <v-btn v-if="!room.joined" @click="join(room)">join</v-btn>
+          </template>
+        </v-list-item>
         <v-list-item v-if="!searching && searchedRooms.length === 0">no result found</v-list-item>
       </v-list>
     </v-card>

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { Conversation, Message } from '@/types/chat'
 import axios from '@/plugins/axios'
 import { User } from '@/types/user';
+import { Room } from '@/types/room';
 
 // type conversations = {
 //   userId: string
@@ -19,21 +20,27 @@ export const useChatStore = defineStore('chat', {
 
   },
   actions: {
-    async getUsersConversation(id: string) {
+    async getConversation(id: string, type: string) {
       if (!id)
         return;
       const conversation = this.conversations.get(id);
       if(conversation) {
         this.activeConversation = conversation.messages;
-        this.selectedUser = conversation.user
+        this.selectedUser = conversation.user as User;
       } else {
       try {
-        const { data } = await axios.get(`/chat/user-conversation/${id}`);
-        const { messages, user} = data;
-          console.log(data)
-        this.conversations.set(data.user.id, {messages, user});
-        this.selectedUser = data.user;
-        this.activeConversation = data.messages;
+        const { data } = await axios.get(`/chat/conversation/${id}?type=${type}`);
+        if(type === 'dm') {
+          const { messages, user} = data;
+          this.conversations.set(data.user.id, {messages, user});
+          this.selectedUser = data.user;
+            this.activeConversation = data.messages;
+        } else if(type === 'room') {
+            const { id, conversation } = data;
+            this.conversations.set(id, {messages: conversation.messages});
+            this.activeConversation = conversation.messages;
+            console.log(data);
+          }
         this.scrollDown()
       } catch (error) {
         console.log('error whene getting messages');

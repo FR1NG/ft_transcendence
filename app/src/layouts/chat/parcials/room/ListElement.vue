@@ -10,7 +10,7 @@ const props = defineProps<{
 const iconColor = (role: string): String => {
   switch (role) {
     case 'ADMIN':
-      return 'light-green-accent-3'
+      return 'green-darken-2'
     case 'OWNER':
       return 'amber-lighten-1'
     default:
@@ -24,6 +24,8 @@ const getIcon = (role: string): String => {
       return 'mdi-shield-edit-outline'
     case 'OWNER':
       return 'mdi-shield-crown-outline'
+    case 'USER':
+      return 'mdi-account-cowboy-hat-outline'
     default:
       return 'mdi-shield-account-outline'
   }
@@ -32,7 +34,8 @@ const getIcon = (role: string): String => {
 
 // room settings
 const roomSettings = (room: UserRoom) => {
-  roomStore.showSettings(room);
+  console.log('showing setting');
+  // roomStore.showSettings(room);
 }
 
 </script>
@@ -40,9 +43,9 @@ const roomSettings = (room: UserRoom) => {
 
 <template>
 
-      <v-list-item  v-for="room in rooms" :key="room.room.id" link>
+  <v-list-item  v-for="room in rooms" :key="room.room.id" link :to="{name : 'Room', params: { id: room.room.id } }">
         {{ room.room.name}}
-        <template v-if="room.role !== 'USER'" v-slot:prepend>
+        <template v-slot:prepend>
           <v-icon :color="iconColor(room.role)">
             {{ getIcon(room.role) }}
           </v-icon>
