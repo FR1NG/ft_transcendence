@@ -63,12 +63,12 @@ const props = defineProps<{
     <template v-slot:activator="{ props }">
     <v-text-field
       bg-color="colorThree"
-      color="primary"
-      class="rounded-pill overflow-hidden"
+      color="colorThree"
+      class="overflow-hidden"
       density="compact"
       hide-details
       variant="solo"
-      append-inner-icon="mdi-magnify"
+      prepend-inner-icon="mdi-magnify"
       v-model="search"
       v-bind="props"
       @keyup="handleKeyUp"

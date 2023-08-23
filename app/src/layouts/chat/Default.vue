@@ -21,7 +21,7 @@ const chatStore = useChatStore();
 const snackBarStore = useSnackBarStore();
 const roomStore = useRoomStore();
 const { activeConversation: messages, selectedUser } = storeToRefs(chatStore);
-const usersDrawer = ref(true)
+const usersDrawer = ref(false)
 const { drawer: roomsDrawer } = storeToRefs(roomStore)
 
 
@@ -40,6 +40,7 @@ socket.on('error', (data) => {
 
 // message feedback from the backed
 socket.on('feedback', (data) => {
+  console.log(data)
   chatStore.changeMessageStatus(data);
 })
 
@@ -57,6 +58,11 @@ const send = () => {
     content: message.value,
     type: 'sent',
     id: tmpId,
+    sender: {
+      id: '',
+      username: '',
+      avatar: ''
+    },
     loading: true
   }
 
@@ -68,15 +74,11 @@ const send = () => {
 // TODO add a type to the data
 socket.on('message', (data: any) => {
   chatStore.playNotificationSound();
-  const { id, content, senderId } = data;
-  const message: Message = {
-    id,
-    content,
-    type: 'recieved',
-    loading: false
-  };
-  const conversation = chatStore.addMessageToConversation(message, senderId);
-  showNotification(message, conversation?.user.username as string);
+  const { senderId } = data;
+  data["loading"] = false;
+  console.log(data)
+  chatStore.addMessageToConversation(data, data.sender.id);
+  showNotification(data.content, data.sender.username);
 })
 
 socket.on('room-message', (data: any) => {
@@ -88,14 +90,13 @@ socket.on('room-message', (data: any) => {
     type: 'recieved',
     loading: false
   };
-  console.log(data);
   chatStore.addMessageToConversation(message, room.id);
-  showNotification(message, `${sender.username}#${room.name}`);
+  showNotification(message.content, `${sender.username}#${room.name}`);
 });
 
 // show notification
-const showNotification = (message: Message, sender: string) => {
-  snackBarStore.notify(message.content, sender)
+const showNotification = (message: string, sender: string) => {
+  // snackBarStore.notify(message, sender)
 }
 
 // for test
@@ -142,6 +143,7 @@ const handleEnter = () => {
 }
 
 const tab = ref();
+
 </script>
 
 <template>
@@ -178,7 +180,7 @@ const tab = ref();
 
 
 
-    <v-app-bar class="px-3" color="colorThree" flat height="72">
+    <v-app-bar class="px-3" color="colorTwo" elevation="4" flat height="72">
       <v-btn icon="mdi-menu" color="colorOne" @click="usersDrawer = !usersDrawer"></v-btn>
       <v-badge v-if="type === 'dm'" dot :color="selectedUser.isOnline ? `success` : `secondary`" inline>
         <v-list-item v-if="selectedUser.username" color="primary" :title="selectedUser.username"
@@ -199,10 +201,10 @@ const tab = ref();
     <v-footer app height="72">
       <v-text-field :disabled="selectedUser.block" bg-color="colorThree" class="overflow-hidden"
         density="compact" hide-details variant="solo" v-model="message"
-        @click:append-inner="send" @keyup.enter="handleEnter">
+         @keyup.enter="handleEnter">
         <template v-slot:append-inner>
 <!-- append-inner-icon="mdi-send-circle-outline" -->
-          <v-icon color="colorTwo">
+          <v-icon @click="send" color="colorTwo">
             mdi-send-circle-outline
           </v-icon>
          </template>

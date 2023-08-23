@@ -18,7 +18,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private jwtService: JwtService,
     private config: ConfigService,
     private roomService: RoomService
-  ) {}
+  ) { }
 
   @WebSocketServer()
   private server: Server;
@@ -26,10 +26,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private clients: Map<string, any> = new Map();
 
   async handleConnection(client: Socket, ...args: any[]) {
-      const payload = await this.getUser(client);
-      if(payload) {
+    const payload = await this.getUser(client);
+    if (payload) {
       client['user'] = payload;
-      if(payload?.sub) {
+      if (payload?.sub) {
         // setting the user status to online
         this.userService.setOnline(payload.sub, true);
         // getting all rooms for the authenticated user
@@ -45,9 +45,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: Socket) {
-      const payload = await this.getUser(client);
-      if(payload?.sub)
-        await this.userService.setOnline(payload.sub, false);
+    const payload = await this.getUser(client);
+    if (payload?.sub)
+      await this.userService.setOnline(payload.sub, false);
   }
 
   @SubscribeMessage('message')
@@ -55,18 +55,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(WsAuthGuard)
   async handleMessage(client: any, payload: MessagePaylod): Promise<any> {
     const { user } = client;
-    if(payload.type === 'dm') {
+    if (payload.type === 'dm') {
       const message: any = await this.chatService.createDm(payload, user);
-      client.emit('feedback', {status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId});
+      client.emit('feedback', { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId });
       const clientReciever = this.clients.get(payload.recieverId);
-      if(clientReciever) {
+      if (clientReciever) {
         clientReciever.emit('message', message);
       }
     } else if (payload.type === 'room') {
-      console.log(payload);
-        const message: any = await this.chatService.createRoomMessage(user, payload);
-        console.log(message);
-        this.server.to(payload.recieverId).emit('room-message', message);
+      const message: any = await this.chatService.createRoomMessage(user, payload);
+      console.log(message);
+      this.server.to(payload.recieverId).emit('room-message', message);
     }
   }
 
@@ -80,8 +79,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   private async getUser(client: any) {
     const token = client.handshake?.auth?.token;
-      if(!token)
-        return null
+    if (!token)
+      return null
     try {
       const payload = await this.jwtService.verifyAsync(
         token,
@@ -90,7 +89,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       );
       return payload;
-    } catch(error) {
+    } catch (error) {
       return null
     }
   }

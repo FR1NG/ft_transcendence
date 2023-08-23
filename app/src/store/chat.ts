@@ -34,7 +34,8 @@ export const useChatStore = defineStore('chat', {
           const { messages, user} = data;
           this.conversations.set(data.user.id, {messages, user});
           this.selectedUser = data.user;
-            this.activeConversation = data.messages;
+          this.activeConversation = data.messages;
+          console.log(data);
         } else if(type === 'room') {
             const { id, conversation } = data;
             this.conversations.set(id, {messages: conversation.messages});
@@ -48,8 +49,9 @@ export const useChatStore = defineStore('chat', {
       }
       }
     },
-    addMessageToConversation(message: Message, userId: string): Conversation | undefined {
-      const conversation = this.conversations.get(userId);
+    addMessageToConversation(message: Message, id: string): Conversation | undefined {
+      const conversation = this.conversations.get(id);
+      console.log(id);
       conversation?.messages.push(message);
       return conversation;
     },
@@ -68,8 +70,10 @@ export const useChatStore = defineStore('chat', {
       const { recieverId, message } = feedback;
       const conversation: any = this.conversations.get(recieverId);
       const index = conversation.messages.findIndex(((el: Message) => el.id === feedback.tmpId));
+      console.log(feedback);
       const dm = conversation.messages[index];
       dm.id = message.id;
+      dm.sender = message.sender;
       dm.loading = false;
     },
     deleteConversation(userId: string) {
