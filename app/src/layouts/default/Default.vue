@@ -2,7 +2,7 @@
   <v-app>
     <default-bar />
     <default-view />
-    <DefaultSidBar />
+    <!-- <DefaultSidBar /> -->
   </v-app>
 </template>
 
