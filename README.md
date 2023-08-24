@@ -94,3 +94,59 @@ games:
     - status (finished | live)
     - winner_id (if finished id of the user that wins)
 test hooks
+
+
+--------------------------
+data will be expected on user profile
+```typescript
+
+type Game = {
+  id: string
+  winner: User
+  guest: User
+  host: user
+}
+
+type UserGame = {
+ game: Game
+ score: int
+ opponentScore: int
+ opponent: User
+}
+
+type user = {
+ id: string
+ username: string
+ avatar: string
+ email: string
+ games: Usergame
+ }
+
+ type Leag = {
+   id: string
+   maxPoits: int
+   image: string
+}
+ type Level = {
+  user: User
+  points: int
+  leag: Leag
+  }
+ type RankUser = {
+   userId: string
+   usename: string
+   points: int
+   rank: int
+   leagName: string
+}
+ type Rank {
+  users: RankUser[] // three users expected sorted by his rank
+}
+
+type Acheivments = {
+ id: int
+ name: string
+ }
+
+```
+
