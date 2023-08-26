@@ -15,7 +15,7 @@ export class WsAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const sock = context.switchToWs();
     const client = sock.getClient();
-    const token = client.handshake?.query?.token;
+    const token = client.handshake?.auth?.token;
     if (token === 'null' || token === null) {
       throw new WsException('UnauthorizedException');
     }
