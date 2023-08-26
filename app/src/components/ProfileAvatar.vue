@@ -45,7 +45,7 @@ const callback = async (response: any) => {
 <template>
     <v-card elevation="0">
       <div class="avatarPic">
-        <img class="pic" :src="link" alt="">
+        <img class="pic" :src="link" alt="Avatar image">
         <v-btn @click="dialog = !dialog" variant="text" class="changePic"
         color="gray" small icon="mdi-image-edit"></v-btn>
       </div>

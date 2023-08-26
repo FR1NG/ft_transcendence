@@ -1,0 +1,112 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Match, User } from '@/types/user'
+import CustomCard from '@/components/CustomCard.vue';
+
+//just for testing------- will be deleted later-----
+
+const users = ref<User[]>([]);
+const testMatches = ref<Match[]>([])
+const fill = () => {
+    for (let a = 0; a < 10; a++)
+{
+    const tmpUser:User = {
+        id: "" + Math.random(),
+        isOnline: true,
+        _count: {
+            blockedBy: 3,
+            friendOf: 2,
+            friendWith: 1},
+        username: "username" +a.toString(),
+        avatar: "sdfa",
+        email:"email",
+    }
+    users.value.push(tmpUser);
+}
+
+
+for (let a = 0; a < 10; a++)
+{
+    const tmpMatch:Match = {
+        matchId: a.toString() ,
+        matchHost: users.value[a],
+        matchGuest: users.value[(a + 1) % 9],
+        matchResult: "0 - 0",
+        matchWinner: users.value[a].id,
+        matchLoser: users.value[(a + 1) % 9].id,
+    }
+    testMatches.value.push(tmpMatch)
+}
+}
+fill()
+// ------------------------------------------------------------
+
+</script>
+
+<template>
+  <CustomCard class="matchesWrapper">
+
+      <h2 class="matchesHeader">Last matches</h2>
+        <v-table class="matchesTable" theme="dark">
+        <thead>
+            <tr>
+            <th class="text-left">
+                host
+            </th>
+            <th class="text-center">
+                result
+            </th>
+            <th class="text-right">
+                guest
+            </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="gam in testMatches">
+            <td>{{ gam.matchHost.username }}</td>
+            <td class="text-center">{{ gam.matchResult }}</td>
+            <td class="text-right">{{ gam.matchGuest.username }}</td>
+            </tr>
+        </tbody>
+        </v-table>
+  </CustomCard>
+</template>
+
+<style lang="scss">
+
+
+.matchesWrapper{
+    justify-content: flex-start;
+    align-items: flex-start;
+    max-height: 600px;
+    overflow: hidden;
+    
+    .matchesHeader {
+        padding: 1rem;
+        color:rgb(var(--v-theme-secondary));
+    }
+    .matchesTable {
+        width: 99%;
+        height: 85%;
+        background-color: transparent;
+        overflow-y: hidden;
+    }
+    .matchesTable:hover{
+        overflow-y: scroll;
+    }
+    .matchesTable::-webkit-scrollbar {
+        width: 1em;
+    }
+    .matchesTable::-webkit-scrollbar-track {
+        background-color: rgba(255,0,189, 0.2);
+        border-radius: 25px;
+    }
+    .matchesTable::-webkit-scrollbar-thumb {
+        background-color: rgb(255,0,189);
+        width: 20px;
+        border-radius: 25px;
+    }
+}
+
+
+</style>
