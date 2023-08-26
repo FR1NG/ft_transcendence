@@ -50,6 +50,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.userService.setOnline(payload.sub, false);
   }
 
+  // // for test only
+  // @SubscribeMessage('ping')
+  // handlePing(client: Socket) {
+  //   client.emit('ping', )
+  // }
+
   @SubscribeMessage('message')
   @UseFilters(WebSocketExceptionFilter)
   @UseGuards(WsAuthGuard)
@@ -57,24 +63,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const { user } = client;
     if (payload.type === 'dm') {
       const message: any = await this.chatService.createDm(payload, user);
-      client.emit('feedback', { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId });
       const clientReciever = this.clients.get(payload.recieverId);
       if (clientReciever) {
         clientReciever.emit('message', message);
       }
+      const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
+      return feed;
     } else if (payload.type === 'room') {
       const message: any = await this.chatService.createRoomMessage(user, payload);
-      console.log(message);
       this.server.to(payload.recieverId).emit('room-message', message);
+      const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
+      return feed;
     }
-  }
-
-  @SubscribeMessage('connection')
-  @UseGuards(WsAuthGuard)
-  async connectionHandler(client: any, payload: any): Promise<string> {
-    const { sub } = client.user;
-    console.log(client.user)
-    return "connected";
+    throw new WsException('invalid message payload');
   }
 
   private async getUser(client: any) {
