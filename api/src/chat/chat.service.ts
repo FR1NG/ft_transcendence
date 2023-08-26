@@ -312,7 +312,19 @@ export class ChatService {
         conversation: {
           select: {
             id: true,
-            messages: true,
+            messages: {
+              select: {
+                id: true,
+                content: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
+              }
+            },
           }
         }
       }
