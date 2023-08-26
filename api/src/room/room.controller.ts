@@ -3,7 +3,8 @@ import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { RoomService } from './room.service'
 import type { AuthenticatedUser } from 'src/types'
-import { User } from 'src/common/decorators'
+import { CheckRoomAbility, User } from 'src/common/decorators'
+import { RoomAbilityGuardGuard } from 'src/common/guards';
 
 @Controller('room')
 export class RoomController {
@@ -17,12 +18,14 @@ export class RoomController {
   }
 
 
+  // getting all rooms that a user in
   @Get()
   @UseGuards(AuthGuard)
   async getUserRooms(@User() user: AuthenticatedUser) {
     return await this.roomService.getUserRooms(user);
   }
 
+  // getting users in a room
   @Get('users')
   @UseGuards(AuthGuard)
   async getRoomUsers(@User() user: AuthenticatedUser, @Query('id') id: string) {
@@ -34,10 +37,13 @@ export class RoomController {
   async joinRoom(@User() user: AuthenticatedUser, @Body() body: JoinRoomDto) {
     return await this.roomService.joinRoom(user, body);
   }
-  @Get(':name')
+
+  @Get(':id')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('read', 'create')
   @UseGuards(AuthGuard)
-  async getRoom(@Param('name') name: string) {
-    return await this.roomService.getRoom(null, name);
+  async getRoom(@User() user: AuthenticatedUser, @Param('id') id: string) {
+    return await this.roomService.getRoom(user, id);
   }
 
   @Get('search/:pattern')
@@ -45,4 +51,5 @@ export class RoomController {
   async searchRoom(@User() user: AuthenticatedUser, @Param('pattern') pattern: string) {
     return await this.roomService.searchRoom(user, pattern);
   }
+
 }
