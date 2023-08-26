@@ -2,24 +2,44 @@
 import { storeToRefs } from 'pinia';
 import CreateRoom from './CreateRoom.vue'
 import { useRoomStore } from '@/store/room';
+import { reactive, ref } from 'vue';
+import ListElement from './room/ListElement.vue'
+import RoomSettings from './room/RoomSettings.vue'
+import RoomSearch from './room/RoomSearch.vue'
+import type { SearchedRoom } from '@/types/room'
+import JoinRoom from './room/JoinRoom.vue';
+
 
 const roomStore = useRoomStore();
-const { drawer } = storeToRefs(roomStore);
+const { rooms, roomSettings } = storeToRefs(roomStore);
 
+// join room
+const roomToJoin = ref<SearchedRoom>();
+const joinAppearance = ref(false);
+
+const joinRoom = (room: SearchedRoom) => {
+  roomToJoin.value = room;
+  joinAppearance.value = true;
+}
+
+const joinClose = () => {
+  joinAppearance.value = false;
+}
+
+
+roomStore.getRooms();
 </script>
 
 <template>
-  <v-navigation-drawer v-model="drawer" location="right" min-width="800">
+  <JoinRoom v-if="joinAppearance" :room="roomToJoin" @close="joinClose"/>
+  <room-settings v-if="roomSettings"> </room-settings>
     <v-list>
       <v-list-item>
-        <v-text-field bg-color="grey-lighten-4" color="primary" class="rounded-pill overflow-hidden" density="compact"
-          hide-details variant="solo" append-inner-icon="mdi-magnify"></v-text-field>
+        <room-search :join="joinRoom"> </room-search>
         <template v-slot:append>
           <create-room></create-room>
         </template>
       </v-list-item>
-      <v-list-item v-for="n in 5" :key="n" :title="`Item ${n}`" link>
-      </v-list-item>
+      <list-element :rooms="rooms"> </list-element>
     </v-list>
-  </v-navigation-drawer>
 </template>

@@ -13,6 +13,9 @@ const routes = [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+        meta: {
+          auth: true
+        }
       },
       {
         path: '/login',
@@ -60,8 +63,16 @@ const routes = [
     },
     children: [
       {
-        path: '/dm/:id',
+        path: '/chat/dm/:id',
         name: 'Dm',
+        component: () => import('@/layouts/chat/Default.vue'),
+        meta: {
+          auth: true,
+        }
+      },
+      {
+        path: '/chat/room/:id',
+        name: 'Room',
         component: () => import('@/layouts/chat/Default.vue'),
         meta: {
           auth: true,

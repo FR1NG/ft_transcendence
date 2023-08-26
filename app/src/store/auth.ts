@@ -1,17 +1,32 @@
 import { defineStore } from "pinia";
 import axios from '../plugins/axios'
 import { useUserStore } from './user'
+import { AxiosError, AxiosResponse } from "axios";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     SIntraUrl: import.meta.env.VITE_INTRA_AUTHORIZATION_URL,
     access_token: "",
     logged: false,
+    me: {} as any
   }),
   getters: {
     IntraUrl: (state) => state.SIntraUrl,
   },
   actions: {
+    async getMe() {
+      return new Promise(async (resolve, reject) => {
+      try {
+        const response: AxiosResponse = await axios.get('/auth/me');
+        const { data } = response;
+        this.me = data;
+        resolve(data);
+      } catch (error: AxiosError | any) {
+          console.log('error gettin me');
+          reject(error.response);
+        }
+      })
+    },
     async attemptLogin(code: string) {
       if (!code)
         console.log('FORBIDDEN');
@@ -23,6 +38,7 @@ export const useAuthStore = defineStore('auth', {
           this.setToken(res.data?.access_token);
           this.logged = true;
           this.getProfile();
+          this.getMe();
           this.redirect();
         } catch (error) {
           console.error(error)

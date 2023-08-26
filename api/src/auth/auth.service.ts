@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Req, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { UserService } from 'src/user/user.service';
-import { AuthGuard } from './jwt.guard';
 import { PrismaService } from 'src/prisma.service';
+import { AuthenticatedUser } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -107,5 +107,15 @@ export class AuthService {
       return {
         access_token: token
       };
+  }
+
+  // get auth user info
+  async getMe(user: AuthenticatedUser) {
+    const me = await this.prisma.users.findUnique({
+      where: {
+        id: user.sub
+      }
+    });
+    return me;
   }
 }

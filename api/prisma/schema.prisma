@@ -81,7 +81,7 @@ model Rooms {
   id             String        @id @default(uuid())
   ownerId        String
   owner          Users         @relation("roomOner", fields: [ownerId], references: [id])
-  name           String
+  name           String        @unique
   type           RoomType      @default(PUBLIC)
   password       String?
   users          UsersRooms[]  @relation("roomUsers")

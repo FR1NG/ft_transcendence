@@ -7,59 +7,81 @@ import { UserService } from 'src/user/user.service';
 import { ChatService } from './chat.service';
 import { MessagePaylod } from './dto/chat';
 import { WebSocketExceptionFilter } from 'src/exception-filters/websocket.filter';
+import { RoomService } from 'src/room/room.service';
+import { Server, Socket } from 'socket.io'
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  constructor(private chatService: ChatService, private userService: UserService, private jwtService: JwtService, private config: ConfigService) {}
+  constructor(
+    private chatService: ChatService,
+    private userService: UserService,
+    private jwtService: JwtService,
+    private config: ConfigService,
+    private roomService: RoomService
+  ) { }
 
   @WebSocketServer()
-  private server;
+  private server: Server;
 
   private clients: Map<string, any> = new Map();
 
-  async handleConnection(client: any, ...args: any[]) {
-      const payload = await this.getUser(client);
-      if(payload) {
+  async handleConnection(client: Socket, ...args: any[]) {
+    const payload = await this.getUser(client);
+    if (payload) {
       client['user'] = payload;
-      if(payload?.sub)
-        await this.userService.setOnline(payload.sub, true);
+      if (payload?.sub) {
+        // setting the user status to online
+        this.userService.setOnline(payload.sub, true);
+        // getting all rooms for the authenticated user
+        const rooms = await this.roomService.getUserRooms(payload);
+        // joining the socket of the user rooms
+        rooms.forEach(el => {
+          client.join(el.room.id);
+        });
+      }
+      // adding the user of the connected user map
       this.clients.set(payload.sub, client);
     }
   }
 
-  async handleDisconnect(client: any) {
-      const payload = await this.getUser(client);
-      if(payload?.sub)
-        await this.userService.setOnline(payload.sub, false);
+  async handleDisconnect(client: Socket) {
+    const payload = await this.getUser(client);
+    if (payload?.sub)
+      await this.userService.setOnline(payload.sub, false);
   }
+
+  // // for test only
+  // @SubscribeMessage('ping')
+  // handlePing(client: Socket) {
+  //   client.emit('ping', )
+  // }
 
   @SubscribeMessage('message')
   @UseFilters(WebSocketExceptionFilter)
   @UseGuards(WsAuthGuard)
   async handleMessage(client: any, payload: MessagePaylod): Promise<any> {
     const { user } = client;
-    if(payload.type === 'dm') {
+    if (payload.type === 'dm') {
       const message: any = await this.chatService.createDm(payload, user);
-      client.emit('feedback', {status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId});
       const clientReciever = this.clients.get(payload.recieverId);
-      if(clientReciever) {
+      if (clientReciever) {
         clientReciever.emit('message', message);
       }
+      const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
+      return feed;
+    } else if (payload.type === 'room') {
+      const message: any = await this.chatService.createRoomMessage(user, payload);
+      this.server.to(payload.recieverId).emit('room-message', message);
+      const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
+      return feed;
     }
-  }
-
-  @SubscribeMessage('connection')
-  @UseGuards(WsAuthGuard)
-  async connectionHandler(client: any, payload: any): Promise<string> {
-    const { sub } = client.user;
-    console.log(client.user)
-    return "connected";
+    throw new WsException('invalid message payload');
   }
 
   private async getUser(client: any) {
     const token = client.handshake?.auth?.token;
-      if(!token)
-        return null
+    if (!token)
+      return null
     try {
       const payload = await this.jwtService.verifyAsync(
         token,
@@ -68,7 +90,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
       );
       return payload;
-    } catch(error) {
+    } catch (error) {
       return null
     }
   }

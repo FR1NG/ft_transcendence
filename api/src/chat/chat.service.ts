@@ -1,25 +1,81 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
   constructor(private prisma: PrismaService) { }
   async createDm(payload: MessagePaylod, auth: AuthenticatedUser) {
 
-    const  {  sub:  createorId } = auth;
-    const  {  recieverId:  engagerId, content } = payload;
+    const { sub: createorId } = auth;
+    const { recieverId: engagerId, content } = payload;
     let message = {};
 
     let dmConversation: any = await this.getDmConversation(auth.sub, payload.recieverId);
-    if(!dmConversation)
+    if (!dmConversation)
       message = await this.createDmConversation(createorId, engagerId, content);
     else {
       const { id: conversationId } = dmConversation;
       const { content } = payload;
       message = await this.createMessage(conversationId, createorId, content);
     }
+    return message;
+  }
+
+  async createRoomMessage(user: AuthenticatedUser, payload: MessagePaylod) {
+    const { content, recieverId } = payload;
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: recieverId,
+      },
+      select: {
+        name: true,
+        id: true,
+        users: {
+          where: {
+            userId: user.sub
+          },
+        },
+        conversation: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    if (!room || room.users.length === 0)
+      throw new WsException('you are not autorized to send message to this room');
+    const message = await this.prisma.messages.create({
+      data: {
+        content,
+        sender: {
+          connect: {
+            id: user.sub
+          }
+        },
+        converstion: {
+          connect: room.conversation
+        },
+      },
+      select: {
+        id: true,
+        content: true,
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true
+          }
+        }
+      }
+    });
+    if (!message)
+      throw new WsException('failed to create message');
+    const { id, name } = room;
+    message['room'] = { id, name };
     return message;
   }
 
@@ -38,7 +94,24 @@ export class ChatService {
         ]
       },
       select: {
-        conversation: true
+        conversation: {
+          select: {
+            id: true,
+            messages: {
+              select: {
+                id: true,
+                content: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     });
     return conversation?.conversation;
@@ -68,7 +141,7 @@ export class ChatService {
                   }
                 }
               }
-              
+
             }
           },
         }
@@ -79,8 +152,14 @@ export class ChatService {
             messages: {
               select: {
                 id: true,
-                senderId: true,
-                content: true
+                content: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
               }
             }
           }
@@ -108,8 +187,14 @@ export class ChatService {
       },
       select: {
         id: true,
-        senderId: true,
         content: true,
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true
+          }
+        }
       }
     });
     return message;
@@ -135,11 +220,24 @@ export class ChatService {
       select: {
         conversation: {
           select: {
-            messages: true
+            messages: {
+              select: {
+                id: true,
+                content: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
+              }
+            }
           }
         }
       }
     });
+
 
     const user = await this.prisma.users.findUnique({
       where: {
@@ -150,11 +248,11 @@ export class ChatService {
         username: true,
         email: true,
         avatar: true,
-        isOnline:  true
+        isOnline: true
       }
     })
 
-    if(!user)
+    if (!user)
       throw new NotFoundException()
 
     // getting if one of the users block the other
@@ -175,25 +273,67 @@ export class ChatService {
 
     user['block'] = block ? true : false;
 
-    const filtredMessages = [];
-    conversation?.conversation?.messages?.forEach(message => {
-      let type: string;
-      const {id, content } = message
-      if (message.senderId === authUser.sub)
-        type = 'sent';
-      else
-        type = 'recieved';
-      filtredMessages.push({
-        id,
-        content,
-        type,
-        loading: false
-      })
-    })
+    const messages = conversation?.conversation?.messages;
+    // const filtredMessages = [];
+    // conversation?.conversation?.messages?.forEach(message => {
+    //   let type: string;
+    //   const { id, content } = message
+    //   if (message.senderId === authUser.sub)
+    //     type = 'sent';
+    //   else
+    //     type = 'recieved';
+    //   filtredMessages.push({
+    //     id,
+    //     content,
+    //     type,
+    //     loading: false
+    //   })
+    // })
     return {
       user,
-      messages: filtredMessages
+      messages,
     };
+  }
+
+  async getRoomConversation(user: AuthenticatedUser, roomId) {
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: roomId
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        users: {
+          where: {
+            userId: user.sub
+          }
+        },
+        conversation: {
+          select: {
+            id: true,
+            messages: {
+              select: {
+                id: true,
+                content: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
+              }
+            },
+          }
+        }
+      }
+    })
+
+    if (room.users.length === 0)
+      throw new UnauthorizedException('you are not in this room');
+    delete room['users'];
+    return room;
   }
 
 

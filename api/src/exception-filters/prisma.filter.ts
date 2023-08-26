@@ -23,30 +23,39 @@ export class PrismaFilter implements ExceptionFilter {
 
   private getErrorMessages(code: string, target: string) {
     const error  = this.errorMessageMapping[code];
-    const message = replacePlaceHolder(error.message, {'field': target})
-    return {[target]: message};
+    if (error) {
+      const message = replacePlaceHolder(error.message, {'field': target})
+      return {[target]: message};
+    }
   }
 
   private getError(code: string) {
+    console.log(code);
     const error  = this.errorMessageMapping[code] || null;
     if(error) return error.error || 'Unkdown error';
     return 'Unkdown error';
   }
 
   private getErrorCode(code: string) {
-    return this.errorSatusCodesMap[code] || 500;
+    return this.errorSatusCodesMap[code];
   }
 
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const context = host.switchToHttp();
     const response = context.getResponse<Response>();
     const { code } = exception;
-  
     if(exception instanceof Prisma.PrismaClientKnownRequestError) {
-      response.status(this.getErrorCode(code)).json({
-        message: this.getError(code),
-        errors: this.getErrorMessages(code, exception.meta.target as string),
-      });
+      if(this.getErrorCode(code)) {
+        response.status(this.getErrorCode(code)).json({
+          message: this.getError(code),
+          errors: this.getErrorMessages(code, exception.meta.target as string),
+        });
+      } else {
+        console.log(exception)
+        response.status(500).json({
+          message: "prisma error"
+        });
+      }
     }
   } 
 }
