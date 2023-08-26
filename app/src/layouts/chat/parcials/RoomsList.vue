@@ -8,18 +8,10 @@ import RoomSettings from './room/RoomSettings.vue'
 import RoomSearch from './room/RoomSearch.vue'
 import type { SearchedRoom } from '@/types/room'
 import JoinRoom from './room/JoinRoom.vue';
-import { resetObject } from '@/composables/helpers';
 
 
 const roomStore = useRoomStore();
-const { drawer, rooms, roomSettings } = storeToRefs(roomStore);
-
-const menu = reactive({
-  value: false,
-  position_x: 0,
-  position_y: 0,
-})
-
+const { rooms, roomSettings } = storeToRefs(roomStore);
 
 // join room
 const roomToJoin = ref<SearchedRoom>();

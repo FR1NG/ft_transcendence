@@ -1,104 +1,40 @@
-
 <script lang="ts" setup>
-import AppBar from '../default/AppBar.vue';
 import { ref } from 'vue';
-import { io } from 'socket.io-client';
 import axios from '@/plugins/axios'
-import OContainer from './parcials/OContainer.vue'
-import type { Message } from '@/types/chat';
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
-import { useSnackBarStore } from '@/store/snackbar'
-import { useRoomStore } from '@/store/room'
+import { useSocketStore } from '@/store/socket'
+import AppBar from '../default/AppBar.vue';
+import OContainer from './parcials/OContainer.vue'
 import RoomsList from './parcials/RoomsList.vue'
-import type { User } from '@/types/user';
-import { Room } from '@/types/room';
+import InfoBar from './parcials/InfoBar.vue'
+import MessageInput from './parcials/MessageInput.vue'
+import UsersList from './parcials/UsersList.vue'
 
 const message = ref('');
 const route = useRoute();
 const chatStore = useChatStore();
-const snackBarStore = useSnackBarStore();
-const roomStore = useRoomStore();
-const { activeConversation: messages, selectedUser } = storeToRefs(chatStore);
-const usersDrawer = ref(false)
-const { drawer: roomsDrawer } = storeToRefs(roomStore)
+const socketStore = useSocketStore();
+const { activeConversation: messages, selectedUser, selectedRoom } = storeToRefs(chatStore);
+const drawer = ref(true)
 
-
-const socket = io(import.meta.env.DOMAIN, {
-  query: {
-    token: sessionStorage.getItem('access_token'),
-  },
-  auth: {
-    token: sessionStorage.getItem('access_token'),
-  }
-});
-
-socket.on('error', (data) => {
-  snackBarStore.notify(data)
-})
-
-// message feedback from the backed
-socket.on('feedback', (data) => {
-  console.log(data)
-  chatStore.changeMessageStatus(data);
-})
+// type of the conversation (dm / room)
+type Type = 'dm' | 'room';
+const type = ref(route.name?.toString().toLowerCase() as Type);
 
 const send = () => {
-
   if (message.value.length === 0)
     return;
-
   const recieverId: string = route.params.id as string;
-  const type = route.name?.toString().toLowerCase();
-  const tmpId = Math.random().toString();
-  socket.emit('message', { content: message.value, recieverId, type, id: tmpId })
-  // TODO should listen for an event to give the feedback of the message and get the id from it
-  const sentMessage: Message = {
-    content: message.value,
-    type: 'sent',
-    id: tmpId,
-    sender: {
-      id: '',
-      username: '',
-      avatar: ''
-    },
-    loading: true
-  }
-
-  if (type === 'dm')
+  const sentMessage = socketStore.sendMessage(message.value, recieverId, type.value, (data: any) => {
+  if(type.value === 'dm')
+    chatStore.changeMessageStatus(data);
+  });
+  if (type.value === 'dm')
     chatStore.addMessageToConversation(sentMessage, recieverId);
   message.value = '';
 }
-
-// TODO add a type to the data
-socket.on('message', (data: any) => {
-  chatStore.playNotificationSound();
-  const { senderId } = data;
-  data["loading"] = false;
-  console.log(data)
-  chatStore.addMessageToConversation(data, data.sender.id);
-  showNotification(data.content, data.sender.username);
-})
-
-socket.on('room-message', (data: any) => {
-  chatStore.playNotificationSound();
-  const { id, content, senderId, sender, room } = data;
-  const message: Message = {
-    id,
-    content,
-    type: 'recieved',
-    loading: false
-  };
-  chatStore.addMessageToConversation(message, room.id);
-  showNotification(message.content, `${sender.username}#${room.name}`);
-});
-
-// show notification
-const showNotification = (message: string, sender: string) => {
-  // snackBarStore.notify(message, sender)
-}
-
 // for test
 const users: any = ref([]);
 const onlineUsers: any = ref([]);
@@ -131,84 +67,36 @@ getOnlineUsers();
 
 fetch();
 
-const type = ref('');
 onBeforeRouteUpdate((to) => {
   const { id } = to.params;
-  type.value = to.name?.toString().toLowerCase() as string;
+  type.value = to.name?.toString().toLowerCase() as Type;
   getConversation(id as string, type.value);
 })
 
-const handleEnter = () => {
-  send()
-}
-
-const tab = ref();
-
+const tab = ref(type);
 </script>
 
 <template>
   <v-app id="inspire">
     <app-bar></app-bar>
-    <v-navigation-drawer color="colorTwo" :rail='false' v-model="usersDrawer">
+    <v-navigation-drawer color="colorTwo" :rail='false' v-model="drawer">
       <v-tabs v-model="tab" color="colorOne" align-tabs="center">
-        <v-tab :value="1">messages</v-tab>
-        <v-tab :value="2">rooms</v-tab>
+        <v-tab value="dm">messages</v-tab>
+        <v-tab value="room">rooms</v-tab>
       </v-tabs>
-
       <v-window v-model="tab">
-
-        <v-window-item :value="1">
-          <v-list>
-            <v-list-item v-for='user in users' :key="user.id" :title="user.username" :prependAvatar="user.avatar"
-              :to="{ name: 'Dm', params: { id: user.id } }" :value='user.username'>
-              <v-badge dot :color="user.isOnline ? `success` : `secondary`" inline>
-              </v-badge>
-            </v-list-item>
-          </v-list>
+        <v-window-item value="dm">
+          <users-list :users="users"> </users-list>
         </v-window-item>
-        <v-window-item :value="2">
-          <!-- rooms list component -->
-          <rooms-list :appearance="roomsDrawer"> </rooms-list>
-          <!-- end rooms list component -->
+        <v-window-item value="room">
+          <rooms-list> </rooms-list>
         </v-window-item>
       </v-window>
-      <!-- <v-avatar class="d-block text-center mx-auto mt-4" color="grey-darken-1" size="36"></v-avatar> -->
-      <!-- <v-divider class="mx-3 my-5"></v-divider> -->
-
     </v-navigation-drawer>
-    <!-- end  of users conversations -->
-
-
-
-    <v-app-bar class="px-3" color="colorTwo" elevation="4" flat height="72">
-      <v-btn icon="mdi-menu" color="colorOne" @click="usersDrawer = !usersDrawer"></v-btn>
-      <v-badge v-if="type === 'dm'" dot :color="selectedUser.isOnline ? `success` : `secondary`" inline>
-        <v-list-item v-if="selectedUser.username" color="primary" :title="selectedUser.username"
-          :prependAvatar="selectedUser.avatar" :to="{ name: 'UserProfile', params: { username: selectedUser.username } }"
-          :value='selectedUser.username'>
-        </v-list-item>
-      </v-badge>
-      <v-badge color="colorThree" v-else>this is a room</v-badge>
-      <v-spacer></v-spacer>
-
-    </v-app-bar>
-
     <v-main>
-      <!-- messages container -->
+      <info-bar @click:menu="drawer = !drawer" :user="selectedUser" :room="selectedRoom" :type="type"></info-bar>
       <o-container :messages="messages"></o-container>
     </v-main>
-
-    <v-footer app height="72">
-      <v-text-field :disabled="selectedUser.block" bg-color="colorThree" class="overflow-hidden"
-        density="compact" hide-details variant="solo" v-model="message"
-         @keyup.enter="handleEnter">
-        <template v-slot:append-inner>
-<!-- append-inner-icon="mdi-send-circle-outline" -->
-          <v-icon @click="send" color="colorTwo">
-            mdi-send-circle-outline
-          </v-icon>
-         </template>
-      </v-text-field>
-    </v-footer>
+    <message-input v-model="message" :disabled="selectedUser?.block" @send="send"> </message-input>
   </v-app>
 </template>

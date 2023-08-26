@@ -5,29 +5,15 @@ import { storeToRefs } from 'pinia'
 
 const roomStore = useRoomStore()
 
-const { roomSettings, selectedRoom } = storeToRefs(roomStore);
+const { roomSettings } = storeToRefs(roomStore);
 
-roomStore.getRoomUsers(selectedRoom.value.room.id);
+// roomStore.getRoomInfo();
 </script>
 
 
 <template>
-  <v-row justrify="center">
-    <v-dialog
-      fullscreen
-      transition="dialog-bottom-transition"
-      v-model="roomSettings"
-    >
-    <v-card >
-        <v-toolbar
-          color="primary"
-        >
-          <v-btn @click="roomSettings = !roomSettings">close</v-btn>
-        </v-toolbar>
-
-        {{ selectedRoom.role}}
-      </v-card>
-
-    </v-dialog>
-  </v-row>
+  <v-dialog v-model="roomSettings">
+    <v-card width="500" min-height="400">
+    </v-card>
+  </v-dialog>
 </template>
