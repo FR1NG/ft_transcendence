@@ -5,12 +5,16 @@ import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { useSocketStore } from '@/store/socket'
+import { bootstrap } from '@/composables/socket';
 import AppBar from '../default/AppBar.vue';
 import OContainer from './parcials/OContainer.vue'
 import RoomsList from './parcials/RoomsList.vue'
 import InfoBar from './parcials/InfoBar.vue'
 import MessageInput from './parcials/MessageInput.vue'
 import UsersList from './parcials/UsersList.vue'
+
+// bootstrapping the socket if not initialized on home  component
+bootstrap();
 
 const message = ref('');
 const route = useRoute();

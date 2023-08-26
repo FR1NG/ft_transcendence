@@ -22,7 +22,11 @@ export const useSocketStore = defineStore('socket', {
   // actions
   actions: {
     init(domain: string, config: {}) {
-      this.socket = io(domain, config);
+      if(!this.socket) {
+        this.socket = io(domain, config);
+        return true;
+      }
+      return false;
     },
 
     listen(eventCallback: (type: string, {}) => void | null, errorCallback: ({}) => void | null) {
