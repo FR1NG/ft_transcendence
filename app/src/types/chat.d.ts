@@ -3,10 +3,9 @@ import type { Room } from "./room"
 
 export type Message = {
   id: string
-  type: 'sent' | 'recieved'
   content: string
   loading: boolean
-  sender: Sender
+  user: Sender
 }
 
 type Sender = {
@@ -17,5 +16,5 @@ type Sender = {
 
 export type Conversation = {
   messages: Message[]
-  user: User | Room
+  sender: User | Room
 }

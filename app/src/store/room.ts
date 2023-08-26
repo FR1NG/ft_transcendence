@@ -50,8 +50,8 @@ export const useRoomStore = defineStore('room', {
         console.log(error)
       }
     },
-    showSettings(room: UserRoom) {
-      this.selectedRoom = room;
+
+    showSettings(id: string) {
       this.roomSettings = true;
     },
     async getRoomUsers(roomId: string): Promise<any> {
@@ -96,7 +96,7 @@ export const useRoomStore = defineStore('room', {
             password
           });
           const { data } = response;
-          console.log(data);
+          this.getRooms();
           resolve(data);
         } catch(error: any) {
           console.log(error.response);
