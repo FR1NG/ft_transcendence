@@ -11,13 +11,15 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse() as Record<string, any>;
       const { message, statusCode } = exceptionResponse;
     if (exception instanceof BadRequestException) {
+      console.log(exception);
       const costumeMessages = {};
 
-      message.forEach(e => {
-       const key = e.split(' ')[0];
-        costumeMessages[key] = e;
-      });
-
+      if(message instanceof Array) {
+        message.forEach(e => {
+         const key = e.split(' ')[0];
+          costumeMessages[key] = e;
+        });
+      }
 
       response.status(400).json({
         message: 'validation faild',
