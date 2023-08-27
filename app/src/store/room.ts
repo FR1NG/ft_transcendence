@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { CreateRoomDto } from '@/types/room'
 import axios from '@/plugins/axios'
-import { AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 
 type UserRoom = {
   role: String
@@ -103,6 +103,83 @@ export const useRoomStore = defineStore('room', {
           reject(error.response);
         }
       })
+    },
+    async getRoomDetails(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.get(`/room/${id}`);
+          const { data } = response;
+          resolve(data);
+        } catch (error: AxiosError | any) {
+          reject(error?.response);
+        }
+      })
+    },
+
+  async addAdmin(roomId: string, userId: string): Promise<any>  {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response: AxiosResponse = await axios.post('/room/admin', {
+          roomId,
+          userId
+        });
+        const { data } = response;
+        resolve(data)
+      } catch(error: AxiosError | any) {
+        reject(error.response)
+      }
+
+    })
+   },
+
+    async removeAdmin(roomId: string, userId: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.delete('/room/admin', {
+            data: {
+              roomId,
+              userId
+            }
+          });
+          const { data } = response;
+          resolve(data)
+        } catch (error: any) {
+          reject(error.response)
+        }
+      });
+    },
+
+   async kickUser(roomId: string, userId: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/kick', {
+            roomId,
+            userId
+          });
+          const { data } = response;
+          resolve(data);
+        } catch (error: AxiosResponse | any) {
+          reject(error.response)
+        }
+      });
+    },
+
+
+   async banUser(roomId: string, userId: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/ban', {
+            roomId,
+            userId
+          });
+          const { data } = response;
+          resolve(data);
+        } catch (error: AxiosResponse | any) {
+          reject(error.response)
+        }
+      });
     }
-  }
-})
+
+   }
+});
+

@@ -22,3 +22,25 @@ export type SearchedRoom = {
   type: RoomType
   joined: boolean
 }
+
+export type RoomDetails = {
+  role: string
+  room: RoomUser
+}
+
+export interface RoomUser {
+  name: string
+  type: string
+  users: User[]
+}
+
+export interface User {
+  role: string
+  user: User2
+}
+
+export interface User2 {
+  id: string
+  username: string
+  avatar: string
+}
