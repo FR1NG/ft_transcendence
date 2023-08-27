@@ -35,7 +35,8 @@ export class ChatService {
         id: true,
         users: {
           where: {
-            userId: user.sub
+            userId: user.sub,
+            baned: false
           },
         },
         conversation: {
@@ -306,6 +307,7 @@ export class ChatService {
         type: true,
         users: {
           where: {
+            baned: false,
             userId: user.sub
           }
         },
@@ -331,7 +333,7 @@ export class ChatService {
     })
 
     if (room.users.length === 0)
-      throw new UnauthorizedException('you are not in this room');
+      throw new UnauthorizedException('you are not authorized to access this room');
     delete room['users'];
     return room;
   }

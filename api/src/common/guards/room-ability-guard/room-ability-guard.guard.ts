@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
-import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { ForbiddenError } from '@casl/ability';
 
 @Injectable()
@@ -21,11 +21,14 @@ export class RoomAbilityGuardGuard implements CanActivate {
     const abilities = this.reflector.get('check-room-ability', context.getHandler());
     const request = context.switchToHttp().getRequest();
     const user: AuthenticatedUser = request.user;
-    const sub = user.sub;
     if(!user)
       throw new UnauthorizedException();
-    const { id } = request.params;
-    if(!id)
+    let id : string;
+    if(request.method === 'POST' || request.method === 'DELETE')
+      id = request.body.id || request.body.roomId;
+    if(request.method === 'GET')
+      id = request.params.id || request.params.roomId;
+    if(!id )
       throw new BadRequestException('room id must be Specified');
     const room = await this.prisma.usersRooms.findFirst({
       where: {
@@ -37,13 +40,15 @@ export class RoomAbilityGuardGuard implements CanActivate {
         }
       },
     });
+
     if(!room)
       throw new NotFoundException('room does not exist or you are not a member of it');
+    if(room.baned)
+      throw new ForbiddenException()
     const ability = this.casl.createForRoom(room);
-    abilities.forEach(element => {
-      ability.can(element, 'room');
+    abilities.forEach((action: Actions) => {
       try {
-        ForbiddenError.from(ability).throwUnlessCan(element, 'room');
+        ForbiddenError.from(ability).throwUnlessCan(action, 'room');
       } catch (error) {
         throw new ForbiddenException(error);
       }

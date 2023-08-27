@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Get, Query, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Query, Param, Delete } from '@nestjs/common';
 import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { RoomService } from './room.service'
@@ -40,7 +40,7 @@ export class RoomController {
 
   @Get(':id')
   @UseGuards(RoomAbilityGuardGuard)
-  @CheckRoomAbility('read', 'create')
+  @CheckRoomAbility('read')
   @UseGuards(AuthGuard)
   async getRoom(@User() user: AuthenticatedUser, @Param('id') id: string) {
     return await this.roomService.getRoom(user, id);
@@ -52,4 +52,41 @@ export class RoomController {
     return await this.roomService.searchRoom(user, pattern);
   }
 
+  @Post('admin')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('update')
+  @UseGuards(AuthGuard)
+  async addAdmin(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
+    return await this.roomService.addAdmin(roomId, userId);
+  }
+  
+
+  @Delete('admin')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('manage')
+  @UseGuards(AuthGuard)
+  async removeAdmin(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
+    return await this.roomService.removeAdmin(roomId, userId);
+  }
+
+
+  // kick a user from a room
+
+  @Post('kick')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('update')
+  @UseGuards(AuthGuard)
+  async kickUser(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
+    return await this.roomService.kickUser(roomId, userId);
+  }
+
+  // ban a user
+
+  @Post('ban')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('update')
+  @UseGuards(AuthGuard)
+  async banUser(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
+    return await this.roomService.banUser(roomId, userId);
+  }
 }

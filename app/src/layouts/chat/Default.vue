@@ -12,6 +12,8 @@ import RoomsList from './parcials/RoomsList.vue'
 import InfoBar from './parcials/InfoBar.vue'
 import MessageInput from './parcials/MessageInput.vue'
 import UsersList from './parcials/UsersList.vue'
+import RoomSettings from './parcials/room/RoomSettings.vue'
+import { useRoomStore } from '@/store/room';
 
 // bootstrapping the socket if not initialized on home  component
 bootstrap();
@@ -20,7 +22,9 @@ const message = ref('');
 const route = useRoute();
 const chatStore = useChatStore();
 const socketStore = useSocketStore();
+const roomStore = useRoomStore();
 const { activeConversation: messages, selectedUser, selectedRoom } = storeToRefs(chatStore);
+const { roomSettings } = storeToRefs(roomStore)
 const drawer = ref(true)
 
 // type of the conversation (dm / room)
@@ -98,6 +102,7 @@ const tab = ref(type);
       </v-window>
     </v-navigation-drawer>
     <v-main>
+      <room-settings v-if="roomSettings"> </room-settings>
       <info-bar @click:menu="drawer = !drawer" :user="selectedUser" :room="selectedRoom" :type="type"></info-bar>
       <o-container :messages="messages"></o-container>
     </v-main>

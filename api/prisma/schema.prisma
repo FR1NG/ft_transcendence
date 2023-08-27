@@ -96,6 +96,7 @@ model UsersRooms {
   roomId String
   userId String
   role   RoomRoles @default(USER)
+  baned Boolean @default(false)
 }
 
 model Games {

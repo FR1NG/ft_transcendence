@@ -32,7 +32,6 @@ roomStore.getRooms();
 
 <template>
   <JoinRoom v-if="joinAppearance" :room="roomToJoin" @close="joinClose"/>
-  <room-settings v-if="roomSettings"> </room-settings>
     <v-list>
       <v-list-item>
         <room-search :join="joinRoom"> </room-search>

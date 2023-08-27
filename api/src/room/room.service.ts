@@ -3,13 +3,13 @@ import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import * as bcrypt from 'bcrypt'
-import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { UsersRooms } from '@prisma/client';
-import { User } from 'src/user/entities/user.entity';
+// import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
+// import { UsersRooms } from '@prisma/client';
+// import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RoomService {
-  constructor(private prisma: PrismaService, private casl: CaslAbilityFactory) { }
+  constructor(private prisma: PrismaService) { }
   async createRoom(user: AuthenticatedUser, room: CreateRoomDto) {
     const { name, type, password } = room;
     const salt = await bcrypt.genSalt();
@@ -50,10 +50,13 @@ export class RoomService {
     const { sub: id } = user;
     const userRooms = await this.prisma.users.findUnique({
       where: {
-        id
+        id,
       },
       select: {
         rooms: {
+          where: {
+            baned: false,
+          },
           select: {
             role: true,
             room: {
@@ -105,7 +108,7 @@ export class RoomService {
       }
     });
 
-    if(room.users.length > 0)
+    if (room.users.length > 0)
       throw new ConflictException('room is already joined');
 
     if (!room)
@@ -117,9 +120,9 @@ export class RoomService {
     if (room.type === 'PROTECTED') {
       const passwordMatch = await bcrypt.compare(password, room.password);
       if (!passwordMatch)
-      throw new HttpException({
-        message: 'Invalid password'
-      }, HttpStatus.UNAUTHORIZED);
+        throw new HttpException({
+          message: 'Invalid password'
+        }, HttpStatus.UNAUTHORIZED);
     }
 
     const joined = await this.prisma.users.update({
@@ -140,25 +143,43 @@ export class RoomService {
       return { message: 'room joined successfully' };
   }
 
-  // get room by name
+  // get room by id
   async getRoom(user: AuthenticatedUser, id: string) {
-
     const room = await this.prisma.usersRooms.findFirst({
       where: {
         user: {
-          id: user.sub
+          id: user.sub,
         },
         room: {
           id
-        }
+        },
+        baned: false,
       },
+      select: {
+        role: true,
+        room: {
+          select: {
+            name: true,
+            type: true,
+            users: {
+              select: {
+                role: true,
+                user: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true,
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
 
-    if(!room)
-      throw new NotFoundException('')
-    const ability = this.casl.createForRoom(room);
-    if(!ability.can(Actions.read, 'room'))
-      throw new ForbiddenException('you can\'t see this room')
+    if (!room)
+      throw new NotFoundException()
     return room;
   }
 
@@ -180,22 +201,138 @@ export class RoomService {
         name: true,
         type: true,
         users: {
-          where : {
+          where: {
             userId: user.sub
+          },
+          select: {
+            baned: true,
           }
         }
       }
     });
 
     const filtred = rooms.map(el => {
-      if(el.users.length > 0)
-       el["joined"] = true;
+      if (el.users.length > 0)
+        el["joined"] = true;
       else
-       el["joined"] = false;
-      delete el["users"];
-      return el;
+        el["joined"] = false;
+      if(!el.users[0]?.baned) {
+        delete el["users"];
+          return el;
+      }
     })
     return filtred;
   }
+
+  // make a user an admin of a room
+  async addAdmin(roomId: string, userId: string) {
+    const room = await this.prisma.usersRooms.findFirst({
+      where: {
+        userId,
+        roomId
+      },
+      select: {
+        id: true,
+        role: true
+      }
+    });
+
+    if(!room)
+      throw new NotFoundException('room not found');
+    if(room.role === 'OWNER')
+      throw new ForbiddenException('you cannot change the owner status');
+    const result = await this.prisma.usersRooms.update({
+      where: {
+        id: room.id
+      },
+      data: {
+        role: 'ADMIN'
+      }
+    });
+    return result;
+  }
+
+  // remove admin role for a user
+  async removeAdmin(roomId: string, userId: string) {
+    const room = await this.prisma.usersRooms.findFirst({
+      where: {
+        userId,
+        roomId
+      },
+      select: {
+        id: true,
+        role: true
+        }
+    });
+
+    if(!room)
+      throw new NotFoundException('room not found');
+    if(room.role === 'OWNER')
+      throw new ForbiddenException('you cannot change the owner status');
+    const result = await this.prisma.usersRooms.update({
+      where: {
+        id: room.id
+      },
+      data: {
+        role: 'USER'
+      }
+    });
+    return result;
+  }
+
+// kick a youser from a room
+async kickUser(roomId: string, userId: string) {
+    const room = await this.prisma.usersRooms.findFirst({
+      where: {
+        userId,
+        roomId
+      },
+      select: {
+        id: true,
+        role: true
+        }
+    });
+
+    if(!room)
+      throw new NotFoundException('room not found');
+    if(room.role === 'OWNER')
+      throw new ForbiddenException(`you cannot kick a ${room.role}, are you stupid`);
+    const result = await this.prisma.usersRooms.delete({
+      where: {
+        id: room.id
+      }
+    });
+    return result;
+}
+
+
+// ban a youser from a room
+async banUser(roomId: string, userId: string) {
+    const room = await this.prisma.usersRooms.findFirst({
+      where: {
+        userId,
+        roomId
+      },
+      select: {
+        id: true,
+        role: true
+        }
+    });
+
+    if(!room)
+      throw new NotFoundException('room not found');
+    if(room.role === 'OWNER')
+      throw new ForbiddenException(`you cannot kick a ${room.role}, are you stupid`);
+    const result = await this.prisma.usersRooms.update({
+      where: {
+        id: room.id
+      },
+      data: {
+        baned: true
+      }
+    });
+    return result;
+}
+
 }
 

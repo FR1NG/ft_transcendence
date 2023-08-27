@@ -11,9 +11,10 @@ import { ChatModule } from './chat/chat.module';
 import { FriendModule } from './friend/friend.module';
 import { RoomModule } from './room/room.module';
 import { NotificationModule } from './notification/notification.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule, NotificationModule],
+  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule, NotificationModule, CaslModule],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],
 })
