@@ -178,6 +178,22 @@ export const useRoomStore = defineStore('room', {
           reject(error.response)
         }
       });
+    },
+
+    // laeve a room
+    async leaveRoom(roomId: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/leave', {
+            roomId
+          });
+        const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
+
     }
 
    }

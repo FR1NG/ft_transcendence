@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -333,6 +333,90 @@ async banUser(roomId: string, userId: string) {
     });
     return result;
 }
+  // leave a room
+  async leaveRoom(user: AuthenticatedUser, id: string) {
+    const userRoom = await this.prisma.usersRooms.findFirst({
+      where: {
+        room: {
+          id
+        },
+        user: {
+          id: user.sub
+        }
+      },
+      select: {
+        id: true,
+        room: true,
+        role: true,
+      }
+    });
+
+    if(userRoom.role === 'OWNER') {
+      // getting the first admin to be the next owner
+      let lkhalifa = await this.prisma.usersRooms.findFirst({
+        where: {
+          room: {
+            id: userRoom.room.id
+          },
+          OR: [
+            { role: 'ADMIN'},
+          ],
+          NOT: [
+            {
+              user: {
+                id: user.sub
+              }
+            }
+          ]
+        }
+      });
+      // if no admin in the room
+      if (!lkhalifa) {
+        lkhalifa = await this.prisma.usersRooms.findFirst({
+          where: {
+            room: {
+              id: userRoom.room.id
+            },
+            NOT: [
+              {
+                user: {
+                  id: user.sub
+                }
+              }
+            ]
+          }
+        });
+      }
+
+      // update room owner id to the new owner
+      const room = await this.prisma.rooms.update({
+        where: {
+          id: userRoom.room.id
+        },
+        data: {
+          ownerId: lkhalifa.userId
+        }
+      });
+
+      // update the user's role in the room
+      const newUserRoom = await this.prisma.usersRooms.update({
+        where: {
+          id: lkhalifa.id
+        },
+        data: {
+          role: 'OWNER'
+        }
+      });
+      if(!room || !newUserRoom)
+        throw new InternalServerErrorException();
+    }
+    await this.prisma.usersRooms.delete({
+      where: {
+        id: userRoom.id
+      }
+    });
+    return { message: 'you leaved the room successfully' };
+  }
 
 }
 

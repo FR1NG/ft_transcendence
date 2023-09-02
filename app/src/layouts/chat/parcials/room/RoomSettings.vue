@@ -78,6 +78,17 @@ const ban = async (id: string) => {
 
 }
 
+// leave a room
+
+const leave = async () => {
+  try {
+    const result = await roomStore.leaveRoom(roomId);
+    console.log(result);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 </script>
 
 <template>
@@ -90,7 +101,7 @@ const ban = async (id: string) => {
         {{ details?.room.type }}
       </v-card-subtitle>
       <v-card-text>
-        <v-list>
+        <v-list max-height="300">
           <v-list-item v-for="user in details?.room.users" :key="user.user.id">
             <v-list-item-title>{{ user.user.id === me.id ? `${user.user.username} (you)` : user.user.username }}</v-list-item-title>
             <v-list-item-subtitle> {{ user.role }} </v-list-item-subtitle>
@@ -103,7 +114,7 @@ const ban = async (id: string) => {
               </v-avatar>
             </template>
 
-            <template v-if="user.user.id !== me.id && user.role != 'OWNER'"  v-slot:append>
+            <template v-if="user.user.id !== me.id && user.role != 'OWNER' && details?.role !== 'USER'"  v-slot:append>
               <v-menu>
                 <template v-slot:activator="{ props }">
                   <v-icon v-bind="props">mdi-dots-vertical</v-icon>
@@ -118,6 +129,8 @@ const ban = async (id: string) => {
             </template>
           </v-list-item>
         </v-list>
+        <v-divider ></v-divider>
+        <v-btn block color="error" variant="outlined" @click="leave">leave room</v-btn>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="roomSettings = false">close</v-btn>

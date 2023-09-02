@@ -54,7 +54,7 @@ export class RoomController {
 
   @Post('admin')
   @UseGuards(RoomAbilityGuardGuard)
-  @CheckRoomAbility('update')
+  @CheckRoomAbility('manage')
   @UseGuards(AuthGuard)
   async addAdmin(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
     return await this.roomService.addAdmin(roomId, userId);
@@ -88,5 +88,14 @@ export class RoomController {
   @UseGuards(AuthGuard)
   async banUser(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
     return await this.roomService.banUser(roomId, userId);
+  }
+
+  //leave a room
+  @Post('leave')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('read')
+  @UseGuards(AuthGuard)
+  async leaveRoom(@User() user: AuthenticatedUser, @Body('roomId') roomId: string) {
+    return await this.roomService.leaveRoom(user, roomId);
   }
 }
