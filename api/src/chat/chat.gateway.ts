@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, UseFilters, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
 import { WsAuthGuard } from 'src/auth/ws.guard';
 import { UserService } from 'src/user/user.service';
 import { ChatService } from './chat.service';
@@ -9,9 +9,10 @@ import { MessagePaylod } from './dto/chat';
 import { WebSocketExceptionFilter } from 'src/exception-filters/websocket.filter';
 import { RoomService } from 'src/room/room.service';
 import { Server, Socket } from 'socket.io'
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private chatService: ChatService,
     private userService: UserService,
@@ -50,11 +51,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       await this.userService.setOnline(payload.sub, false);
   }
 
-  // // for test only
-  // @SubscribeMessage('ping')
-  // handlePing(client: Socket) {
-  //   client.emit('ping', )
-  // }
+  afterInit(server: any) {
+      
+  }
 
   @SubscribeMessage('message')
   @UseFilters(WebSocketExceptionFilter)
@@ -94,4 +93,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return null
     }
   }
+
+
+  // listing to event emitter
+
+  @OnEvent('room.join')
+  hadleRoomJoin(payload) {
+    const client = this.clients.get(payload.userId);
+    if(client) 
+      client.join(payload.roomId);
+  }
+
+
+  @OnEvent('room.leave')
+  handleRoomLeave(payload) {
+    const client = this.clients.get(payload.userId);
+    if(client)
+      client.leave(payload.roomId);
+  }
+
 }

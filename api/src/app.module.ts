@@ -12,9 +12,21 @@ import { FriendModule } from './friend/friend.module';
 import { RoomModule } from './room/room.module';
 import { NotificationModule } from './notification/notification.module';
 import { CaslModule } from './casl/casl.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, JwtModule, ChatModule, FriendModule, RoomModule, NotificationModule, CaslModule],
+  imports: [
+    ConfigModule.forRoot(),
+    AuthModule,
+    UserModule,
+    JwtModule,
+    ChatModule,
+    FriendModule,
+    RoomModule,
+    NotificationModule,
+    CaslModule,
+    EventEmitterModule.forRoot()
+  ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],
 })

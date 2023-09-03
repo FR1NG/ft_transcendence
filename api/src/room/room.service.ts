@@ -3,13 +3,14 @@ import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import * as bcrypt from 'bcrypt'
+import { EventEmitter2 } from '@nestjs/event-emitter';
 // import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 // import { UsersRooms } from '@prisma/client';
 // import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class RoomService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private eventEmitter: EventEmitter2) { }
   async createRoom(user: AuthenticatedUser, room: CreateRoomDto) {
     const { name, type, password } = room;
     const salt = await bcrypt.genSalt();
@@ -41,6 +42,13 @@ export class RoomService {
         }
       },
     });
+
+    // emitting the joining event to the gateway
+    this.eventEmitter.emit('room.join', {
+      userId: id,
+      roomId: result.id
+    });
+
     return result;
   }
 
@@ -139,8 +147,13 @@ export class RoomService {
       }
     });
 
-    if (joined)
+    if (joined) {
+      this.eventEmitter.emit('room.join', {
+        roomId: id,
+        userId: user.sub
+      })
       return { message: 'room joined successfully' };
+    }
   }
 
   // get room by id
@@ -415,6 +428,11 @@ async banUser(roomId: string, userId: string) {
         id: userRoom.id
       }
     });
+    // emit event to the gateway
+    this.eventEmitter.emit('room.leave', {
+      roomId: id,
+      userId: user.sub 
+    })
     return { message: 'you leaved the room successfully' };
   }
 
