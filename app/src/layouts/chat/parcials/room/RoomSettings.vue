@@ -6,6 +6,9 @@ import { useRoute } from 'vue-router';
 import type { RoomDetails } from '@/types/room'
 import { iconColor, getIcon } from '@/composables/room'
 import { useAuthStore } from '@/store/auth';
+import Confirm from '@/components/Confirm.vue'
+import CostumDivider from '@/components/CustomDivider.vue'
+import router from '@/router';
 
 
 const dialog = true;
@@ -19,6 +22,9 @@ const roomId: string = route.params.id as string;
 const data = reactive({
   loading: false
 });
+
+// events emits
+const emit = defineEmits(['leave']);
 
 const details = ref<RoomDetails>();
 const created = async () => {
@@ -80,12 +86,18 @@ const ban = async (id: string) => {
 
 // leave a room
 
-const leave = async () => {
+const leaveDialog = ref(false);
+
+const leave = async (callback: () => void, handleError: () => void) => {
   try {
     const result = await roomStore.leaveRoom(roomId);
     console.log(result);
+    callback();
+    emit('leave');
+    router.push({name: 'Chat'})
   } catch (error) {
     console.log(error)
+    handleError();
   }
 }
 
@@ -101,6 +113,7 @@ const leave = async () => {
         {{ details?.room.type }}
       </v-card-subtitle>
       <v-card-text>
+        <costum-divider title="Room users"> </costum-divider>
         <v-list max-height="300">
           <v-list-item v-for="user in details?.room.users" :key="user.user.id">
             <v-list-item-title>{{ user.user.id === me.id ? `${user.user.username} (you)` : user.user.username }}</v-list-item-title>
@@ -130,7 +143,8 @@ const leave = async () => {
           </v-list-item>
         </v-list>
         <v-divider ></v-divider>
-        <v-btn block color="error" variant="outlined" @click="leave">leave room</v-btn>
+        <Confirm @confirm="leave" v-model="leaveDialog" title="Leave room" text="Are you sure you want to leave this room"/>
+        <v-btn block color="error" variant="outlined" @click="leaveDialog = true">leave room</v-btn>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="roomSettings = false">close</v-btn>

@@ -57,7 +57,7 @@ const routes = [
   {
     path: '/chat',
     name: 'Chat',
-    component: () => import('@/layouts/chat/Default.vue'),
+    component: () => import('@/layouts/chat/Home.vue'),
     meta: {
       auth: true,
     },
