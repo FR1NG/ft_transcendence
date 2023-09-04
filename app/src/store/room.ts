@@ -196,9 +196,20 @@ export const useRoomStore = defineStore('room', {
           reject(error.response);
         }
       });
+    },
 
+    // update room data TODO: data type any from now, make a type for it
+    async updateRoom(id: string, room: any) {
+      return new Promise(async (resolve, reject) => {
+        try {
+            const response: AxiosResponse = await axios.patch(`/room/${id}`, room);
+            const { data } = response;
+            resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
     }
-
-   }
-});
+   }, // INFO end of actions
+}); // INFO end of defineStore
 
