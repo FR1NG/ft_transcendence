@@ -24,9 +24,17 @@ export class RoomAbilityGuardGuard implements CanActivate {
     if(!user)
       throw new UnauthorizedException();
     let id : string;
-    if(request.method === 'POST' || request.method === 'DELETE')
+    const bodyMethods = [
+      'POST',
+      'DELETE',
+    ];
+    const paramsMethods = [
+      'GET',
+      'PATCH'
+    ]
+    if(bodyMethods.includes(request.method))
       id = request.body.id || request.body.roomId;
-    if(request.method === 'GET')
+    if(paramsMethods.includes(request.method))
       id = request.params.id || request.params.roomId;
     if(!id )
       throw new BadRequestException('room id must be Specified');
