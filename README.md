@@ -120,6 +120,10 @@ type user = {
  avatar: string
  email: string
  games: Usergame
+ level: Level
+ leag: Leag
+ globalRank: Rank[]
+ localRank: Rank[]
  }
 
  type Leag = {
@@ -130,18 +134,16 @@ type user = {
  type Level = {
   user: User
   points: int
-  leag: Leag
   }
- type RankUser = {
+
+ type Rank = {
    userId: string
    usename: string
    points: int
    rank: int
    leagName: string
 }
- type Rank {
-  users: RankUser[] // three users expected sorted by his rank
-}
+
 
 type Acheivments = {
  id: int
