@@ -1,5 +1,5 @@
-import { Controller, Post, Body, UseGuards, Get, Query, Param, Delete } from '@nestjs/common';
-import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
+import { Controller, Post, Body, UseGuards, Get, Query, Param, Delete, Patch } from '@nestjs/common';
+import { CreateRoomDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { RoomService } from './room.service'
 import type { AuthenticatedUser } from 'src/types'
@@ -97,5 +97,13 @@ export class RoomController {
   @UseGuards(AuthGuard)
   async leaveRoom(@User() user: AuthenticatedUser, @Body('roomId') roomId: string) {
     return await this.roomService.leaveRoom(user, roomId);
+  }
+
+  @Patch(':id')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('manage')
+  @UseGuards(AuthGuard)
+  async updateRoom(@Param('id') id: string, @Body() data: UpdateRoomDto) {
+    return await this.roomService.updateRoom(id, data);
   }
 }

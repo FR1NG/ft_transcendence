@@ -1,12 +1,10 @@
-import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { CreateRoomDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import * as bcrypt from 'bcrypt'
 import { EventEmitter2 } from '@nestjs/event-emitter';
-// import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-// import { UsersRooms } from '@prisma/client';
-// import { User } from 'src/user/entities/user.entity';
+import { match } from 'assert';
 
 @Injectable()
 export class RoomService {
@@ -434,6 +432,46 @@ async banUser(roomId: string, userId: string) {
       userId: user.sub 
     })
     return { message: 'you leaved the room successfully' };
+  }
+
+  // update a room
+  async updateRoom(id: string, data: UpdateRoomDto) {
+    // checking password validity 
+    const { name, type, password } = data;
+    if(data.type === 'PROTECTED' && password.length > 0) {
+      const room = await this.prisma.rooms.findFirst({
+        where: {
+          id
+        }
+      });
+      if(!room)
+        throw new NotFoundException(`room with id ${id} not found`);
+        const matches = await bcrypt.compare(data.oldPassword, room.password)
+        if(!matches)
+          throw new BadRequestException([ 'oldPassword is invalid' ]);
+      // updateing password
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        await this.prisma.rooms.update({
+        where: {
+          id
+        },
+        data: {
+          password: hashedPassword
+        }
+      });
+    }
+
+    const result = await this.prisma.rooms.update({
+      where: {
+        id
+      },
+      data : {
+        name,
+        type
+      },
+    });
+    return {password, ...result};
   }
 
 }
