@@ -1,5 +1,4 @@
-FROM node:20.3
-#nestjs docker file
+FROM node:20
 
 
 WORKDIR /api/
