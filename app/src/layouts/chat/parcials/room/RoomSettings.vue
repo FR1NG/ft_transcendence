@@ -30,7 +30,7 @@ const showEdit = ref(false);
 const emit = defineEmits(['leave']);
 
 const details = ref<RoomDetails>();
-const created = async () => {
+const getData = async () => {
   // TODO some error will be placed here
   if (!roomId)
     return;
@@ -44,13 +44,13 @@ const created = async () => {
   }
 }
 
-created();
+getData();
 
 // option actions
 const makeAdmin = async (id: string) => {
   try {
     const result = await roomStore.addAdmin(roomId, id);
-    created();
+    getData();
   } catch (error: any) {
     alert(error.data.message);
   }
@@ -59,7 +59,7 @@ const makeAdmin = async (id: string) => {
 const removeAdmin = async (id: string) => {
   try {
     const result = await roomStore.removeAdmin(roomId, id);
-    created();
+    getData();
     console.log(result);
   } catch (error) {
     console.log(error);
@@ -69,7 +69,7 @@ const removeAdmin = async (id: string) => {
 const kick = async (id: string) => {
   try {
     const result = await roomStore.kickUser(roomId, id);
-    created();
+    getData();
     console.log(result);
   } catch (error) {
     console.log(error);
@@ -79,7 +79,7 @@ const kick = async (id: string) => {
 const ban = async (id: string) => {
   try {
     const result = await roomStore.banUser(roomId, id);
-    created();
+    getData();
     console.log(result);
   } catch (error) {
     console.log(error);
@@ -108,6 +108,7 @@ const leave = async (callback: () => void, handleError: () => void) => {
 const onRoomUpdated = () => {
   showEdit.value = false;
   useSnackBarStore().notify('room updated successfully');
+  getData();
 }
 
 </script>
