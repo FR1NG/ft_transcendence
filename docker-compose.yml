@@ -22,16 +22,19 @@ services:
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - VITE_INTRA_LOGIN_URL=${VITE_INTRA_LOGIN_URL}
+    ports: 
+      - "3000:3000"
   db:
     image: postgres:15.3
+    container_name: db
     environment:
       - "POSTGRES_DB=${POSTGRES_DB}"
       - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" 
     ports:
       - "5432:5432"
-    volumes:
-      - ./postgres/data/:/var/lib/postgresql/data/
+    # volumes:
+    #   - ./postgres/data/:/var/lib/postgresql/data/
     networks:
       - ft_network
   server:
@@ -46,8 +49,7 @@ services:
       - ./nginx/ssl/:/etc/ssl/
       - ./api/uploads/:/var/www/cdn/
     ports:
-      - "80:80"
-      - "443:443"
+      - "4443:4443"
 networks:
   ft_network:
     driver: bridge
