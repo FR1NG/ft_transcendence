@@ -437,21 +437,23 @@ async banUser(roomId: string, userId: string) {
   // update a room
   async updateRoom(id: string, data: UpdateRoomDto) {
     // checking password validity 
-    const { name, type, password } = data;
-    if(data.type === 'PROTECTED' && password.length > 0) {
+    const { name, type, password: newPassword } = data;
       const room = await this.prisma.rooms.findFirst({
         where: {
           id
         }
       });
-      if(!room)
-        throw new NotFoundException(`room with id ${id} not found`);
+    if(!room)
+      throw new NotFoundException(`room with id ${id} not found`);
+    if(room.type !== 'PROTECTED' && data.type === 'PROTECTED' && newPassword.length === 0)
+      throw new BadRequestException(['password is required for protected rooms']);
+    if(data.type === 'PROTECTED' && newPassword.length > 0) {
         const matches = await bcrypt.compare(data.oldPassword, room.password)
         if(!matches)
           throw new BadRequestException([ 'oldPassword is invalid' ]);
       // updateing password
         const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
         await this.prisma.rooms.update({
         where: {
           id
@@ -471,7 +473,8 @@ async banUser(roomId: string, userId: string) {
         type
       },
     });
-    return {password, ...result};
+    const {password, ...rest} = result;
+    return rest;
   }
 
 }
