@@ -1,15 +1,14 @@
-import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { CreateRoomDto, JoinRoomDto } from './dto/room.dto';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { CreateRoomDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import * as bcrypt from 'bcrypt'
-// import { Actions, CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
-// import { UsersRooms } from '@prisma/client';
-// import { User } from 'src/user/entities/user.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { match } from 'assert';
 
 @Injectable()
 export class RoomService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private eventEmitter: EventEmitter2) { }
   async createRoom(user: AuthenticatedUser, room: CreateRoomDto) {
     const { name, type, password } = room;
     const salt = await bcrypt.genSalt();
@@ -41,6 +40,13 @@ export class RoomService {
         }
       },
     });
+
+    // emitting the joining event to the gateway
+    this.eventEmitter.emit('room.join', {
+      userId: id,
+      roomId: result.id
+    });
+
     return result;
   }
 
@@ -139,8 +145,13 @@ export class RoomService {
       }
     });
 
-    if (joined)
+    if (joined) {
+      this.eventEmitter.emit('room.join', {
+        roomId: id,
+        userId: user.sub
+      })
       return { message: 'room joined successfully' };
+    }
   }
 
   // get room by id
@@ -333,6 +344,138 @@ async banUser(roomId: string, userId: string) {
     });
     return result;
 }
+  // leave a room
+  async leaveRoom(user: AuthenticatedUser, id: string) {
+    const userRoom = await this.prisma.usersRooms.findFirst({
+      where: {
+        room: {
+          id
+        },
+        user: {
+          id: user.sub
+        }
+      },
+      select: {
+        id: true,
+        room: true,
+        role: true,
+      }
+    });
+
+    if(userRoom.role === 'OWNER') {
+      // getting the first admin to be the next owner
+      let lkhalifa = await this.prisma.usersRooms.findFirst({
+        where: {
+          room: {
+            id: userRoom.room.id
+          },
+          OR: [
+            { role: 'ADMIN'},
+          ],
+          NOT: [
+            {
+              user: {
+                id: user.sub
+              }
+            }
+          ]
+        }
+      });
+      // if no admin in the room
+      if (!lkhalifa) {
+        lkhalifa = await this.prisma.usersRooms.findFirst({
+          where: {
+            room: {
+              id: userRoom.room.id
+            },
+            NOT: [
+              {
+                user: {
+                  id: user.sub
+                }
+              }
+            ]
+          }
+        });
+      }
+
+      // update room owner id to the new owner
+      const room = await this.prisma.rooms.update({
+        where: {
+          id: userRoom.room.id
+        },
+        data: {
+          ownerId: lkhalifa.userId
+        }
+      });
+
+      // update the user's role in the room
+      const newUserRoom = await this.prisma.usersRooms.update({
+        where: {
+          id: lkhalifa.id
+        },
+        data: {
+          role: 'OWNER'
+        }
+      });
+      if(!room || !newUserRoom)
+        throw new InternalServerErrorException();
+    }
+    await this.prisma.usersRooms.delete({
+      where: {
+        id: userRoom.id
+      }
+    });
+    // emit event to the gateway
+    this.eventEmitter.emit('room.leave', {
+      roomId: id,
+      userId: user.sub 
+    })
+    return { message: 'you leaved the room successfully' };
+  }
+
+  // update a room
+  async updateRoom(id: string, data: UpdateRoomDto) {
+    // checking password validity 
+    const { name, type, password: newPassword } = data;
+      const room = await this.prisma.rooms.findFirst({
+        where: {
+          id
+        }
+      });
+    if(!room)
+      throw new NotFoundException(`room with id ${id} not found`);
+    if(room.type !== 'PROTECTED' && data.type === 'PROTECTED' && newPassword.length === 0)
+      throw new BadRequestException(['password is required for protected rooms']);
+    if(data.type === 'PROTECTED' && newPassword.length > 0) {
+        const matches = await bcrypt.compare(data.oldPassword, room.password)
+        if(!matches)
+          throw new BadRequestException([ 'oldPassword is invalid' ]);
+      // updateing password
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        await this.prisma.rooms.update({
+        where: {
+          id
+        },
+        data: {
+          password: hashedPassword
+        }
+      });
+    }
+
+    const result = await this.prisma.rooms.update({
+      where: {
+        id
+      },
+      data : {
+        name,
+        type
+      },
+    });
+    const {password, ...rest} = result;
+    return rest;
+  }
 
 }
 

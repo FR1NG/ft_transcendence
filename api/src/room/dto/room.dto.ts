@@ -1,4 +1,5 @@
-import { IsEnum, IsString, Length, Min, ValidateIf } from "class-validator"
+import { PartialType } from "@nestjs/mapped-types"
+import { IsEnum, IsString, IsStrongPassword, IsUUID, Length, Matches, Min, ValidateIf, ValidationArguments } from "class-validator"
 enum Types {
   'PUBLIC',
   'PROTECTED',
@@ -15,14 +16,18 @@ export  class CreateRoomDto {
   type: 'PRIVATE' | 'PROTECTED' | 'PUBLIC'
 
   @ValidateIf(o => o.type === 'PROTECTED')
-  @IsString()
-  @Length(8, 50)
+  @IsStrongPassword()
   password: string
 }
 
 export class JoinRoomDto { 
-
   id: string
+  password: string
+}
 
+export class UpdateRoomDto extends PartialType(CreateRoomDto) {
+  oldPassword?: string
+  @ValidateIf(o => o.oldPassword.length > 0)
+  @IsStrongPassword()
   password: string
 }

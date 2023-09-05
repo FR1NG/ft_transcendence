@@ -17,7 +17,7 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
       if(message instanceof Array) {
         message.forEach(e => {
          const key = e.split(' ')[0];
-          costumeMessages[key] = e;
+          costumeMessages[key] = e.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
         });
       }
 

@@ -12,6 +12,7 @@ export type UserRoom = {
 export type Room = {
   id: string
   name: string
+  type?: RoomType
 }
 
 export type RoomType = 'PUBLIC' | 'PROTECTED' | 'PRIVATE';

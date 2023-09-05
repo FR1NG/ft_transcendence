@@ -18,10 +18,16 @@ export type RoomAbility = Ability<[Actions, Subjects]>
 export class CaslAbilityFactory {
   createForRoom(room: UsersRooms) {
     const { can, cannot, build } = new AbilityBuilder(Ability as AbilityClass<RoomAbility>);
-    if(room.role === 'OWNER' || room.role === 'ADMIN')
+    if(room.role === 'OWNER')
       can(Actions.manage, 'room');
-    if(room.role === 'ADMIN')
+
+    if(room.role === 'ADMIN') {
       cannot(Actions.delete, 'room');
+      can(Actions.create, 'room');
+      can(Actions.read, 'room');
+      can(Actions.update, 'room');
+    }
+
     if(room.role === 'USER')
       can(Actions.read, 'room')
     return build({

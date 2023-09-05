@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { CreateRoomDto } from '@/types/room'
 import axios from '@/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
+import { useChatStore } from './chat'
 
 type UserRoom = {
   role: String
@@ -52,6 +53,7 @@ export const useRoomStore = defineStore('room', {
     },
 
     showSettings(id: string) {
+      console.log('showing setting')
       this.roomSettings = true;
     },
     async getRoomUsers(roomId: string): Promise<any> {
@@ -178,8 +180,36 @@ export const useRoomStore = defineStore('room', {
           reject(error.response)
         }
       });
-    }
+    },
 
-   }
-});
+    // laeve a room
+    async leaveRoom(roomId: string): Promise<any> {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/leave', {
+            roomId
+          });
+          const { data } = response;
+          useChatStore().deleteConversation(roomId);
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
+    },
+
+    // update room data TODO: data type any from now, make a type for it
+    async updateRoom(id: string, room: any) {
+      return new Promise(async (resolve, reject) => {
+        try {
+            const response: AxiosResponse = await axios.patch(`/room/${id}`, room);
+            const { data } = response;
+            resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
+    }
+   }, // INFO end of actions
+}); // INFO end of defineStore
 

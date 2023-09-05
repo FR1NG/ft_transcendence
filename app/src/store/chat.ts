@@ -39,7 +39,7 @@ export const useChatStore = defineStore('chat', {
           this.activeConversation = data.messages;
         } else if(type === 'room') {
             const {conversation, ...room} = data;
-            this.conversations.set(room.id, {messages: conversation.messages, sender: room});
+            this.conversations.set(id, {messages: conversation.messages, sender: room});
             this.activeConversation = conversation.messages;
             this.selectedRoom = room;
           }
@@ -86,6 +86,12 @@ export const useChatStore = defineStore('chat', {
     },
     deleteConversation(userId: string) {
       this.conversations.delete(userId);
+      console.log(this.conversations.get(userId));
+    },
+    resetActiveConversation() {
+      this.selectedRoom = {} as UserRoom;
+      this.selectedUser = {} as User;
+      this.activeConversation = [];
     }
   },
 })
