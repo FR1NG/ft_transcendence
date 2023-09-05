@@ -102,7 +102,7 @@ const errors = reactive({
     <div  v-if="showpass">
       <custom-divider title="Change password"></custom-divider>
       <v-row>
-        <v-col cols="12">
+        <v-col cols="12" v-if="room.type === 'PROTECTED'">
           <v-text-field label="Old Password" :error-messages="errors.oldPassword" variant="outlined" v-model="form.oldPassword"></v-text-field>
         </v-col>
         <v-col cols="12">
