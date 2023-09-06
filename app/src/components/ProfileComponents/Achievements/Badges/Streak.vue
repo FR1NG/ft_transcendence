@@ -1,44 +1,46 @@
 <script setup lang="ts">
-
-const props = defineProps( {
-  num:String,
-  colr:String,
-  fire:String
-})
+import Locked from '../Locked.vue'
+import Badge from '../Badge.vue'
+const props = defineProps<{
+  num:string,
+  colr:string,
+  fire:string,
+  name:string,
+  description:string,
+  achieved:boolean,
+}>()
 
 </script>
 
+
 <template>
-        <div class="contain">
-            <div>
-              <div class="streakNumber"><span class="hidden">...</span>{{ num }}</div>
-              <img class="fire" :src=fire alt="">
-                <h1 class="pongFont">PONG</h1>
-            </div>
+  <Badge :achieved="props.achieved">
+    <template v-slot:front>
+      <div class="contain">
+        <locked  v-if="props.achieved === true"/>
+        <div class="streakNumber"><span class="hidden">..........</span>{{ props.num }}</div>
+          <img class="fire" :src=props.fire alt="">
+          <h1 class="pongFont">PONG</h1>
         </div>
+    </template>
+    <template v-slot:back>
+      <div class="contain">
+      <h3> {{ props.name }}</h3>
+      <p>{{ props.description }}</p>
+      </div>
+    </template>
+  </Badge>
 </template>
 
 <style scoped lang="scss">
 
 .contain {
-      position: relative;
-      min-width: 200px;
-      height: 140px;
-      background: white;
       background-color: v-bind(colr);
-      letter-spacing: 0.2em;
-      border-radius:20px 5px;
-      text-align: center;
-      padding-top: .5rem;
       border: 1px solid v-bind(colr);
-      box-shadow: -5px -5px 5px -4px v-bind(colr);
-      border-bottom: 2px solid black;
-      border-right: 2px solid black;
-      color: rgb(var(--v-theme-secondary));
+      box-shadow: -1px -1px 1px 0px v-bind(colr);
+    
       .pongFont {
-          font-size: 2.5rem;
-          text-shadow: 1px 1px 2px white;
-          white-space: nowrap;
+        padding-top: 0;
       }
       .fire{
         position: absolute;
@@ -54,6 +56,11 @@ const props = defineProps( {
         color: v-bind(colr);
       }
       .hidden {color: transparent;}
+      p {
+        color: white;
+        padding-top: 1rem;
+      }
+
 }
 
 </style>

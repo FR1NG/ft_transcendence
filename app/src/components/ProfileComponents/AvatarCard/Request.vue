@@ -104,31 +104,6 @@ const unblockUser = async () => {
       </v-btn>
     </div>
     <div class="request">
-      <v-menu open-on-hover :close-on-content-click="false" class="menu">
-              <template v-slot:activator="{ props }">
-                <v-btn v-bind="props" class="text-none  ml-1" color="secondary" icon="mdi-dots-vertical" variant="text"></v-btn>
-              </template>
-      
-              <v-list density="compact">
-                <v-list-item v-if="getRequstStatus === 'friends'" prepend-icon="mdi-gamepad-variant-outline">
-                  <!-- need to add a function to delete friend at click -->
-                    unfriend
-                </v-list-item>
-                
-                <v-list-item v-if="isBlocked" @click="unblockUser" color="pri" prepend-icon="mdi-lock-open-variant-outline">
-                  <template v-slot:prepend>
-                    <v-icon></v-icon>
-                  </template>
-                  unblock
-                </v-list-item>
-                <v-list-item @click="blockUser" v-else>
-                  <template v-slot:prepend>
-                    <v-icon>mdi-account-cancel-outline</v-icon>
-                  </template>
-                  block
-                </v-list-item>
-              </v-list>
-            </v-menu>
       <div class="addFriend">
         <v-btn v-if="getRequstStatus === 'sent'" class="btn text-none"  rounded="lg" :loading="data.sending"
         @click="cancelFriendRequest(user.friendRequestsRecieved[0].id)" color="secondary" variant="flat">
@@ -143,6 +118,16 @@ const unblockUser = async () => {
     add friend
   </v-btn>
     </div>
+  </div>
+      <div class="block">
+        <v-btn v-if="isBlocked" @click="unblockUser" color="pri" prepend-icon="mdi-lock-open-variant-outline"
+         variant="flat">
+        unblock
+      </v-btn>
+    <v-btn v-else class="btn  text-none" variant="outlined" rounded="lg"
+    @click="blockUser" color="pri" prepend-icon="mdi-account-cancel-outline">
+    block
+  </v-btn>
     </div>
   </div>
 </template>
@@ -157,7 +142,7 @@ const unblockUser = async () => {
   padding: 1rem;
   display: grid;
   justify-items: end;
-  gap: 1rem;
+  gap: 0.9rem;
   
   .btn {
     border: 2px solid rgb(var(--v-theme-secondary));
@@ -170,114 +155,44 @@ const unblockUser = async () => {
     background-color: rgb(var(--v-theme-secondary));
     border: 2px solid rgb(var(--v-theme-secondary));
   }
-
-  .request {
-    display: flex;
-    height: 40px;
-    align-items: center;
-    gap: 0;
-    .menu {
-      background-color:rgb(var(--v-theme-secondary));
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    .request {
+      grid-row: 5;
+      grid-column: 7;
+      transition: grid-column 0.5s;
     }
-  }
+    .message {
+      grid-row: 5;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .gameInvite {
+      grid-row: 6;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .block {
+      grid-row: 6;
+      grid-column: 7;
+      transition: grid-column 0.5s;
+    }
 }
 
-@media (width < 1110px) {
+@media (width < 1160px) {
   .interactWrapper {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: repeat(3, 1fr);
-    gap: 0;
-    padding-bottom: 0;
-    padding-left: 1rem;
-    opacity: 0;
-    animation: reappear 1.5s linear forwards;
-    .message {
-      grid-column: 6;
-      grid-row: 2;
-      transition: grid-column 0.5s;
-    }
-    .gameInvite {
-      grid-column: 6;
-      grid-row: 3;
-      transition: grid-column 0.5s;
-    }
-    .request {
-      grid-column: 4;
-      grid-row: 3;
-      transition: grid-column 0.5s;
-    }
     .btn {
-      width: 125px;
-      transition: width 0.5s;
-    }
-  }
-  @keyframes reappear {
-    100% {
-      opacity: 1;
-    }
-  }
-}
-@media (width < 970px) {
-  .interactWrapper {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: repeat(3, 1fr);
-    gap: 0;
-    padding-bottom: 0;
-    padding-left: 1rem;
-    opacity: 0;
-    .message {
-      grid-column: 6;
-      grid-row: 1;
-      transition: grid-column 0.5s;
-    }
-    .gameInvite {
-      grid-column: 6;
-      grid-row: 2;
-      transition: grid-column 0.5s;
-    }
-    .request {
-      grid-column: 6;
-      grid-row: 3;
-      transition: grid-column 0.5s;
-    }
-    .btn {
-      width: 180px;
+      width: 128px;
       transition: width 0.5s;
     }
   }
 }
-@media (width < 640px) {
+@media (width < 600px) {
   .interactWrapper {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: repeat(3, 1fr);
-    gap: 0;
-    padding-bottom: 0;
-    padding-left: 1rem;
-    opacity: 0;
-    animation: reappear 1.5s linear forwards;
-    .message {
-      grid-column: 6;
-      grid-row: 2;
-      transition: grid-column 0.5s;
-    }
-    .gameInvite {
-      grid-column: 6;
-      grid-row: 3;
-      transition: grid-column 0.5s;
-    }
-    .request {
-      grid-column: 4;
-      grid-row: 3;
-      transition: grid-column 0.5s;
-    }
     .btn {
-      width: 125px;
+      width: 100px;
+      font-size: 0.6rem;
       transition: width 0.5s;
-    }
-  }
-  @keyframes reappear {
-    100% {
-      opacity: 1;
     }
   }
 }

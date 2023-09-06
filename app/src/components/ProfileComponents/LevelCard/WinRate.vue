@@ -127,3 +127,57 @@ const interv = setInterval(() => {
 }
 
 </style>
+
+
+
+
+<!-- <script setup lang="ts">
+import { ref } from 'vue'
+
+const props = defineProps<{
+  wins: number
+  gamesNum: number
+}>();
+
+const rate = (props.wins * 100) / (props.gamesNum)
+
+// const rate = (user.winnedGames * 100) / (user.hostedGames + user.guestedGames)
+let winLevel = ref(rate);
+let winLevel1 = ref(0);
+const winLevel2 = 220 - (220 * winLevel.value / 100);
+let count = 0;
+const interv = setInterval(() => {
+    if (winLevel1.value >= winLevel.value){
+        clearInterval(interv);
+    }else{
+        winLevel1.value++;
+    }
+}, 10)
+
+
+</script>
+
+<template>
+    <div class="winWrapper">
+        <div class="winRate">
+            <div class="outer">
+                <div class="inner">
+                    <div class="levelNum"> win rate {{ winLevel1 }} %</div>
+                </div>
+            </div>
+            <svg>
+                <defs>
+                    <linearGradient id="gradient">
+                        <stop offset="0%" stop-color="#FF00BD"/>
+                        <stop offset="100%" stop-color="#9198e5"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="35" stroke-linecap="round"></circle>
+            </svg>
+        </div>
+        <div class="totals">
+          <div class="mdi mdi-thumb-up-outline" style="color:#FF00BD;">. {{ props.wins}} wins</div>
+          <div class="mdi mdi-thumb-down-outline" style="color:#9198e5">. {{ props.gamesNum - props.wins}} losses</div>
+        </div>
+    </div>
+</template> -->

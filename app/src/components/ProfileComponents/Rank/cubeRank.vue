@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { User } from '@/types/user'
-import { readlink } from 'fs';
 
 //just for testing------- will be deleted later-----
 
 const props = defineProps({
     userAvatar :String,
     username: String,
-    points: String,
+    points: Number,
     rank: String,
 });
 
@@ -79,7 +78,7 @@ fill()
         width: 100px;
         height: 100px;
         border-radius: 15%;
-        box-shadow: 0px 0px 5px 5px rgb(87, 53, 75);
+        box-shadow: 0px 0px 2px 1px black;
     }
     .topFace {
         position: absolute;
@@ -128,3 +127,35 @@ fill()
 
 
 </style>
+
+
+<!-- <script setup lang="ts">
+
+const props = defineProps<{
+    avatar: string,
+    username: string,
+    points: number,
+    rank: number,
+}>();
+
+const positions:string[] = [
+    "/images/trophies/goldTrophy.png",
+    "/images/trophies/silverTrophy.png",
+    "/images/trophies/bronzeTrophy.png",
+]
+
+</script>
+
+<template>
+    <div class="cube">
+        <img class="rankedPic" :src="props.avatar" alt="">
+        <div class="face topFace"></div>
+        <div class="face frontFace"></div>
+        <div class="rankedData">
+            <img class="trophy" :src="positions[props.rank]" alt="trophy">
+            <div class="username">{{ props.username }}</div>
+            <div class="lign"></div>
+            <div class="points"> {{ props.points}} points</div>
+        </div>
+    </div>
+</template> -->

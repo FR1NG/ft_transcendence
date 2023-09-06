@@ -95,7 +95,10 @@ fill()
         overflow-y: scroll;
     }
     .matchesTable::-webkit-scrollbar {
-        width: 1em;
+        display: block;
+    }
+    .matchesTable::-webkit-scrollbar {
+        width: 8px;
     }
     .matchesTable::-webkit-scrollbar-track {
         background-color: rgba(255,0,189, 0.2);
@@ -110,3 +113,48 @@ fill()
 
 
 </style>
+
+
+<!-- <script setup lang="ts">
+import { User } from '@/types/user'
+import CustomCard from '@/components/CustomCard.vue';
+
+//just for testing------- will be deleted later-----
+
+
+const props = defineProps<{
+  user: User
+}>();
+// ------------------------------------------------------------
+
+</script>
+
+<template>
+  <CustomCard class="matchesWrapper">
+
+      <h2 class="matchesHeader">Last matches</h2>
+        <v-table class="matchesTable" theme="dark">
+        <thead>
+            <tr>
+            <th class="text-left">
+                Opponent
+            </th>
+            <th class="text-center">
+                result
+            </th>
+            <th class="text-right">
+                
+            </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="gam in props.user.games">
+            <td>{{ gam.game.host.username }}</td>
+            <td class="text-center">{{ gam.score }} - {{ gam.opponentScore }}</td>
+            <td class="text-right win" v-if="gam.score > gam.opponentScore"> win </td>
+            <td class="text-right loss" v-else> loss </td>
+            </tr>
+        </tbody>
+        </v-table>
+  </CustomCard>
+</template> -->
