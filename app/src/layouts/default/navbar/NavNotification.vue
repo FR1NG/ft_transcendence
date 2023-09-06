@@ -1,16 +1,26 @@
-<script setup>
-import axios from '@/plugins/axios';
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useNotificationStore } from '@/store/notification';
 import { storeToRefs } from 'pinia';
+import type { Notification } from '@/types/notification'
 
 const notificationStore = useNotificationStore();
 
 const menu = ref(false);
-const { notifications } = storeToRefs(notificationStore);
+const { notifications, unseenIds } = storeToRefs(notificationStore);
+
 
 // calling get notification action to get user notifications
-notificationStore.getNotifications();
+notificationStore.getNotifications().then(() => {
+});
+
+const markRead = () => {
+  if(unseenIds.value.length !== 0)
+  notificationStore.markRead(unseenIds.value).then(() => {
+  }).catch((error) => {
+      console.log(error)
+    })
+}
 
 </script>
 
@@ -22,11 +32,14 @@ notificationStore.getNotifications();
       location="bottom"
       offset="5"
       :close-on-content-click="false"
+      @update:model-value="markRead"
     >
       <template v-slot:activator="{ props }">
         <v-card class="ma-2">
         <v-btn v-bind="props" icon>
-          <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
+            <v-badge color="red" :content="unseenIds.length">
+              <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
+            </v-badge>
         </v-btn>
         </v-card>
       </template>
@@ -38,12 +51,6 @@ notificationStore.getNotifications();
             :title="notification.content"
             :to="notification.link"
           >
-            <!-- <template v-slot:append> -->
-            <!--   <v-btn -->
-            <!--     variant="text" -->
-            <!--     icon="mdi-account-plus-outline" -->
-            <!--   ></v-btn> -->
-            <!-- </template> -->
           </v-list-item>
         </v-list>
         <!-- <v-list v-else> -->

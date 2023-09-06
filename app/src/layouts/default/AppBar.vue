@@ -21,9 +21,25 @@
       </v-card>
     <v-spacer></v-spacer>
     <NavNotification />
-      <SearchList/>
-    <!-- <v-app-bar-action-item> -->
-    <!-- </v-app-bar-action-item> -->
+      <user-search>
+        <template v-slot:items="{users}">
+          <v-list-item
+            v-for="user in users"
+            :key="user.id"
+            :prepend-avatar="user.avatar"
+            :title="user.username"
+            :subtitle="user.email"
+            :to="{name: 'UserProfile', params: {username: user.username}}"
+          >
+            <template v-slot:append>
+              <v-btn
+                variant="text"
+                icon="mdi-account-plus-outline"
+              ></v-btn>
+            </template>
+          </v-list-item>
+        </template>
+    </user-search>
     <template v-slot:append>
       <NavMenu v-if="logged" />
       <v-btn v-else color="#0C134F" outlined :to="{ name: 'Login' }">Login</v-btn>
@@ -34,7 +50,7 @@
 <script lang="ts" setup>
 import NavMenu from './navbar/NavMenu.vue'
 import NavNotification from './navbar/NavNotification.vue'
-import SearchList from './navbar/SearchList.vue'
+import UserSearch from '@/components/ProfileComponents/search/UserSearch.vue'
 import { useAuthStore } from '@/store/auth'
 import { storeToRefs } from 'pinia'
 
