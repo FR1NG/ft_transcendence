@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Query, Param, Delete, Patch } from '@nestjs/common';
-import { CreateRoomDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
+import { CreateRoomDto, InviteUserDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { RoomService } from './room.service'
 import type { AuthenticatedUser } from 'src/types'
@@ -106,4 +106,25 @@ export class RoomController {
   async updateRoom(@Param('id') id: string, @Body() data: UpdateRoomDto) {
     return await this.roomService.updateRoom(id, data);
   }
+
+
+  @Post('invite')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('manage')
+  @UseGuards(AuthGuard)
+  async inviteUser(@User() user: AuthenticatedUser, @Body() data: InviteUserDto) {
+    const {roomId, userId} = data;
+    return await this.roomService.createInvitation(user, roomId, userId);
+  }
+
+
+  @Delete('invite')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('manage')
+  @UseGuards(AuthGuard)
+  async deleteInvitation(@Body() data: InviteUserDto) {
+    const {roomId, userId} = data;
+    return await this.roomService.deleteInvitation(roomId, userId);
+  }
+
 }
