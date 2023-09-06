@@ -112,4 +112,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       client.leave(payload.roomId);
   }
 
+  @OnEvent('notification.create')
+  handleNotificationCreate(payload) {
+    const client = this.clients.get(payload.userId);
+    client.emit('notification', payload.data);
+  }
 }
