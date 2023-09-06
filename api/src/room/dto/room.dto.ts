@@ -31,3 +31,8 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   @IsStrongPassword()
   password: string
 }
+
+export type InviteUserDto = {
+  roomId: string
+  userId: string
+}
