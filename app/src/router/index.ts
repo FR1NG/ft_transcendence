@@ -77,6 +77,14 @@ const routes = [
         meta: {
           auth: true,
         }
+      },
+      {
+        path: '/chat/invitation/:id',
+        name: 'roomInvitation',
+        component: () => import('@/layouts/chat/parcials/Invitation.vue'),
+        meta: {
+          auth: true,
+        }
       }
     ]
   },
