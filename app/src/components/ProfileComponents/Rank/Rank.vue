@@ -1,44 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Match, User } from '@/types/user'
+import { storeToRefs } from 'pinia'
 import CubeRank from './cubeRank.vue'
 import Switcher from '../../Switcher.vue'
 import CustomCard from '@/components/CustomCard.vue'
-
-//just for testing------- will be deleted later-----
-
-// let userAvatar1 =ref("/images/avatars/eagle.jpg")
-// let userName1 = "user1";
-// let userPoints1 = "1000"
-// let userRank1 = "1";
-
-// let userAvatar2 = ref("/images/avatars/lion.jpg")
-// let userName2 = "user2";
-// let userPoints2 = "3000"
-// let userRank2 = "0";
-
-// let userAvatar3 = ref("/images/avatars/shark.jpg")
-// let userName3 = "user3";
-// let userPoints3 = "600"
-// let userRank3 = "2";
-
-// const switchScope= () => {
-
-//     userAvatar1.value = "/images/avatars/eagle.jpg"
-//     userName1 = "user";
-//     userPoints1 = "1"
-//     userRank1 = "1";
-
-//     userAvatar2.value = ("/images/avatars/eagle.jpg")
-//     userName2 = "user";
-//     userPoints2 = "1"
-//     userRank2 = "0";
-
-//     userAvatar3.value = ("/images/avatars/eagle.jpg")
-//     userName3 = "user";
-//     userPoints3 = "1"
-//     userRank3 = "2";
-// }
+import { User } from '@/types/user';
 
 const local = {
     userAvatar1: "/images/avatars/eagle.jpg",
@@ -118,7 +84,6 @@ const switchScope= () => {
     position: relative;
     max-height: 600px;
     min-height: 400px;
-    // overflow: hidden;
     padding-top: 6rem;
 }
 .topThree {
@@ -140,6 +105,9 @@ const switchScope= () => {
     text-align: left;
     thead{
         color:rgb(128, 78, 151);
+        th {
+            padding-bottom: 0.2rem;
+        }
     }
     tbody {
         color: rgb(var(--v-theme-secondary));
@@ -166,3 +134,55 @@ const switchScope= () => {
     }
 }
 </style>
+
+
+<!-- <script setup lang="ts">
+import { ref } from 'vue'
+import CubeRank from './cubeRank.vue'
+import Switcher from '../../Switcher.vue'
+import CustomCard from '@/components/CustomCard.vue'
+import { User } from '@/types/user';
+
+const props = defineProps<{
+  user: User
+}>();
+
+let currentState = ref(props.user.localRank);
+let isLocal = ref(true);
+
+const switchScope= () => {
+    if (isLocal.value) {
+        currentState.value = props.user.globalRank;
+    }
+    else
+        currentState.value = props.user.localRank
+    isLocal.value = !isLocal.value
+}
+// ------------------------------------------------------------
+
+</script>
+
+<template>
+    <CustomCard class="rankWrapper">
+        <div class="topThree">
+            <CubeRank :avatar=currentState[0].avatar :username=currentState[0].username :points=currentState[0].points :rank=currentState[0].rank class="place1"/>
+            <CubeRank :avatar=currentState[1].avatar :username=currentState[1].username :points=currentState[1].points :rank=currentState[1].rank class="place2"/>
+            <CubeRank :avatar=currentState[2].avatar :username=currentState[2].username :points=currentState[2].points :rank=currentState[2].rank class="place3"/>
+            <Switcher @click="switchScope()" class="switcher"/>
+        </div>
+        <table class ="userPosition" cellspacing="0" cellpadding="0">
+            <thead class="thead">
+                <th></th>
+                <th>username</th>
+                <th>points</th>
+                <th class="alignRight">league</th>
+            </thead>
+            <tbody class="tbody">
+                <th class="pad">36</th>
+                <th>testUsername</th>
+                <th>120</th>
+                <th class="alignRight">wood</th>
+            </tbody>
+        </table>
+    </CustomCard>
+</template> -->

@@ -27,7 +27,6 @@ const leagues = [
     "heroic",
     "Master"]
   const leagueIcon = "/images/levels/" + leagues[6] + ".png";
-  // const leagueIcon = "/images/levels/" + leagues[user.league] + ".png";
 </script>
 
 <template>
@@ -36,7 +35,6 @@ const leagues = [
     <div class="leag">
       <img class="levelIcon" :src="leagueIcon" alt="level icon">
       <div class="leagueName"> {{ leagues[6] }}</div> <!-- this one to be removed and replaced by the one under it-->
-      <!-- <div class="leagueName"> {{ leagues[user.league] }}</div> --> <!--league is a number from 0 to 6-->
     </div>
       <WinRate/>
   </div>
@@ -65,3 +63,38 @@ const leagues = [
 }
 
 </style>
+
+
+
+
+
+<!-- <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
+import { User } from '@/types/user'
+import WinRate from './WinRate.vue'
+import LevelBar from './LevelBar.vue'
+import CustomCard from '@/components/CustomCard.vue'
+
+
+const props = defineProps<{
+  user: User
+}>();
+
+const leagueIcon = "/images/levels/" + props.user.leag.name + ".png";
+
+</script>
+
+<template>
+<CustomCard class="levelWrapper">
+  <div class="leag">
+    <div class="leag">
+      <img class="levelIcon" :src="leagueIcon" alt="level icon">
+      <div class="leagueName"> {{ props.user.leag.name }}</div>
+    </div>
+      <WinRate :wins="user.wins" :gamesNum="user.numberOfGames"/>
+  </div>
+    <LevelBar :lvl="level"/>
+</CustomCard>
+    
+</template> -->

@@ -83,3 +83,29 @@ $levl: v-bind(userLevel) + '%';
 }
 
 </style>
+
+
+<!-- <script setup lang="ts">
+import { ref } from 'vue'
+import { Level } from '@/types/user';
+import { LVAL_TYPES } from '@babel/types';
+
+
+const props = defineProps<{
+  lvl: Level
+}>();
+
+const userLevel = ref(props.lvl.points);
+const userLevel2 = ref((userLevel.value * 100 / props.lvl.leag.maxPoints).toString() + '%')
+
+
+</script>
+
+<template>
+  <div class="levelBarWrapper">
+    <div class="league">{{ props.lvl.points }} / {{ props.lvl.leag.maxPoints }}</div>
+    <div class="levelBar">
+      <div class="innerBar"></div>
+    </div>
+  </div>
+</template> -->

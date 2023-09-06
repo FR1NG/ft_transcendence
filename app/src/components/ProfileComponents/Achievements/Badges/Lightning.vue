@@ -1,13 +1,32 @@
 <script setup lang="ts">
+import Badge from '../Badge.vue'
+import locked from '../Locked.vue'
+
+const props = defineProps<{
+  achieved:boolean,
+  name: string,
+  description: string
+}>()
+
+
 </script>
 
 <template>
-        <div class="contain">
-            <div>
-                <h1 class="pongFont">PONG</h1>
-                <img class="lightning" src="/images/achievementsStuff/lightning.png" alt="lightning">
-            </div>
-        </div>
+  <Badge :achieved="props.achieved">
+    <template v-slot:front>
+      <div class="contain">
+        <locked v-if="props.achieved === true" />
+        <h1 class="pongFont">PONG</h1>
+        <img class="lightning" src="/images/achievementsStuff/lightning.png" alt="lightning">
+      </div>
+    </template>
+    <template v-slot:back>
+      <div class="contain">
+      <h3> {{ props.name }}</h3>
+      <p>{{ props.description }}</p>
+      </div>
+    </template>
+  </Badge>
 </template>
 
 <style scoped lang="scss">
@@ -16,28 +35,14 @@
 
 
 .contain {
-      position: relative;
-      min-width: 200px;
-      height: 140px;
-      background: white;
       background-color: rgba(218, 165, 32, 0.2);
-      letter-spacing: 0.2em;
-      border-radius:20px 5px;
-      text-align: center;
-      padding-top: 2.5rem;
       border: 1px solid rgba(218, 165, 32, 0.2);
-      box-shadow: 0px 0px 5px 1px rgba(218, 165, 32, 0.2);
-      .pongFont {
-        color: rgb(var(--v-theme-secondary));
-          font-size: 2.5rem;
-          text-shadow: 1px 1px 2px white;
-          white-space: nowrap;
-      }
+      box-shadow: 0px 0px 2px 1px rgba(218, 165, 32, 0.2);
       .lightning {
         position: absolute;
         width: 150px;
         height: 160px;
-        bottom: 0;
+        top: -10px;
         left: 60px;
         z-index: -1;
       }

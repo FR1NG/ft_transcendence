@@ -5,16 +5,43 @@ import LastMatches from '@/components/ProfileComponents/MatchesRecord/LastMatche
 import Rank from '@/components/ProfileComponents/Rank/Rank.vue'
 import Achievemets from '@/components/ProfileComponents/Achievements/Achievements.vue'
 
+import { useUserStore } from '@/store/user'
+import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { reactive, watch } from 'vue'
+
+const userStore = useUserStore();
+const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+
+const route = useRoute()
+const data = reactive({
+  sending: false
+});
+
+const username = route.params.username;
+if (username) {
+  userStore.getUser(username as string)
+}
+
+// watching the username change on route parame to refetch data
+  watch(
+    () => route.params.username, async newUsername => {
+      console.log(newUsername)
+      userStore.getUser(newUsername as string)
+    }, {
+    immediate: true
+  }
+)
 </script>
 
 <template>
   <v-card elevation="4" class="profileContainer">
-    <!-- <h1 class="viewHeader element">Profile</h1> -->
-    <!-- <AvatarStatus class="avatarStatus element"/> -->
-    <!-- <Level class="level element"/> -->
-    <!-- <LastMatches class="matchsRecord element"/> -->
-    <Rank class="rank element"/>
-    <!-- <Achievemets class="achievements element"/> -->
+    <h1 class="viewHeader element">Profile</h1>
+    <AvatarStatus :user="user" class="avatarStatus element"/>
+    <Level :user="user" class="level element"/>
+    <LastMatches :user="user" class="matchsRecord element"/>
+    <Rank :user="user" class="rank element"/>
+    <Achievemets :user="user" class="achievements element"/>
   </v-card>
 </template>
 
