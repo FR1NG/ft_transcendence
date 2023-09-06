@@ -29,14 +29,17 @@ const listen = () => {
       chatStore.addMessageToConversation(data, data.sender.id);
       showNotification(data.content, data.sender.username);
       console.log('new message from user');
-    } else if (event === 'room-message') {
-
+    }
+    else if (event === 'room-message') {
       const { room } = data;
       data["loading"] = false;
       chatStore.addMessageToConversation(data, room.id);
       if (data.sender.id !== me.value.id)
         showNotification(data.content, `${data.sender.username}#${room.name}`);
       console.log('new message from room');
+    }
+    else if(event === 'notification') {
+      showNotification(data.content, data.content);
     }
 
   }, error => {
