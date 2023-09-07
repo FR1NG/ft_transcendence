@@ -259,13 +259,29 @@ export const useRoomStore = defineStore('room', {
       })
     },
     // accept invitation to join the room
-    async acceptInvitation() {
-
+    async acceptInvitation(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post(`/invitation/accept/${id}`);
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
     },
 
     // decline invitation to join the room
-    async declineInvitation() {
-
+    async declineInvitation(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post(`/invitation/decline/${id}`);
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
     }
    }, // INFO end of actions
 }); // INFO end of defineStore
