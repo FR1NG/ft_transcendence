@@ -4,11 +4,17 @@ import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import * as bcrypt from 'bcrypt'
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { match } from 'assert';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class RoomService {
-  constructor(private prisma: PrismaService, private eventEmitter: EventEmitter2) { }
+
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+    private notification: NotificationService
+  ) {}
+
   async createRoom(user: AuthenticatedUser, room: CreateRoomDto) {
     const { name, type, password } = room;
     const salt = await bcrypt.genSalt();
@@ -191,6 +197,23 @@ export class RoomService {
 
     if (!room)
       throw new NotFoundException()
+    const invitations = await this.prisma.invitation.findMany({
+      where: {
+        type: 'ROOM',
+        byId: id
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          }
+        }
+      }
+    });
+    const invitedUsers = invitations.map(el => el.user);
+    room.room['invitedUsers'] = invitedUsers;
     return room;
   }
 
@@ -475,6 +498,56 @@ async banUser(roomId: string, userId: string) {
     });
     const {password, ...rest} = result;
     return rest;
+  }
+
+
+  // creating room invitation for a user
+  async createInvitation(user: AuthenticatedUser, roomId: string, userId: string) {
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: roomId
+      },
+      select: {
+        id: true,
+        name: true
+      }
+    });
+    if(!room)
+      throw new NotFoundException('room not found');
+    const result = await this.prisma.invitation.create({
+      data: {
+        byId: roomId,
+        toId: userId,
+        type: 'ROOM'
+        }
+    });
+    const content = `${user.username} sent you invitation to join ${room.name}`;
+    const link = `/chat/invitation/${result.id}`;
+    this.notification.createNotification(userId, content, link);
+    return result;
+  }
+
+
+  // delete room invitation
+  async deleteInvitation(roomId: string, userId: string) {
+    const invitation = await this.prisma.invitation.findUnique({
+      where: {
+        byId_toId: {
+          byId: roomId,
+          toId: userId
+        },
+      },
+    });
+
+    if(!invitation)
+      throw new NotFoundException('this user is not invited to this room');
+
+    const result = await this.prisma.invitation.delete({
+      where: {
+        id: invitation.id
+      }
+    });
+    return result;
   }
 
 }

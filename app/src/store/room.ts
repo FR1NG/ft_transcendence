@@ -209,6 +209,79 @@ export const useRoomStore = defineStore('room', {
           reject(error.response);
         }
       });
+    },
+
+    // invite a user to room
+    async inviteUser(roomId: string, userId: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/invite', {
+            roomId,
+            userId,
+          });
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
+    },
+
+    // cancel user's invitation for a room
+    async cancelInvitation(roomId: string, userId: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.delete('/room/invite', {
+            data: {
+              roomId,
+              userId
+            }
+          });
+
+          const { data } = response;
+          resolve(data);
+        } catch(error: any) {
+          reject(error.response);
+        }
+      });
+    },
+
+    // getting invitions to join the room
+    async getInvitation(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.get(`/invitation/${id}`)
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      })
+    },
+    // accept invitation to join the room
+    async acceptInvitation(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post(`/invitation/accept/${id}`);
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
+    },
+
+    // decline invitation to join the room
+    async declineInvitation(id: string) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post(`/invitation/decline/${id}`);
+          const { data } = response;
+          resolve(data);
+        } catch (error: any) {
+          reject(error.response);
+        }
+      });
     }
    }, // INFO end of actions
 }); // INFO end of defineStore

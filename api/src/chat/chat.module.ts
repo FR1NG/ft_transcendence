@@ -9,6 +9,7 @@ import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { RoomService } from 'src/room/room.service';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Module({
   imports: [UserModule, JwtModule],
@@ -20,7 +21,8 @@ import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.f
     PrismaService,
     ChatService,
     RoomService,
-    CaslAbilityFactory
+    CaslAbilityFactory,
+    NotificationService
   ],
   controllers: [ChatController]
 })

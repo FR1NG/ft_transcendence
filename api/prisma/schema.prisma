@@ -32,6 +32,7 @@ model Users {
   notification           Notifications[]
   blockedBy              Block[] @relation("blockedBy")
   blocked              Block[] @relation("blocked")
+  invitations Invitation[]
 }
 
 model FriendRequests {
@@ -128,6 +129,15 @@ model Block {
   @@unique([blockerId, blockedId])
 }
 
+model Invitation {
+  id String @id @default(uuid())
+  byId String
+  toId String
+  type InvitationType
+  user Users? @relation(fields: [toId], references: [id])
+  @@unique([byId, toId])
+}
+
 // enums 
 enum RoomType {
   PRIVATE
@@ -151,4 +161,10 @@ enum FriendRequestStatus {
   PENDING
   REGECTED
   CONFIRMED
+}
+
+enum InvitationType {
+  FRIEND
+  GAME
+  ROOM
 }

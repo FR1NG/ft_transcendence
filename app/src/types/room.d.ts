@@ -33,6 +33,7 @@ export interface RoomUser {
   name: string
   type: string
   users: User[]
+  invitedUsers: User2[]
 }
 
 export interface User {

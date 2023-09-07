@@ -1,17 +1,31 @@
-<script setup>
-import axios from '@/plugins/axios';
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useNotificationStore } from '@/store/notification';
 import { storeToRefs } from 'pinia';
+import type { Notification } from '@/types/notification'
+import { onBeforeRouteLeave } from 'vue-router';
 
 const notificationStore = useNotificationStore();
 
 const menu = ref(false);
-const { notifications } = storeToRefs(notificationStore);
+const { notifications, unseenIds } = storeToRefs(notificationStore);
+
 
 // calling get notification action to get user notifications
-notificationStore.getNotifications();
+notificationStore.getNotifications().then(() => {
+});
 
+const markRead = (value: boolean) => {
+  if(!value && unseenIds.value.length !== 0)
+  notificationStore.markRead(unseenIds.value).then(() => {
+  }).catch((error) => {
+      console.log(error)
+    })
+}
+
+onBeforeRouteLeave(() => {
+  menu.value = false;
+})
 </script>
 
 
@@ -22,33 +36,28 @@ notificationStore.getNotifications();
       location="bottom"
       offset="5"
       :close-on-content-click="false"
+      @update:model-value="markRead"
     >
       <template v-slot:activator="{ props }">
         <v-card class="ma-2">
         <v-btn v-bind="props" icon>
-          <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
+            <v-badge :dot="!unseenIds.length"  :color="unseenIds.length > 0 ? `red` : `blue-lighten-4`" :content="unseenIds.length || ''">
+              <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
+            </v-badge>
         </v-btn>
         </v-card>
       </template>
       <v-card min-width="300" min-height="70" max-height="300" max-width="300">
-        <v-list>
+        <v-list color="secodary">
           <v-list-item
             v-for="notification in notifications"
             :key="notification.id"
             :title="notification.content"
             :to="notification.link"
+            :active="!notification.seen"
           >
-            <!-- <template v-slot:append> -->
-            <!--   <v-btn -->
-            <!--     variant="text" -->
-            <!--     icon="mdi-account-plus-outline" -->
-            <!--   ></v-btn> -->
-            <!-- </template> -->
           </v-list-item>
         </v-list>
-        <!-- <v-list v-else> -->
-        <!--   <v-list-item v-if="!searchLoader" title="no result"></v-list-item> -->
-        <!-- </v-list> -->
       </v-card>
     </v-menu>
   </div>
