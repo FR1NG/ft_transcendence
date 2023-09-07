@@ -3,7 +3,6 @@ import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
-import axios from '@/plugins/axios'
 import CustomCard from '@/components/CustomCard.vue';
 import OnOffStatus from './OnOffStatus.vue';
 import UserInteract from './Request.vue'
@@ -68,8 +67,9 @@ const totalLosses = 20;
   display: flex;
 }
 .usrAvatar {
+  margin: 2px;
   width: 200px;
-  height: 100%;
+  height: 98%;
   border-radius: 20px;
 }
 

@@ -142,33 +142,33 @@ const props = defineProps<{
     <CustomCard class="achievementsWrapper">
         <div class="sliderTrack">
             <PongWin class="slide" :achieved="props.user.achievements[0].achieved" content="PONG" name="Pong win" description="win a game" />
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="10" name="Pong veteran" description="win 10 games"/>
-            <WayOfLife class="slide" :achieved="props.user.achievements[0].achieved" name="Way of life" description="get to the Master league"/>
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="10" colr="rgba(232, 6, 6, 0.5)" fire="/images/fires/redFire.png" name="Hotter streak" description="win 10 games in a row"/>
-            <BestOfFriends class="slide" :achieved="props.user.achievements[0].achieved" name="Pong win" description="win a game"/>
-            <topOfWorld class="slide" :achieved="props.user.achievements[0].achieved" name="top of the world" description="win the global leaderboard "/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="100" name="Pong pro" description="win 100 games"/>
-            <PongWin class="slide" :achieved="props.user.achievements[0].achieved" name="clean sheet" description="win a game with 11 - 0 score" content="11-0"/>
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="20" colr="rgba(122, 106, 244, 0.5)" fire="/images/fires/blueFire.png" name="Hottest streak" description="win 20 games in a row"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="1000" name="Pong master" description="win 1 000 games"/>
-            <LightningGame class="slide" :achieved="props.user.achievements[0].achieved" name="Pong win" description="win a game"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="10000" name="Pong legend" description="win 10 000 games"/>
+            <Streak class="slide" :achieved="props.user.achievements[1].achieved" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[2].achieved" num="10" name="Pong veteran" description="win 10 games"/>
+            <WayOfLife class="slide" :achieved="props.user.achievements[3].achieved" name="Way of life" description="get to the Master league"/>
+            <Streak class="slide" :achieved="props.user.achievements[4].achieved" num="10" colr="rgba(232, 6, 6, 0.5)" fire="/images/fires/redFire.png" name="Hotter streak" description="win 10 games in a row"/>
+            <BestOfFriends class="slide" :achieved="props.user.achievements[5].achieved" name="Pong win" description="win a game"/>
+            <topOfWorld class="slide" :achieved="props.user.achievements[6].achieved" name="top of the world" description="win the global leaderboard "/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[7].achieved" num="100" name="Pong pro" description="win 100 games"/>
+            <PongWin class="slide" :achieved="props.user.achievements[8].achieved" name="clean sheet" description="win a game with 11 - 0 score" content="11-0"/>
+            <Streak class="slide" :achieved="props.user.achievements[9].achieved" num="20" colr="rgba(122, 106, 244, 0.5)" fire="/images/fires/blueFire.png" name="Hottest streak" description="win 20 games in a row"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements10].achieved" num="1000" name="Pong master" description="win 1 000 games"/>
+            <LightningGame class="slide" :achieved="props.user.achievements[11].achieved" name="Pong win" description="win a game"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[12].achieved" num="10000" name="Pong legend" description="win 10 000 games"/>
         </div>
         <div class="sliderTrack">
             <PongWin class="slide" :achieved="props.user.achievements[0].achieved" content="PONG" name="Pong win" description="win a game" />
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="10" name="Pong veteran" description="win 10 games"/>
-            <WayOfLife class="slide" :achieved="props.user.achievements[0].achieved" name="Way of life" description="get to the Master league"/>
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="10" colr="rgba(232, 6, 6, 0.5)" fire="/images/fires/redFire.png" name="Hotter streak" description="win 10 games in a row"/>
-            <BestOfFriends class="slide" :achieved="props.user.achievements[0].achieved" name="Pong win" description="win a game"/>
-            <topOfWorld class="slide" :achieved="props.user.achievements[0].achieved" name="top of the world" description="win the global leaderboard "/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="100" name="Pong pro" description="win 100 games"/>
-            <PongWin class="slide" :achieved="props.user.achievements[0].achieved" name="clean sheet" description="win a game with 11 - 0 score" content="11-0"/>
-            <Streak class="slide" :achieved="props.user.achievements[0].achieved" num="20" colr="rgba(122, 106, 244, 0.5)" fire="/images/fires/blueFire.png" name="Hottest streak" description="win 20 games in a row"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="1000" name="Pong master" description="win 1 000 games"/>
-            <LightningGame class="slide" :achieved="props.user.achievements[0].achieved" name="Pong win" description="win a game"/>
-            <PongVeteran class="slide" :achieved="props.user.achievements[0].achieved" num="10000" name="Pong legend" description="win 10 000 games"/>
+            <Streak class="slide" :achieved="props.user.achievements[1].achieved" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[2].achieved" num="10" name="Pong veteran" description="win 10 games"/>
+            <WayOfLife class="slide" :achieved="props.user.achievements[3].achieved" name="Way of life" description="get to the Master league"/>
+            <Streak class="slide" :achieved="props.user.achievements[4].achieved" num="10" colr="rgba(232, 6, 6, 0.5)" fire="/images/fires/redFire.png" name="Hotter streak" description="win 10 games in a row"/>
+            <BestOfFriends class="slide" :achieved="props.user.achievements[5].achieved" name="Pong win" description="win a game"/>
+            <topOfWorld class="slide" :achieved="props.user.achievements[6].achieved" name="top of the world" description="win the global leaderboard "/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[7].achieved" num="100" name="Pong pro" description="win 100 games"/>
+            <PongWin class="slide" :achieved="props.user.achievements[8].achieved" name="clean sheet" description="win a game with 11 - 0 score" content="11-0"/>
+            <Streak class="slide" :achieved="props.user.achievements[9].achieved" num="20" colr="rgba(122, 106, 244, 0.5)" fire="/images/fires/blueFire.png" name="Hottest streak" description="win 20 games in a row"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[10].achieved" num="1000" name="Pong master" description="win 1 000 games"/>
+            <LightningGame class="slide" :achieved="props.user.achievements[11].achieved" name="Pong win" description="win a game"/>
+            <PongVeteran class="slide" :achieved="props.user.achievements[12].achieved" num="10000" name="Pong legend" description="win 10 000 games"/>
         </div>
     </CustomCard>
 </template> -->
