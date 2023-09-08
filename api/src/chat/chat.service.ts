@@ -102,6 +102,7 @@ export class ChatService {
               select: {
                 id: true,
                 content: true,
+                seen: true,
                 sender: {
                   select: {
                     id: true,

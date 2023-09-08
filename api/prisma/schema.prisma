@@ -11,30 +11,30 @@ datasource db {
 }
 
 model Users {
-  id                     String           @id @default(uuid())
-  intra_id               Int              @unique
-  username               String           @unique
-  email                  String           @unique
+  id                     String              @id @default(uuid())
+  intra_id               Int                 @unique
+  username               String              @unique
+  email                  String              @unique
   avatar                 String?
-  isOnline               Boolean          @default(false)
-  ownedRooms             Rooms[]          @relation("roomOner")
-  rooms                  UsersRooms[]     @relation("userRooms")
-  hostedGames            Games[]          @relation("gameHost")
-  guestedGames           Games[]          @relation("gameGuest")
-  winnedGames            Games[]          @relation("gameWinner")
-  friendOf               Friends[]        @relation("friendOf")
-  friendWith             Friends[]        @relation("friends")
-  friendRequestsSent     FriendRequests[] @relation("sent")
-  friendRequestsRecieved FriendRequests[] @relation("recieved")
-  conversationsStarted     UsersConversation[] @relation("conversationStarted")
-  conversationsEngaged     UsersConversation[] @relation("conversationEngaged")
+  isOnline               Boolean             @default(false)
+  ownedRooms             Rooms[]             @relation("roomOner")
+  rooms                  UsersRooms[]        @relation("userRooms")
+  hostedGames            Games[]             @relation("gameHost")
+  guestedGames           Games[]             @relation("gameGuest")
+  winnedGames            Games[]             @relation("gameWinner")
+  friendOf               Friends[]           @relation("friendOf")
+  friendWith             Friends[]           @relation("friends")
+  friendRequestsSent     FriendRequests[]    @relation("sent")
+  friendRequestsRecieved FriendRequests[]    @relation("recieved")
+  conversationsStarted   UsersConversation[] @relation("conversationStarted")
+  conversationsEngaged   UsersConversation[] @relation("conversationEngaged")
   messagesSent           Messages[]
   notification           Notifications[]
-  blockedBy              Block[] @relation("blockedBy")
-  blocked              Block[] @relation("blocked")
-  invitations Invitation[]
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  blockedBy              Block[]             @relation("blockedBy")
+  blocked                Block[]             @relation("blocked")
+  invitations            Invitation[]
+  created_at             DateTime            @default(now())
+  updated_at             DateTime            @updatedAt
 }
 
 model FriendRequests {
@@ -44,50 +44,51 @@ model FriendRequests {
   status     FriendRequestStatus @default(PENDING)
   sender     Users               @relation("sent", fields: [senderId], references: [id])
   reciever   Users               @relation("recieved", fields: [recieverId], references: [id])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  created_at DateTime            @default(now())
+  updated_at DateTime            @updatedAt
 }
 
 model Friends {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   friendOfId String
   friendId   String
-  friendOf   Users  @relation("friendOf", fields: [friendOfId], references: [id])
-  friendWith Users  @relation("friends", fields: [friendId], references: [id])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  friendOf   Users    @relation("friendOf", fields: [friendOfId], references: [id])
+  friendWith Users    @relation("friends", fields: [friendId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Conversations {
-  id       String     @id @default(uuid())
-  messages Messages[]
+  id                String             @id @default(uuid())
+  messages          Messages[]
   usersConversation UsersConversation?
-  room     Rooms?
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  room              Rooms?
+  created_at        DateTime           @default(now())
+  updated_at        DateTime           @updatedAt
 }
 
 model UsersConversation {
-  id String @id @default(uuid())
-  userOneId String
-  userTwoId String
-  conversationId String @unique
-  userOne Users @relation("conversationStarted", fields: [userOneId], references: [id])
-  userTwo Users @relation("conversationEngaged", fields: [userTwoId], references: [id])
-  conversation Conversations @relation(fields: [conversationId], references: [id])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  id             String        @id @default(uuid())
+  userOneId      String
+  userTwoId      String
+  conversationId String        @unique
+  userOne        Users         @relation("conversationStarted", fields: [userOneId], references: [id])
+  userTwo        Users         @relation("conversationEngaged", fields: [userTwoId], references: [id])
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
 }
 
 model Messages {
   id             String        @id @default(uuid())
   conversationId String
-  senderId String
-  sender Users @relation(fields: [senderId], references: [id])
+  senderId       String
+  sender         Users         @relation(fields: [senderId], references: [id])
   converstion    Conversations @relation(fields: [conversationId], references: [id])
   content        String
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  seen           Boolean       @default(false)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
 }
 
 model Rooms {
@@ -100,66 +101,68 @@ model Rooms {
   users          UsersRooms[]  @relation("roomUsers")
   conversation   Conversations @relation(fields: [conversationId], references: [id])
   conversationId String        @unique
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
 }
 
 model UsersRooms {
-  id     String    @id @default(uuid())
-  user   Users     @relation("userRooms", fields: [userId], references: [id])
-  room   Rooms     @relation("roomUsers", fields: [roomId], references: [id])
-  roomId String
-  userId String
-  role   RoomRoles @default(USER)
-  baned Boolean @default(false)
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  id         String    @id @default(uuid())
+  user       Users     @relation("userRooms", fields: [userId], references: [id])
+  room       Rooms     @relation("roomUsers", fields: [roomId], references: [id])
+  roomId     String
+  userId     String
+  role       RoomRoles @default(USER)
+  baned      Boolean   @default(false)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
 }
 
 model Games {
-  id       String     @id @default(uuid())
-  hostId   String
-  guestId  String
-  status   GameStatus @default(CEATED)
-  winnerId String?
-  host     Users      @relation("gameHost", fields: [hostId], references: [id])
-  guest    Users      @relation("gameGuest", fields: [guestId], references: [id])
-  winner   Users?     @relation("gameWinner", fields: [winnerId], references: [id])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  id         String     @id @default(uuid())
+  hostId     String
+  guestId    String
+  status     GameStatus @default(CEATED)
+  winnerId   String?
+  host       Users      @relation("gameHost", fields: [hostId], references: [id])
+  guest      Users      @relation("gameGuest", fields: [guestId], references: [id])
+  winner     Users?     @relation("gameWinner", fields: [winnerId], references: [id])
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
 }
 
 model Notifications {
-  id Int @id @default(autoincrement())
-  content String
-  link String?
-  userId String
-  seen  Boolean @default(false)
-  user Users @relation(fields: [userId], references: [id])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
+  id         Int      @id @default(autoincrement())
+  content    String
+  link       String?
+  userId     String
+  seen       Boolean  @default(false)
+  user       Users    @relation(fields: [userId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 model Block {
-  id Int @id @default(autoincrement())
-  blockerId String
-  blockedId String
-  blocked Users @relation("blocked", fields: [blockerId], references: [id])
-  blockedBy Users @relation("blockedBy", fields: [blockedId], references: [id])
+  id         Int      @id @default(autoincrement())
+  blockerId  String
+  blockedId  String
+  blocked    Users    @relation("blocked", fields: [blockerId], references: [id])
+  blockedBy  Users    @relation("blockedBy", fields: [blockedId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
   @@unique([blockerId, blockedId])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
 }
 
 model Invitation {
-  id String @id @default(uuid())
-  byId String
-  toId String
-  type InvitationType
-  user Users? @relation(fields: [toId], references: [id])
+  id         String         @id @default(uuid())
+  byId       String
+  toId       String
+  type       InvitationType
+  user       Users?         @relation(fields: [toId], references: [id])
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
   @@unique([byId, toId])
-  created_at             DateTime         @default(now())
-  updated_at             DateTime         @updatedAt
 }
 
 // enums 
