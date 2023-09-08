@@ -66,8 +66,7 @@ export const useSocketStore = defineStore('socket', {
     },
 
     handleRoomMessage(data: any) {
-      console.log('from room message handler')
-      console.log(data);
+
     },
 
     handleNotification(data: any) {
@@ -78,7 +77,6 @@ export const useSocketStore = defineStore('socket', {
       if(!this.socket)
         return this.throwError();
       this.setToken(sessionStorage.getItem('access_token') as string);
-      console.log(this.socket);
       const tmpId = Math.random().toString();
       const message: Message = {
         content,

@@ -22,7 +22,6 @@ export const useNotificationStore = defineStore('notifications', {
       try {
         const  { data } = await axios.get('/notification');
         this.notifications = data;
-        console.log(data);
       } catch (error) {
         console.log(error)
       }

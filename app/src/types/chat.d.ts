@@ -6,6 +6,7 @@ export type Message = {
   content: string
   loading: boolean
   user: Sender
+  seen: boolean
 }
 
 type Sender = {
