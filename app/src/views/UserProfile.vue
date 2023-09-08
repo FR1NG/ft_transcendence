@@ -53,7 +53,7 @@ if (username) {
 
 .profileContainer {
   overflow: scroll;
-  color: white;
+  color: rgb(var(--v-theme-secondary));
   font-family: 'Gugi', cursive;
   background-color: rgb(var(--v-theme-primary));
   padding: 1rem;

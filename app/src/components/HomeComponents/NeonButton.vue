@@ -14,8 +14,7 @@
         position: relative;
         cursor: pointer;
         color: rgb(var(--v-theme-secondary));
-        margin: 2rem;
-        width: 150px;
+        min-width: 150px;
         height: 70px;
         font-size: 1.5rem;
         border: 2px solid rgb(var(--v-theme-secondary));
