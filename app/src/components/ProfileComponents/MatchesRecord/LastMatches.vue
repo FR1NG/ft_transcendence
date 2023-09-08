@@ -101,11 +101,11 @@ fill()
         width: 8px;
     }
     .matchesTable::-webkit-scrollbar-track {
-        background-color: rgba(255,0,189, 0.2);
+        background-color: rgba(250, 0, 0, 0.2);
         border-radius: 25px;
     }
     .matchesTable::-webkit-scrollbar-thumb {
-        background-color: rgb(255,0,189);
+        background-color: red;
         width: 20px;
         border-radius: 25px;
     }

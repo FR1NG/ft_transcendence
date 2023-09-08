@@ -10,7 +10,7 @@ const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
 
 
 // temp variable to test----------------- going to be deleted later---------//
-const userLevel = ref(4900);
+const userLevel = ref(5000);
 const userLevel2 = ref((userLevel.value * 100 / 5000).toString() + '%')
 //-------------------------------------------------------------------------//
 
@@ -57,16 +57,15 @@ $levl: v-bind(userLevel) + '%';
 .levelBar {
   width: 90%;
   height: 2vh;
-  box-shadow: 2px 2px 4px 5px rgba(0, 0, 0, 0.7),
-              -2px -2px 4px 1px rgba(181, 160, 160, 0.7);
+  box-shadow: 1px 1px 1px 1px #271b1b,
+              -1px -0.5px 2px 1px rgba(181, 160, 160, 0.7);
   border-radius: 50px;
   align-items: center;
   .innerBar {
-    width: 0%;
-    height: 1.5vh;
-    background: linear-gradient(to right, #9198e5, #FF00BD);
+    height: 15px;
+    background: linear-gradient(to right, rgb(var(--v-theme-colorTwo)), rgb(var(--v-theme-secondary)));
     border-radius: 50px;
-    margin: 3px;
+    margin: 2px 0;
     animation: levelAnimat 1s linear forwards
   }
   @keyframes levelAnimat {
@@ -74,7 +73,6 @@ $levl: v-bind(userLevel) + '%';
       width: v-bind(userLevel2);
       animation-timing-function: ease-out;
     }
-    
   }
 
 }
