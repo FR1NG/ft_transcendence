@@ -1,19 +1,16 @@
 <script lang="ts" setup>
 import type { User } from '@/types/user'
 import UserSearch from '@/components/ProfileComponents/search/UserSearch.vue';
-import { onBeforeUpdate } from 'vue';
 
 type Element = {
   user: User,
   unseen: Array<string>
 }
-const props = defineProps<{
+
+defineProps<{
   users: Element[]
 }>();
 
-onBeforeUpdate(() => {
-  console.log(props.users)
-})
 </script>
 
 <template>

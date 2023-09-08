@@ -201,6 +201,15 @@ export class ChatService {
         }
       }
     });
+
+    const test = await this.prisma.conversations.update({
+      where: {
+        id: conversationId
+      },
+      data: {
+        updated_at: new Date()
+      }
+    });
     return message;
   }
 
@@ -389,6 +398,11 @@ export class ChatService {
               }
             }
           }
+        },
+      },
+      orderBy: {
+        conversation: {
+          updated_at: 'desc'
         }
       },
     });

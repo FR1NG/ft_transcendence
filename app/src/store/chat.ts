@@ -81,6 +81,7 @@ export const useChatStore = defineStore('chat', {
           this.activeConversation = messages;
         }
       }
+      this.makeTop(id);
       return conversation;
     },
     playNotificationSound() {
@@ -128,6 +129,19 @@ export const useChatStore = defineStore('chat', {
           reject(error.response)
         }
       })
+    },
+    makeTop(id: string) {
+      const index = this.users.findIndex((el: Conversation) => el.user.id === id);
+      if(index === 0)
+        return;
+      if (this.users[index]) {
+        const obj = this.users[index];
+        const user = { ...obj.user };
+        const unseen = [ ...obj.unseen ];
+        const newobj = { user, unseen }
+        this.users.splice(index, 1);
+        this.users.unshift(newobj)
+      }
     }
   },// end of actions
 

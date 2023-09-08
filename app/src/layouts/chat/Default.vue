@@ -29,18 +29,18 @@ const { roomSettings } = storeToRefs(roomStore)
 // type of the conversation (dm / room)
 type Type = 'dm' | 'room';
 const type = ref(route.name?.toString().toLowerCase() as Type);
-const id = route.params.id as string;
+let chatId = route.params.id as string;
 
 const send = () => {
   if (message.value.length === 0)
     return;
   // const recieverId: string = route.params.id as string;
-  const sentMessage = socketStore.sendMessage(message.value, id, type.value, (data: any) => {
+  const sentMessage = socketStore.sendMessage(message.value, chatId, type.value, (data: any) => {
   if(type.value === 'dm')
     chatStore.changeMessageStatus(data);
   });
   if (type.value === 'dm')
-    chatStore.addMessageToConversation(sentMessage, id);
+    chatStore.addMessageToConversation(sentMessage, chatId);
   message.value = '';
 }
 
@@ -53,8 +53,9 @@ getConversation(route.params.id as string, route.name?.toString().toLowerCase() 
 
 onBeforeRouteUpdate((to) => {
   const { id } = to.params;
+  chatId = id as string;
   type.value = to.name?.toString().toLowerCase() as Type;
-  getConversation(id as string, type.value);
+  getConversation(chatId, type.value);
 })
 
 // leave room cleanup
@@ -65,9 +66,7 @@ const handleLeaveRoom = () => {
 }
 
 const focus = () => {
-  console.log('focus')
-  console.log(id)
-  chatStore.markRead(id);
+  chatStore.markRead(chatId);
 }
 
 </script>
