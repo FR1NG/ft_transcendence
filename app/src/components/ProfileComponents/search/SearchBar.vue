@@ -12,7 +12,6 @@ defineProps({
 const emit = defineEmits(['change'])
 
 const handleSearch = () => {
-  console.log('saerching')
   searchStore.searchUsers(search.value);
 }
 
@@ -62,6 +61,12 @@ watch(() => search.value, (newValue, oldValue) => {
   else if (newValue.length > 0 && oldValue.length === 0)
     emit('change', true);
 })
+
+const handleClick = () => {
+  emit('change', true);
+  handleSearch()
+}
+
 </script>
 
 <template>
@@ -77,7 +82,7 @@ watch(() => search.value, (newValue, oldValue) => {
     flat
     v-bind="binds"
     v-model="search"
-    @click:append-inner="handleSearch"
+    @click:append-inner="handleClick"
     @keyup="handlekeyUp"
     ></v-text-field>
 </template>
