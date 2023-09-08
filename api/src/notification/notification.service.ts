@@ -39,7 +39,11 @@ export class NotificationService {
         id: true,
         content: true,
         link: true,
-        seen: true
+        seen: true,
+        created_at: true
+      },
+      orderBy: {
+        created_at: 'desc'
       }
     });
     return notifications;
