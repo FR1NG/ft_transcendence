@@ -1,10 +1,19 @@
 <script lang="ts" setup>
 import type { User } from '@/types/user'
 import UserSearch from '@/components/ProfileComponents/search/UserSearch.vue';
+import { onBeforeUpdate } from 'vue';
 
-defineProps<{
-  users: User[]
+type Element = {
+  user: User,
+  unseen: Array<string>
+}
+const props = defineProps<{
+  users: Element[]
 }>();
+
+onBeforeUpdate(() => {
+  console.log(props.users)
+})
 </script>
 
 <template>
@@ -25,10 +34,13 @@ defineProps<{
       </user-search>
     </v-list-item>
     <v-divider></v-divider>
-    <v-list-item v-for='user in users' :key="user.id" :title="user.username" :prependAvatar="user.avatar"
-      :to="{ name: 'Dm', params: { id: user.id } }" :value='user.username'>
-      <v-badge dot :color="user.isOnline ? `success` : `secondary`" inline>
+    <v-list-item v-for='element in users' :key="element.user.id" :title="element.user.username" :prependAvatar="element.user.avatar"
+      :to="{ name: 'Dm', params: { id: element.user.id } }" :value='element.user.username'>
+      <v-badge dot :color="element.user.isOnline ? `success` : `secondary`" inline>
       </v-badge>
+      <template v-slot:append v-if="element.unseen.length > 0">
+        <v-badge :content="element.unseen.length" color="red"></v-badge>
+      </template>
     </v-list-item>
   </v-list>
 </template>

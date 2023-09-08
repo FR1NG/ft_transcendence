@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -155,6 +155,7 @@ export class ChatService {
               select: {
                 id: true,
                 content: true,
+                seen: true,
                 sender: {
                   select: {
                     id: true,
@@ -190,6 +191,7 @@ export class ChatService {
       select: {
         id: true,
         content: true,
+        seen: true,
         sender: {
           select: {
             id: true,
@@ -368,17 +370,73 @@ export class ChatService {
             isOnline: true
           }
         },
-      }
+        conversation: {
+          select: {
+            messages: {
+              where: {
+                seen: false,
+                sender: {
+                  NOT: [
+                    {
+                      id
+                    }
+                  ]
+                }
+                
+              },
+              select: {
+                id: true 
+              }
+            }
+          }
+        }
+      },
     });
     
      const users = [];
     conversations.forEach(el => {
       if (el.userOne.id !== id)
-        users.push(el.userOne);
+        users.push({ user: el.userOne, unseen: el.conversation.messages});
       else
-        users.push(el.userTwo);
+        users.push({ user: el.userTwo, unseen: el.conversation.messages});
     });
     return users;
+  }
+
+  // mark the messages as read
+  async markRead(user: AuthenticatedUser, id: string) {
+    const conversation = await this.prisma.usersConversation.findFirst({
+      where: {
+        OR: [
+          { userOneId: user.sub, userTwoId: id},
+          { userTwoId: user.sub, userOneId: id}
+        ]
+      },
+      select: {
+        conversation: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    if(!conversation)
+      throw new NotFoundException('conversation not found');
+    const result = await this.prisma.messages.updateMany({
+      where: {
+        converstion: {
+          id:  conversation.conversation.id,
+        },
+        seen: false,
+      },
+      data: {
+        seen: true
+      }
+    });
+    if(result)
+      return {message: 'messages read successfully'};
+    throw new InternalServerErrorException();
   }
 
   //class:END

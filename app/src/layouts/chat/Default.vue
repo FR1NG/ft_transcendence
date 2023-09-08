@@ -25,27 +25,24 @@ const socketStore = useSocketStore();
 const roomStore = useRoomStore();
 const { activeConversation: messages, selectedUser, selectedRoom } = storeToRefs(chatStore);
 const { roomSettings } = storeToRefs(roomStore)
-const drawer = ref(true)
 
 // type of the conversation (dm / room)
 type Type = 'dm' | 'room';
 const type = ref(route.name?.toString().toLowerCase() as Type);
+const id = route.params.id as string;
 
 const send = () => {
   if (message.value.length === 0)
     return;
-  const recieverId: string = route.params.id as string;
-  const sentMessage = socketStore.sendMessage(message.value, recieverId, type.value, (data: any) => {
+  // const recieverId: string = route.params.id as string;
+  const sentMessage = socketStore.sendMessage(message.value, id, type.value, (data: any) => {
   if(type.value === 'dm')
     chatStore.changeMessageStatus(data);
   });
   if (type.value === 'dm')
-    chatStore.addMessageToConversation(sentMessage, recieverId);
+    chatStore.addMessageToConversation(sentMessage, id);
   message.value = '';
 }
-// for test
-const users: any = ref([]);
-const onlineUsers: any = ref([]);
 
 const getConversation = async (id: string, type: string) => {
   chatStore.getConversation(id, type);
@@ -67,10 +64,16 @@ const handleLeaveRoom = () => {
   roomStore.getRooms();
 }
 
+const focus = () => {
+  console.log('focus')
+  console.log(id)
+  chatStore.markRead(id);
+}
+
 </script>
 
 <template>
     <room-settings v-if="roomSettings" @leave="handleLeaveRoom"> </room-settings>
     <o-container :messages="messages"></o-container>
-    <message-input v-model="message" :disabled="selectedUser?.block" @send="send"> </message-input>
+    <message-input v-model="message" :disabled="selectedUser?.block" @send="send" @focus="focus"> </message-input>
 </template>

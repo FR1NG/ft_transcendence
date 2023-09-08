@@ -1,4 +1,4 @@
-import { Controller, UseGuards, Get, Req, Query, Param } from '@nestjs/common';
+import { Controller, UseGuards, Get, Post, Query, Param, Body } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { AuthenticatedUser } from 'src/types';
@@ -24,4 +24,11 @@ export class ChatController {
   async getUsers(@User() user: AuthenticatedUser) {
     return this.chatService.getUsers(user);
   }
+
+  @UseGuards(AuthGuard)
+  @Post('read')
+  async markRead(@User() user: AuthenticatedUser, @Body('id') id: string) {
+    return await this.chatService.markRead(user, id);
+  }
+
 }
