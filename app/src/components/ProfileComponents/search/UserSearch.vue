@@ -61,7 +61,6 @@ defineExpose({
       <v-card :min-width="minWidth" :min-height="minHeight" :max-height="maxHeight" :loading="searchLoader">
         <v-list v-if="searchedUsers.length > 0">
           <slot name="items" :users="searchedUsers">
-              here is the slot
           </slot>
         </v-list>
         <v-list v-else>

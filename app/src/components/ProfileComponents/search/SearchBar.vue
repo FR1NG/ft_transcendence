@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch, ref } from 'vue';
 import { useSearchStore } from '@/store/search';
-import { onBeforeRouteLeave } from 'vue-router'
+import { onBeforeRouteUpdate } from 'vue-router'
 
 const searchStore = useSearchStore();
 
@@ -51,7 +51,7 @@ const handlekeyUp = () => {
 }
 
 // before changing the route event
-onBeforeRouteLeave(() => {
+onBeforeRouteUpdate(() => {
   searchStore.clearSearch();
   search.value = '';
 })

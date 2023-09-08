@@ -67,6 +67,8 @@ export const useChatStore = defineStore('chat', {
       if(conversation?.messages) {
         conversation.messages.push(message);
       } else {
+        // TODO tobe optimized
+        this.getConversationsUsers();
         const messages = [
           message
         ];
