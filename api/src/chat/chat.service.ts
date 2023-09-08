@@ -340,5 +340,46 @@ export class ChatService {
   }
 
 
+  async getUsers(user: AuthenticatedUser) {
+    const { sub: id } = user;
+    const conversations = await this.prisma.usersConversation.findMany({
+      where: {
+        OR: [{
+          userOne: { id }
+        },
+        {
+          userTwo: { id }
+        }]
+      },
+      select: {
+        userOne: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            isOnline: true
+          }
+        },
+        userTwo: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            isOnline: true
+          }
+        },
+      }
+    });
+    
+     const users = [];
+    conversations.forEach(el => {
+      if (el.userOne.id !== id)
+        users.push(el.userOne);
+      else
+        users.push(el.userTwo);
+    });
+    return users;
+  }
+
   //class:END
 }

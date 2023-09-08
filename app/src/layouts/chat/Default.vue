@@ -47,33 +47,12 @@ const send = () => {
 const users: any = ref([]);
 const onlineUsers: any = ref([]);
 
-const fetch = async () => {
-  try {
-    const response: any = await axios.get('/user');
-    users.value = response.data;
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-const getOnlineUsers = async () => {
-  try {
-    const { data } = await axios.get('/friend/online');
-    onlineUsers.value = data;
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 const getConversation = async (id: string, type: string) => {
   chatStore.getConversation(id, type);
 }
 
 getConversation(route.params.id as string, route.name?.toString().toLowerCase() as string);
 
-getOnlineUsers();
-
-fetch();
 
 onBeforeRouteUpdate((to) => {
   const { id } = to.params;

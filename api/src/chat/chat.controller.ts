@@ -1,6 +1,8 @@
 import { Controller, UseGuards, Get, Req, Query, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { AuthGuard } from 'src/auth/jwt.guard';
+import { AuthenticatedUser } from 'src/types';
+import { User } from 'src/common/decorators'
 
 @Controller('chat')
 export class ChatController {
@@ -8,12 +10,18 @@ export class ChatController {
 
   @UseGuards(AuthGuard)
   @Get('conversation/:id')
-  async getUsersConversation(@Req() request, @Param('id') id, @Query('type') type: string) {
-    const { user } = request;
-
+  async getUsersConversation(@User() user: AuthenticatedUser, @Param('id') id, @Query('type') type: string) {
     if(type === 'dm')
       return await this.chatService.getUsersConversation(user, id);
     else if (type === 'room')
       return await this.chatService.getRoomConversation(user, id);
+  }
+
+
+
+  @UseGuards(AuthGuard)
+  @Get('users')
+  async getUsers(@User() user: AuthenticatedUser) {
+    return this.chatService.getUsers(user);
   }
 }

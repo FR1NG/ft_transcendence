@@ -1,9 +1,9 @@
-import { defineStore, storeToRefs } from 'pinia'
+import { defineStore } from 'pinia'
 import { Conversation, Message } from '@/types/chat'
 import axios from '@/plugins/axios'
 import { User } from '@/types/user';
-import { Room, UserRoom } from '@/types/room';
-import { useAuthStore } from './auth';
+import { UserRoom } from '@/types/room';
+import { AxiosResponse } from 'axios';
 
 // type conversations = {
 //   userId: string
@@ -15,8 +15,8 @@ export const useChatStore = defineStore('chat', {
     conversations: new Map() as Map<string, Conversation>,
     activeConversation: [] as Message[],
     selectedUser: {} as  User,
-    selectedRoom: {} as UserRoom
-
+    selectedRoom: {} as UserRoom,
+    users: [] as User[]
   }),
   getters: {
 
@@ -49,6 +49,18 @@ export const useChatStore = defineStore('chat', {
         console.log(error)
       }
       }
+    },
+    async getConversationsUsers() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.get('/chat/users');
+          const { data } = response;
+          this.users = data;
+          resolve(data);
+        } catch(error: any) {
+          reject(error.response);
+        }
+      });
     },
     addMessageToConversation(message: Message, id: string): Conversation | undefined {
       const conversation = this.conversations.get(id);
