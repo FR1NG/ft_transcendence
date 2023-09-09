@@ -1,11 +1,11 @@
 import { User } from "./user"
-import type { Room } from "./room"
+import type {  UserRoom } from "./room"
 
 export type Message = {
   id: string
   content: string
   loading: boolean
-  user: Sender
+  sender: Sender
   seen: boolean
 }
 
@@ -17,5 +17,5 @@ type Sender = {
 
 export type Conversation = {
   messages: Message[]
-  sender: User | Room
+  sender: User | UserRoom
 }

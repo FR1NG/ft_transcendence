@@ -5,6 +5,7 @@ export type CreateRoomDto = {
 }
 
 export type UserRoom = {
+  id: string
   role: string
   room: Room
 }
