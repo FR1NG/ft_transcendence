@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import axios from '@/plugins/axios'
 import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
-import { useSocketStore } from '@/store/socket'
 import { bootstrap } from '@/composables/socket';
 import AppBar from '../default/AppBar.vue';
 import RoomsList from './parcials/RoomsList.vue'
@@ -30,7 +28,6 @@ const type = ref(route.name?.toString().toLowerCase() as Type);
 onBeforeRouteUpdate((to) => {
   chatStore.resetActiveConversation();
   type.value = to.name?.toString().toLowerCase() as Type;
-  // getConversation(id as string, type.value);
 })
 
 const tab = ref(type.value);

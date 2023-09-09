@@ -4,9 +4,8 @@ import axios from '@/plugins/axios'
 import { User } from '@/types/user';
 import { UserRoom } from '@/types/room';
 import { AxiosResponse } from 'axios';
-import { useAuthStore } from './auth';
 
-type Conversation = {
+type UserConversation = {
   user: User,
   unseen: Array<string>
 };
@@ -17,7 +16,7 @@ export const useChatStore = defineStore('chat', {
     activeConversation: [] as Message[],
     selectedUser: {} as  User,
     selectedRoom: {} as UserRoom,
-    users: [] as Conversation[]
+    users: [] as UserConversation[]
   }),
   getters: {
 
@@ -29,13 +28,17 @@ export const useChatStore = defineStore('chat', {
       const conversation = this.conversations.get(id);
       if(conversation) {
         this.activeConversation = conversation.messages;
-        this.selectedUser = conversation.user as User;
+        if(type === 'dm')
+          this.selectedUser = conversation.sender as User;
+        else if (type === 'room')
+          this.selectedRoom = conversation.sender as UserRoom;
+
       } else {
       try {
         const { data } = await axios.get(`/chat/conversation/${id}?type=${type}`);
         if(type === 'dm') {
           const { messages, user} = data;
-          this.conversations.set(data.user.id, {messages, user});
+          this.conversations.set(data.user.id, {messages, sender: user});
           this.selectedUser = data.user;
           this.activeConversation = data.messages;
         } else if(type === 'room') {
@@ -67,7 +70,7 @@ export const useChatStore = defineStore('chat', {
       if(conversation?.messages) {
         conversation.messages.push(message);
         if(!message.loading) {
-          const indexOfUser = this.users.findIndex((el: Conversation) => el.user.id === id);
+          const indexOfUser = this.users.findIndex((el: any) => el.sender.id === id);
           this.users[indexOfUser]?.unseen.push(message.id);
         }
       } else {
@@ -131,7 +134,7 @@ export const useChatStore = defineStore('chat', {
       })
     },
     makeTop(id: string) {
-      const index = this.users.findIndex((el: Conversation) => el.user.id === id);
+      const index = this.users.findIndex((el: any) => el.sender.id === id);
       if(index === 0)
         return;
       if (this.users[index]) {
