@@ -32,7 +32,6 @@ export const useChatStore = defineStore('chat', {
           this.selectedUser = conversation.sender as User;
         else if (type === 'room')
           this.selectedRoom = conversation.sender as UserRoom;
-
       } else {
       try {
         const { data } = await axios.get(`/chat/conversation/${id}?type=${type}`);
@@ -65,17 +64,16 @@ export const useChatStore = defineStore('chat', {
         }
       });
     },
-    addMessageToConversation(message: Message, id: string): Conversation | undefined {
+    addMessageToConversation(message: Message, id: string, type: 'dm' | 'room') {
       const conversation = this.conversations.get(id);
       if(conversation?.messages) {
         conversation.messages.push(message);
-        if(!message.loading) {
+        if(type === 'dm' && !message.loading) {
           const indexOfUser = this.users.findIndex((el: any) => el.sender.id === id);
           this.users[indexOfUser]?.unseen.push(message.id);
         }
       } else {
         // TODO tobe optimized
-        this.getConversationsUsers();
         const messages = [
           message
         ];
@@ -84,7 +82,8 @@ export const useChatStore = defineStore('chat', {
           this.activeConversation = messages;
         }
       }
-      this.makeTop(id);
+      if(type === 'dm')
+        this.makeTop(id);
       return conversation;
     },
     playNotificationSound() {
@@ -105,6 +104,8 @@ export const useChatStore = defineStore('chat', {
       dm.id = message.id;
       dm.sender = message.sender;
       dm.loading = false;
+      if(!this.users.some((el: any) => el.id === dm.sender.id))
+        this.getConversationsUsers();
     },
     deleteConversation(userId: string) {
       this.conversations.delete(userId);
@@ -134,7 +135,7 @@ export const useChatStore = defineStore('chat', {
       })
     },
     makeTop(id: string) {
-      const index = this.users.findIndex((el: any) => el.sender.id === id);
+      const index = this.users.findIndex((el: any) => el.user.id === id);
       if(index === 0)
         return;
       if (this.users[index]) {

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { useSocketStore } from '@/store/socket'
@@ -35,7 +35,7 @@ const send = () => {
     chatStore.changeMessageStatus(data);
   });
   if (type.value === 'dm')
-    chatStore.addMessageToConversation(sentMessage, chatId);
+    chatStore.addMessageToConversation(sentMessage, chatId, 'dm');
   message.value = '';
 }
 
@@ -47,6 +47,13 @@ getConversation(chatId, type.value);
 
 
 onBeforeRouteUpdate((to) => {
+  const { id } = to.params;
+  chatId = id as string;
+  type.value = to.name?.toString().toLowerCase() as Type;
+  getConversation(chatId, type.value);
+})
+
+onBeforeRouteLeave((to) => {
   const { id } = to.params;
   chatId = id as string;
   type.value = to.name?.toString().toLowerCase() as Type;

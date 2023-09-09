@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
 import { bootstrap } from '@/composables/socket';
@@ -26,8 +26,11 @@ type Type = 'dm' | 'room';
 const type = ref(route.name?.toString().toLowerCase() as Type);
 
 onBeforeRouteUpdate((to) => {
-  chatStore.resetActiveConversation();
   type.value = to.name?.toString().toLowerCase() as Type;
+})
+
+onBeforeRouteLeave(() => {
+  chatStore.resetActiveConversation();
 })
 
 const tab = ref(type.value);
