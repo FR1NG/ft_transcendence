@@ -5,7 +5,7 @@ export type Message = {
   id: string
   content: string
   loading: boolean
-  user: Sender
+  sender: Sender
   seen: boolean
 }
 

@@ -69,18 +69,19 @@ export const useChatStore = defineStore('chat', {
       if(conversation?.messages) {
         conversation.messages.push(message);
         if(type === 'dm' && !message.loading) {
-          const indexOfUser = this.users.findIndex((el: any) => el.sender.id === id);
+          const indexOfUser = this.users.findIndex((el: any) => el.user.id === id);
           this.users[indexOfUser]?.unseen.push(message.id);
         }
       } else {
-        // TODO tobe optimized
+        if(conversation) {
         const messages = [
           message
         ];
-        if(conversation) {
           conversation["messages"] = messages;
           this.activeConversation = messages;
         }
+        else
+          this.getConversationsUsers();
       }
       if(type === 'dm')
         this.makeTop(id);
