@@ -18,6 +18,7 @@ const props = defineProps({
 });
 
 const showInput = ref(true);
+const chooseddAvatar = ref('');
 
 
 const pics = ref ([
@@ -25,61 +26,46 @@ const pics = ref ([
     name: "po",
     path: "/images/avatars/po.jpg",
     clicked: false,
-    scal: "scale(1.8)",
-    bordr: "none",
   },
   {
     name: "tigress",
     path: "/images/avatars/tigress.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
   {
     name: "crane",
     path: "/images/avatars/crane.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
   {
     name: "mantis",
     path: "/images/avatars/mantis.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
   {
     name: "monkey",
     path: "/images/avatars/monkey.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
   {
     name: "master shifu",
     path: "/images/avatars/shifu.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
   {
     name: "tai lung",
     path: "/images/avatars/taiLung.jpg",
     clicked: false,
-    scal: "scale(1)",
-    bordr: "none",
   },
 ])
 
-const uploadedAvatar = ref('');
 
 
 const handleSubmit = async () => {
   const data = new FormData();
   loading.value = true
-  if(uploadedAvatar.value.length > 0) {
-    data.append('pickedAvatar', uploadedAvatar.value);
+  if(chooseddAvatar.value.length > 0) {
+    data.append('pickedAvatar', chooseddAvatar.value);
   } else {
     data.append('avatar', avatar.value[0]);
   }
@@ -104,19 +90,20 @@ const callback = async (response: any) => {
 
 
 
-const changeUploadedAvatar = (pic: { name:string, path: string, clicked:boolean, scal: string, bordr: string}) =>{
+const changechooseddAvatar = (pic: { name:string, path: string, clicked:boolean}) =>{
   const index = pics.value.findIndex(el => el.path === pic.path);
-  if(pic.path === uploadedAvatar.value) {
-    uploadedAvatar.value = '';
+  if(pic.path === chooseddAvatar.value) {
+    chooseddAvatar.value = '';
     pics.value[index].clicked = false;
   }
   else {
-    uploadedAvatar.value = pic.path
+    chooseddAvatar.value = pic.path
     pics.value[index].clicked = true;
+    avatar.value[0] = "";
   }
 }
 
-watch(() => uploadedAvatar.value,(newValue: string, oldValue: string) => {
+watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
   if (newValue?.length > 0) {
     showInput.value = false;
     if (oldValue?.length > 0 && oldValue !== newValue) {
@@ -150,12 +137,12 @@ watch(() => uploadedAvatar.value,(newValue: string, oldValue: string) => {
               <v-container>
                 <v-row>
                   <v-col clos="12">
-                    <v-file-input v-if="showInput" accept="image/png, image/jpeg, image/bmp" @click="uploadedAvatar = 'upload'" placeholder="Pick an avatar"
-                      prepend-icon="mdi-camera" :label="uploadedAvatar" v-model="avatar"></v-file-input>
+                    <v-file-input v-if="showInput" accept="image/png, image/jpeg, image/bmp" placeholder="Pick an avatar"
+                      prepend-icon="mdi-camera" label="upload" v-model="avatar"></v-file-input>
                   </v-col>
                 </v-row>
                 <v-row>
-                  <button v-for="pic in pics" @click="changeUploadedAvatar(pic)">
+                  <button v-for="pic in pics" @click="changechooseddAvatar(pic)">
                     <img class="chooseAvatar"  :class="pic.clicked ? `active-avatar` : ``" :src="pic.path" :alt="pic.name"   >
                   </button>
                 </v-row>
@@ -207,13 +194,13 @@ watch(() => uploadedAvatar.value,(newValue: string, oldValue: string) => {
   height: 50px;
   border-radius: 50%;
   margin: 0 6px;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .active-avatar {
   transform: scale(1.5);
-  opacity: 1;
   border: 2px solid rgb(var(--v-theme-colorThree));
+  opacity: 1;
 }
 .chooseAvatar:hover {
   transform: scale(1.5);

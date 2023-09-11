@@ -69,20 +69,20 @@ const update = async () => {
         <ProfileAvatar :link="profile.avatar" :update="getProfile" />
         <CustomDivider class="mainDivider" title="General Info" top="2"/>
         <v-text-field prepend-inner-icon="mdi-account-circle" class="ma-2" label="Username" variant="outlined" v-model="profile.username"
-          :error="errors.username.length !== 0" :messages="errors.username"></v-text-field>
+          :error="errors.username.length !== 0" :messages="errors.username" @keyup.enter="update" ></v-text-field>
         <v-text-field prepend-inner-icon="mdi-email" class="ma-2" label="Email" variant="outlined" v-model="profile.email"
-          :error="errors.email.length !== 0" :messages="errors.email"
-        ></v-text-field>
+          :error="errors.email.length !== 0" :messages="errors.email" @keyup.enter="update"></v-text-field>
         <CustomDivider title="2 Factor authentication"/>
           <v-switch class="switch"
           prepend-icon="mdi-two-factor-authentication"
             v-model="profile.fa"
             hide-details
             :label="profile.fa ? `Enabled` : `Disabled`"
+            :style="profile.fa ? `color: rgb(var(--v-theme-colorTwo));` : `color:rgb(var(--v-theme-colorThree));`"
             @click="profile.fa = !profile.fa"
           ></v-switch>
         <v-card-actions>
-          <v-btn class="update" :disabled="updating" :loading="updating" color="info" variant="outlined" @click="update">Update</v-btn>
+          <v-btn class="update" :disabled="updating" :loading="updating" color="rgb(var(--v-theme-colorTwo)" variant="outlined" @click="update">Update</v-btn>
         </v-card-actions>
       </v-form>
     </CustomCard>
@@ -93,10 +93,11 @@ const update = async () => {
 .settingsWrapper {
   color: rgb(var(--v-theme-colorTwo));
   margin-top: 2rem;
+  padding: 2rem;
 }
 
 .pageHeader {
-  padding: 2rem 0rem 0rem 2rem;
+  font-size: 2rem;
 }
 
 
@@ -104,38 +105,18 @@ const update = async () => {
   margin-top: 4rem;
 }
 
-
-.profileImg {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-}
-.field {
-  margin: 0 1rem;
-}
-.input {
-  height: 10px;
-  background-color: red;
-  height: 3rem;
-  border: 2px solid black;
-  border-radius: 15px;
-}
-
 .switch {
-  margin-left: 2rem;
+  margin-left: 0.5rem;
+  font-size: 1.5rem;
 }
 
 .update {
-  left: 50%;
-  margin-top: 2rem;
   position:absolute;
-}
-
-.valid {
-  border: 2px solid aqua;
-}
-.invalid {
-  border-color: red;
+  right: 5%;
+  margin: 2rem;
+  margin-bottom: 0;
+  color: rgb(var(--v-theme-colorTwo));
+  border: 1px solid rgb(var(--v-theme-colorTwo));
 }
 
 </style>
