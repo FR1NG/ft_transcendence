@@ -84,7 +84,7 @@ fill()
         position: absolute;
         top:20%;
         left: 4%;
-        background-image:  linear-gradient(rgb(87, 53, 75), rgb(var(--v-theme-primary)));
+        background-image:  linear-gradient(rgb(var(--v-theme-colorOne)), rgb(var(--v-theme-colorThree)));
         width: 90%;
         height: 50%;
         rotate: x 80deg;
@@ -94,8 +94,8 @@ fill()
         position: absolute;
         top: 49.6%;
         left: 2%;
-        background-image:  linear-gradient(rgb(87, 53, 75), rgb(var(--v-theme-primary)));
-        width: 95%;
+        background-image:  linear-gradient(rgb(var(--v-theme-colorThree)),rgb(var(--v-theme-colorOne)));
+        width: 94%;
         height: 35%;
     }
 
@@ -120,7 +120,7 @@ fill()
             height: 30px;
         }
         .points {
-            color: rgb(var(--v-theme-secondary));
+            color: rgb(var(--v-theme-colorTwo));
         }
     }
 }

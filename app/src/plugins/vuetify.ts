@@ -18,14 +18,11 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          background: '#352F44',
-          surface: '#352F44',
-          primary: '#1867C0',
-          secondary: '#E0E0E0',
-          colorOne: '#352F44',
-          colorTwo: '#5C5470',
-          colorThree: '#B9B4C7',
+          colorOne: '#000000',
+          colorTwo: '#DB022B',
+          colorThree: '#5c0606',
           colorFoure: '#FAF0E6',
+          sucess: '#0080000',
           test: '#6A1B9A',
         },
       },

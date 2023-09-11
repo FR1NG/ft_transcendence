@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { bootstrap } from '@/composables/socket';
-
-// bootstrap();
+import CustomCard from '@/components/CustomCard.vue';
+import Play from '@/components/HomeComponents/Play.vue'
 
 </script>
 
 <template>
-    <v-card min-height="400"  class="ma-4 pa-0" rounded="xl" elevation="10"  border="0" backgound="#DA032B">
-      <!-- <img  class="ppong-image" alt="main image" src="/images/ppong.gif"/> -->
-    </v-card>
+    <Play/>
 </template>
 
-<script lang="ts" setup>
-</script>
 
-<style>
-.ppong-image {
-  width: 100%;
-  margin-top: -350px;
+<style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Gugi&display=swap');
 
+::-webkit-scrollbar {
+  display: none;
 }
+.homeContainer {
+  background-color: rgb(var(--v-theme-colorOne));
+  font-family: 'Gugi', cursive;
+  height: 93vh;
+  overflow:scroll;
+}
+
 </style>

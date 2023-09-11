@@ -35,7 +35,7 @@ const props = defineProps <{
   .numb {
     padding: 2rem;
     font-size: 2rem;
-    color: rgb(var(--v-theme-secondary));
+    color: rgb(var(--v-theme-colorTwo));
     text-shadow: 1px 1px 1px black;
   }
   .starIcon {

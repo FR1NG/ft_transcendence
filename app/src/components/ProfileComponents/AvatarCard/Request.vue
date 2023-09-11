@@ -145,15 +145,15 @@ const unblockUser = async () => {
   gap: 0.9rem;
   
   .btn {
-    border: 2px solid rgb(var(--v-theme-secondary));
-    color: rgb(var(--v-theme-secondary));
+    border: 2px solid rgb(var(--v-theme-colorTwo));
+    color: rgb(var(--v-theme-colorTwo));
     width: 150px;
   }
 
   .btn:hover {
-    color: rgb(var(--v-theme-primary));
-    background-color: rgb(var(--v-theme-secondary));
-    border: 2px solid rgb(var(--v-theme-secondary));
+    color: rgb(var(--v-theme-colorTwo));
+    background-color: rgb(var(--v-theme-colorTwo));
+    border: 2px solid rgb(var(--v-theme-colorTwo));
   }
     grid-template-rows: repeat(10, 1fr);
     grid-template-columns: repeat(6, minmax(0, 1fr));

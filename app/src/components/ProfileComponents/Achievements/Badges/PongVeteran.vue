@@ -46,7 +46,7 @@ const props = defineProps<{
       height: 67px;
       top:50%;
       font-size: 2em;
-      background: rgba(var(--v-theme-secondary));
+      background: rgba(var(--v-theme-colorTwo));
       border-radius: 0 0 20px 20px;
       text-shadow: 1px 1px 2px white;
       box-shadow: 0 0 2px 0 white;

@@ -104,15 +104,15 @@ const switchScope= () => {
     height: 5%;
     text-align: left;
     thead{
-        color:rgb(128, 78, 151);
+        color:rgb(var(--v-theme-colorTwo));
         th {
             padding-bottom: 0.2rem;
         }
     }
     tbody {
-        color: rgb(var(--v-theme-secondary));
-        box-shadow: inset 0 0 20px 20px rgb(87, 53, 75),
-                          5px 0 0px 5px rgb(87, 53, 75);
+        color: white;
+        box-shadow: inset 0 0 20px 20px rgb(var(--v-theme-colorThree)),
+                          5px 0 0px 5px rgb(var(--v-theme-colorThree));
         border-radius: 10px;
     }
 }
