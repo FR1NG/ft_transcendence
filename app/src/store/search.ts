@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
+import { User } from '@/types/user';
 
 
 export const useSearchStore = defineStore('search', {
   state: () => ({
     requestStatus: '',
-    searchedUsers: [],
+    searchedUsers: [] as User[],
     search: '',
     searchLoader: false,
     searchTyping: false,

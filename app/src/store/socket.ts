@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { Socket, io } from 'socket.io-client';
 import type { Message } from '@/types/chat';
+import { useNotificationStore } from './notification';
 
 type Auth = {
   auth: Token
@@ -50,25 +51,37 @@ export const useSocketStore = defineStore('socket', {
       this.socket.on('error', (data) => {
         if(errorCallback)
           errorCallback(data);
-      })
+      });
+
+      //listning on notification event
+      this.socket.on('notification', (data) => {
+
+        if(eventCallback)
+          eventCallback('notification', data);
+        this.handleNotification(data);
+      });
 
     },
     handleMessage(data: any) {
     },
 
     handleRoomMessage(data: any) {
+
+    },
+
+    handleNotification(data: any) {
+      useNotificationStore().notifications.push(data);
     },
     // send a message action
     sendMessage(content: string, recieverId: string, type: 'dm' | 'room', callback: ({}) => void): Message {
       if(!this.socket)
         return this.throwError();
       this.setToken(sessionStorage.getItem('access_token') as string);
-      console.log(this.socket);
       const tmpId = Math.random().toString();
       const message: Message = {
         content,
         id: tmpId,
-        user: {
+        sender: {
           id: '',
           username: '',
           avatar: ''

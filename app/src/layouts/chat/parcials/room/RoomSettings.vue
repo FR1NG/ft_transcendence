@@ -11,6 +11,7 @@ import CostumDivider from '@/components/CustomDivider.vue'
 import EditRoom from './EditRoom.vue'
 import router from '@/router';
 import { useSnackBarStore } from '@/store/snackbar';
+import InviteUser from './InviteUser.vue'
 
 
 const dialog = true;
@@ -19,12 +20,15 @@ const { roomSettings } = storeToRefs(roomStore);
 const authStore = useAuthStore();
 const { me } = storeToRefs(authStore);
 const route = useRoute();
+const usersId = ref<Array<String>>();
+const invitedsId = ref<Array<String>>();
 
 const roomId: string = route.params.id as string;
 const data = reactive({
   loading: false
 });
 const showEdit = ref(false);
+const showInvite = ref(false);
 
 // events emits
 const emit = defineEmits(['leave']);
@@ -37,6 +41,8 @@ const getData = async () => {
   try {
     data.loading = true;
     details.value = await roomStore.getRoomDetails(roomId) as RoomDetails;
+    usersId.value = details.value.room.users.map(el => el.user.id);
+    invitedsId.value = details.value.room.invitedUsers.map(el => el.id);
     data.loading = false;
   } catch (error: any) {
     data.loading = false;
@@ -120,18 +126,24 @@ const onRoomUpdated = () => {
         <v-toolbar-title>
           {{ details?.room.name }}
         </v-toolbar-title>
-        <template v-slot:append v-if="details?.role === 'OWNER'">
-          <v-btn icon @click="showEdit = !showEdit">
+        <v-card-subtitle>
+          {{ details?.room.type }}
+        </v-card-subtitle>
+        <template v-slot:append >
+          <v-btn icon @click="showEdit = !showEdit" v-if="details?.role === 'OWNER'">
             <v-icon>mdi-pencil-box-outline</v-icon>
+          </v-btn>
+          <v-btn icon @click="showInvite = !showInvite"  v-if="details?.role === 'ADMIN' || details?.role === 'OWNER'">
+            <v-icon>mdi-account-plus-outline</v-icon>
           </v-btn>
         </template>
       </v-toolbar>
       <v-expand-transition>
+        <invite-user :refetch="getData" :users-id="usersId" :inviteds-id="invitedsId" v-if="showInvite"> </invite-user>
+      </v-expand-transition>
+      <v-expand-transition>
         <edit-room v-if="showEdit" :room="details.room" @update="onRoomUpdated"> </edit-room>
       </v-expand-transition>
-      <v-card-subtitle>
-        {{ details?.room.type }}
-      </v-card-subtitle>
       <v-card-text>
         <costum-divider title="Room users"> </costum-divider>
         <v-list max-height="300">

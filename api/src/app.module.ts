@@ -13,6 +13,9 @@ import { RoomModule } from './room/room.module';
 import { NotificationModule } from './notification/notification.module';
 import { CaslModule } from './casl/casl.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { InvitationController } from './invitation/invitation.controller';
+import { InvitationModule } from './invitation/invitation.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -25,7 +28,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     RoomModule,
     NotificationModule,
     CaslModule,
-    EventEmitterModule.forRoot()
+    EventEmitterModule.forRoot(),
+    InvitationModule,
+    GameModule
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],

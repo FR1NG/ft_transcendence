@@ -26,17 +26,18 @@ const listen = () => {
   socketStore.listen((event: string, data: any) => {
     if (event === 'message') {
       data["loading"] = false;
-      chatStore.addMessageToConversation(data, data.sender.id);
+      chatStore.addMessageToConversation(data, data.sender.id, 'dm');
       showNotification(data.content, data.sender.username);
-      console.log('new message from user');
-    } else if (event === 'room-message') {
-
+    }
+    else if (event === 'room-message') {
       const { room } = data;
       data["loading"] = false;
-      chatStore.addMessageToConversation(data, room.id);
+      chatStore.addMessageToConversation(data, room.id, 'room');
       if (data.sender.id !== me.value.id)
         showNotification(data.content, `${data.sender.username}#${room.name}`);
-      console.log('new message from room');
+    }
+    else if(event === 'notification') {
+      showNotification(data.content, data.content);
     }
 
   }, error => {

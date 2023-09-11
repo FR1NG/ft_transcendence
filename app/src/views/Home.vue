@@ -2,7 +2,6 @@
 import CustomCard from '@/components/CustomCard.vue';
 import Play from '@/components/HomeComponents/Play.vue'
 
-
 </script>
 
 <template>

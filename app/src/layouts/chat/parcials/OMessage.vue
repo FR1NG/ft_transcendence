@@ -7,7 +7,6 @@ import { User } from '@/types/user';
 defineProps<{
   message: Message,
   printDetails: boolean
- // user: User,
   loading: boolean | undefined
 }>()
 
@@ -33,7 +32,7 @@ onMounted(() => {
           <v-list-item-title v-if="printDetails">
             {{ message?.sender?.username}}
           </v-list-item-title>
-          <v-list-item-subtitle :class="message.type" color="colorOne">
+          <v-list-item-subtitle color="colorOne">
             {{ message.content}}
           </v-list-item-subtitle>
           <template v-slot:append>

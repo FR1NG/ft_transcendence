@@ -18,6 +18,11 @@ const routes = [
         }
       },
       {
+        path: '/game',
+        name: 'Game',
+        component: () => import('@/views/Game.vue')
+      },
+      {
         path: '/login',
         name: 'Login',
         component: () => import('@/views/Login.vue')
@@ -74,6 +79,14 @@ const routes = [
         path: '/chat/room/:id',
         name: 'Room',
         component: () => import('@/layouts/chat/Default.vue'),
+        meta: {
+          auth: true,
+        }
+      },
+      {
+        path: '/chat/invitation/:id',
+        name: 'roomInvitation',
+        component: () => import('@/layouts/chat/parcials/Invitation.vue'),
         meta: {
           auth: true,
         }

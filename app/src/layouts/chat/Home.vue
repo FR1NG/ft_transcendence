@@ -1,64 +1,36 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
-import axios from '@/plugins/axios'
-import { onBeforeRouteUpdate, useRoute } from 'vue-router'
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { useChatStore } from '@/store/chat'
 import { storeToRefs } from 'pinia';
-import { useSocketStore } from '@/store/socket'
 import { bootstrap } from '@/composables/socket';
 import AppBar from '../default/AppBar.vue';
 import RoomsList from './parcials/RoomsList.vue'
 import InfoBar from './parcials/InfoBar.vue'
 import UsersList from './parcials/UsersList.vue'
-import { useRoomStore } from '@/store/room';
 import { RouterView } from 'vue-router';
 
 // bootstrapping the socket if not initialized on home  component
 bootstrap();
 
-const message = ref('');
 const route = useRoute();
 const chatStore = useChatStore();
-const socketStore = useSocketStore();
-const roomStore = useRoomStore();
-const { activeConversation: messages, selectedUser, selectedRoom } = storeToRefs(chatStore);
-const { roomSettings } = storeToRefs(roomStore)
+const { selectedUser, selectedRoom, users } = storeToRefs(chatStore);
 const drawer = ref(true)
+
+// getting conversations
+chatStore.getConversationsUsers();
 
 // type of the conversation (dm / room)
 type Type = 'dm' | 'room';
 const type = ref(route.name?.toString().toLowerCase() as Type);
 
-const send = () => {
-  if (message.value.length === 0)
-    return;
-  const recieverId: string = route.params.id as string;
-  const sentMessage = socketStore.sendMessage(message.value, recieverId, type.value, (data: any) => {
-  if(type.value === 'dm')
-    chatStore.changeMessageStatus(data);
-  });
-  if (type.value === 'dm')
-    chatStore.addMessageToConversation(sentMessage, recieverId);
-  message.value = '';
-}
-// for test
-const users: any = ref([]);
-
-const fetch = async () => {
-  try {
-    const response: any = await axios.get('/user');
-    users.value = response.data;
-  } catch (error) {
-    console.log(error)
-  }
-}
-fetch();
-
 onBeforeRouteUpdate((to) => {
-  chatStore.resetActiveConversation();
-  const { id } = to.params;
   type.value = to.name?.toString().toLowerCase() as Type;
-  // getConversation(id as string, type.value);
+})
+
+onBeforeRouteLeave(() => {
+  chatStore.resetActiveConversation();
 })
 
 const tab = ref(type.value);

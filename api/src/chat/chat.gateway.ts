@@ -47,8 +47,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   async handleDisconnect(client: Socket) {
     const payload = await this.getUser(client);
-    if (payload?.sub)
+    if (payload?.sub) {
       await this.userService.setOnline(payload.sub, false);
+      this.clients.delete(payload.sub);
+    }
   }
 
   afterInit(server: any) {
@@ -112,4 +114,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       client.leave(payload.roomId);
   }
 
+  @OnEvent('notification.create')
+  handleNotificationCreate(payload) {
+    const client = this.clients.get(payload.userId);
+    client.emit('notification', payload.data);
+  }
 }
