@@ -96,19 +96,19 @@ const props = defineProps<{
       letter-spacing: 0.2em;
       border-radius:20px;
       text-align: center;
-      border: 1px solid rgba(var(--v-theme-secondary), 0.5);
-      box-shadow: -3px -3px 5px -5px rgba(var(--v-theme-secondary), 0.5),
+      border: 1px solid rgba(var(--v-theme-colorTwo), 0.5);
+      box-shadow: -3px -3px 5px -5px rgba(var(--v-theme-colorTwo), 0.5),
       1px 1px 2px 0 black;
       border-bottom: 2px solid black;
       border-right: 2px solid black;
       padding-top: 1rem;
       h3 {
-        color: rgb(var(--v-theme-secondary));
+        color: rgb(var(--v-theme-colorTwo));
         padding-bottom: 1rem;
       }
       .pongFont {
         padding-top: 1.5rem;
-        color: rgb(var(--v-theme-secondary));
+        color: rgb(var(--v-theme-colorTwo));
           font-size: 2.5rem;
           text-shadow: 1px 1px 2px white;
           white-space: nowrap;

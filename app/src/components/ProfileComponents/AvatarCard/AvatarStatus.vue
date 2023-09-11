@@ -52,7 +52,7 @@ const totalLosses = 20;
     <img class="usrAvatar" src="https://cdn.intra.42.fr/users/9a65446eb4e52003992947a9cb266862/ael-rhai.jpg" alt="avatar image">
     <div class="friendsCount">
       <h4 class="username"> {{userName}} </h4>
-      <v-chip class="ms-2 text-medium-emphasis" color="secondary" prepend-icon="mdi-account-multiple" size="small"
+      <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
       variant="flat"> {{ userStore.friendsCount.toString() }} friends</v-chip>
     </div>
     <OnOffStatus :isOnline="st" :avatar="userAvatar"/>

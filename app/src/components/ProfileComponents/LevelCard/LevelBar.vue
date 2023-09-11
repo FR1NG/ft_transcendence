@@ -2,15 +2,13 @@
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import WinRate from './WinRate.vue'
-import LevelBar from './LevelBar.vue'
 
 const userStore = useUserStore();
 const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
 
 
 // temp variable to test----------------- going to be deleted later---------//
-const userLevel = ref(5000);
+const userLevel = ref(2500);
 const userLevel2 = ref((userLevel.value * 100 / 5000).toString() + '%')
 //-------------------------------------------------------------------------//
 
@@ -63,7 +61,7 @@ $levl: v-bind(userLevel) + '%';
   align-items: center;
   .innerBar {
     height: 15px;
-    background: linear-gradient(to right, rgb(var(--v-theme-colorTwo)), rgb(var(--v-theme-secondary)));
+    background: linear-gradient(to right, rgb(var(--v-theme-colorThree)), rgb(var(--v-theme-colorTwo)));
     border-radius: 50px;
     margin: 2px 0;
     animation: levelAnimat 1s linear forwards
@@ -77,7 +75,7 @@ $levl: v-bind(userLevel) + '%';
 
 }
 .league {
-  color: rgb(var(--v-theme-secondary));
+  color: rgb(var(--v-theme-colorTwo));
 }
 
 </style>

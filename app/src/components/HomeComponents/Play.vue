@@ -11,11 +11,9 @@ import RoomsList from './RoomsList.vue'
 <template>
     <div class="playGame">
         <p>Ready to test your reflexes and paddle your way to victory?</p>
-        <img class="pongGif" src="/images/ppong.gif" alt="pong gif">
-        <div class="bottomHalf">
-            <LiveGames/>
+        <div class="play">
             <NeonButton/>
-            <RoomsList/>
+            <img class="pongGif" src="/images/ppong.gif" alt="pong gif">
         </div>
     </div >
 </template>
@@ -24,29 +22,33 @@ import RoomsList from './RoomsList.vue'
 
     .playGame {
         position: relative;
-        color: rgb(var(--v-theme-secondary));
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         height: 100%;
-        justify-items: center;
+        background-color: rgb(var(--v-theme-colorOne));
+        gap: 5rem;
         p {
             margin: 2rem;
             font-size: 1.2rem;
         }
+        .play {
+            width: fit-content;
+            display: flex;
+            flex-wrap: wrap-reverse;
+            align-items: center;
+            justify-content: center;
+        }
         .pongGif {
-            background-color: red;
-            max-width: 100%;
-            max-height: 20rem;
+            min-width: 20rem;
+            width: 50%;
+            // max-height: 20rem;
             right: 0;
+            z-index: 1;
             border-radius: 20px;
         }
-        .bottomHalf {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            gap: 3rem;
-            padding: 1rem;
-            padding-top:2rem;
-            overflow: hidden;
-        }
     }
+
+
+    // @media (width)
 </style>

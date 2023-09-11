@@ -52,8 +52,8 @@ const interv = setInterval(() => {
             <svg>
                 <defs>
                     <linearGradient id="gradient">
-                        <stop offset="0%" stop-color="rgb(var(--v-theme-secondary))"/>
-                        <stop offset="100%" stop-color="rgb(var(--v-theme-colorTwo))"/>
+                        <stop offset="0%" stop-color="rgb(var(--v-theme-colorTwo))"/>
+                        <stop offset="100%" stop-color="rgb(var(--v-theme-colorThree))"/>
                     </linearGradient>
                 </defs>
                 <circle cx="50" cy="50" r="35" stroke-linecap="round"></circle>
@@ -61,7 +61,7 @@ const interv = setInterval(() => {
         </div>
         <div class="totals">
           <div class="mdi mdi-thumb-up-outline" style="color:rgb(var(--v-theme-sucess));">. {{ wins}} wins</div>
-          <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-secondary))">. {{ losses}} losses</div>
+          <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-colorTwo))">. {{ losses}} losses</div>
         </div>
     </div>
 </template>

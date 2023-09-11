@@ -6,10 +6,7 @@ import Play from '@/components/HomeComponents/Play.vue'
 </script>
 
 <template>
-  <v-card elevation="4" class="homeContainer">
     <Play/>
-  </v-card>
-
 </template>
 
 
@@ -20,7 +17,7 @@ import Play from '@/components/HomeComponents/Play.vue'
   display: none;
 }
 .homeContainer {
-  background-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-colorOne));
   font-family: 'Gugi', cursive;
   height: 93vh;
   overflow:scroll;

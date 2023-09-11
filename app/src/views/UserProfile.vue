@@ -53,9 +53,9 @@ if (username) {
 
 .profileContainer {
   overflow: scroll;
-  color: rgb(var(--v-theme-secondary));
+  color: rgb(var(--v-theme-colorTwo));
   font-family: 'Gugi', cursive;
-  background-color: rgb(var(--v-theme-primary));
+  background-color: rgb(var(--v-theme-colorOne));
   padding: 1rem;
   display: grid;
   height: 93vh;

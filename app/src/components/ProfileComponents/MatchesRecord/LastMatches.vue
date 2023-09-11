@@ -8,7 +8,7 @@ import CustomCard from '@/components/CustomCard.vue';
 const users = ref<User[]>([]);
 const testMatches = ref<Match[]>([])
 const fill = () => {
-    for (let a = 0; a < 10; a++)
+    for (let a = 10; a < 20; a++)
 {
     const tmpUser:User = {
         id: "" + Math.random(),
@@ -76,20 +76,23 @@ fill()
 
 
 .matchesWrapper{
-    justify-content: flex-start;
-    align-items: flex-start;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     max-height: 600px;
     overflow: hidden;
     
     .matchesHeader {
-        padding: 1rem;
-        color:rgb(var(--v-theme-secondary));
+        padding-top: 0.5rem;
+        color:rgb(var(--v-theme-two));
     }
     .matchesTable {
-        width: 99%;
+        width: 100%;
         height: 85%;
         background-color: transparent;
         overflow-y: hidden;
+        margin-right: 15px;
     }
     .matchesTable:hover{
         overflow-y: scroll;
@@ -98,7 +101,7 @@ fill()
         display: block;
     }
     .matchesTable::-webkit-scrollbar {
-        width: 8px;
+        width: 4px;
     }
     .matchesTable::-webkit-scrollbar-track {
         background-color: rgba(250, 0, 0, 0.2);
