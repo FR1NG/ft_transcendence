@@ -380,70 +380,32 @@ async banUser(roomId: string, userId: string) {
       },
       select: {
         id: true,
-        room: true,
         role: true,
+        room: {
+          select: {
+            id: true
+          }
+        },
       }
     });
 
-    if(userRoom.role === 'OWNER') {
-      // getting the first admin to be the next owner
-      let lkhalifa = await this.prisma.usersRooms.findFirst({
-        where: {
-          room: {
-            id: userRoom.room.id
-          },
-          OR: [
-            { role: 'ADMIN'},
-          ],
-          NOT: [
-            {
-              user: {
-                id: user.sub
-              }
-            }
-          ]
+    // checking number of users in the room
+    const count = await this.prisma.usersRooms.count({
+      where: {
+        room: {
+          id
         }
-      });
-      // if no admin in the room
-      if (!lkhalifa) {
-        lkhalifa = await this.prisma.usersRooms.findFirst({
-          where: {
-            room: {
-              id: userRoom.room.id
-            },
-            NOT: [
-              {
-                user: {
-                  id: user.sub
-                }
-              }
-            ]
-          }
-        });
       }
+    });
 
-      // update room owner id to the new owner
-      const room = await this.prisma.rooms.update({
-        where: {
-          id: userRoom.room.id
-        },
-        data: {
-          ownerId: lkhalifa.userId
-        }
-      });
-
-      // update the user's role in the room
-      const newUserRoom = await this.prisma.usersRooms.update({
-        where: {
-          id: lkhalifa.id
-        },
-        data: {
-          role: 'OWNER'
-        }
-      });
-      if(!room || !newUserRoom)
-        throw new InternalServerErrorException();
+    if (count === 1) {
+      await this.deleteRoom(id);
+      return { message: 'room has been deleted because you are the only user in that room'};
     }
+
+    if(userRoom.role === 'OWNER')
+      this.transfereOwnership(user, id);
+
     await this.prisma.usersRooms.delete({
       where: {
         id: userRoom.id
@@ -548,6 +510,84 @@ async banUser(roomId: string, userId: string) {
       }
     });
     return result;
+  }
+
+  // delete room 
+  async deleteRoom(id: string) {
+    await this.prisma.usersRooms.deleteMany({
+      where: {
+        room: {
+          id
+        }
+      }
+    });
+
+    const result = await this.prisma.rooms.delete({
+        where: {
+          id
+        }
+      });
+    return result;
+  }
+
+
+  // transfere ownership
+  async transfereOwnership(user: AuthenticatedUser, id: string) {
+      let lkhalifa = await this.prisma.usersRooms.findFirst({
+        where: {
+          room: {
+            id
+          },
+          OR: [
+            { role: 'ADMIN'},
+          ],
+          NOT: [
+            {
+              user: {
+                id: user.sub
+              }
+            }
+          ]
+        }
+      });
+      // if no admin in the room
+      if (!lkhalifa) {
+        lkhalifa = await this.prisma.usersRooms.findFirst({
+          where: {
+            room: {
+              id
+            },
+            NOT: [
+              {
+                user: {
+                  id: user.sub
+                }
+              }
+            ]
+          }
+        });
+      }
+
+      // update room owner id to the new owner
+      const room = await this.prisma.rooms.update({
+        where: {
+          id
+      },
+        data: {
+          ownerId: lkhalifa.userId
+        }
+      });
+
+      // update the user's role in the room
+      const newUserRoom = await this.prisma.usersRooms.update({
+        where: {
+          id: lkhalifa.id
+        },
+        data: {
+          role: 'OWNER'
+        }
+      });
+
   }
 
 }
