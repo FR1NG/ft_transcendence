@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { bootstrap } from '@/composables/socket';
 
-bootstrap();
+// bootstrap();
 
 </script>
 
