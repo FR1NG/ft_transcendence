@@ -81,7 +81,7 @@ export const useSocketStore = defineStore('socket', {
       const message: Message = {
         content,
         id: tmpId,
-        user: {
+        sender: {
           id: '',
           username: '',
           avatar: ''

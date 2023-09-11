@@ -129,12 +129,12 @@ const onRoomUpdated = () => {
         <v-card-subtitle>
           {{ details?.room.type }}
         </v-card-subtitle>
-        <template v-slot:append v-if="details?.role === 'OWNER'">
-          <v-btn icon @click="showInvite = !showInvite">
-            <v-icon>mdi-account-plus-outline</v-icon>
-          </v-btn>
-          <v-btn icon @click="showEdit = !showEdit">
+        <template v-slot:append >
+          <v-btn icon @click="showEdit = !showEdit" v-if="details?.role === 'OWNER'">
             <v-icon>mdi-pencil-box-outline</v-icon>
+          </v-btn>
+          <v-btn icon @click="showInvite = !showInvite"  v-if="details?.role === 'ADMIN' || details?.role === 'OWNER'">
+            <v-icon>mdi-account-plus-outline</v-icon>
           </v-btn>
         </template>
       </v-toolbar>

@@ -110,7 +110,7 @@ export class RoomController {
 
   @Post('invite')
   @UseGuards(RoomAbilityGuardGuard)
-  @CheckRoomAbility('manage')
+  @CheckRoomAbility('update')
   @UseGuards(AuthGuard)
   async inviteUser(@User() user: AuthenticatedUser, @Body() data: InviteUserDto) {
     const {roomId, userId} = data;
@@ -120,7 +120,7 @@ export class RoomController {
 
   @Delete('invite')
   @UseGuards(RoomAbilityGuardGuard)
-  @CheckRoomAbility('manage')
+  @CheckRoomAbility('update')
   @UseGuards(AuthGuard)
   async deleteInvitation(@Body() data: InviteUserDto) {
     const {roomId, userId} = data;
