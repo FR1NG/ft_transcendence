@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import CubeRank from './cubeRank.vue'
 import Switcher from '../../Switcher.vue'
 import CustomCard from '@/components/CustomCard.vue'
 import { User } from '@/types/user';
+import { log } from 'console'
 
 const local = [
     {
@@ -26,58 +27,68 @@ const local = [
         userRank: 2,
     },
 ];
-
-let usrDisplayed = false;
-
-let currentState = ref(local);
-let isLocal = ref(true);
-
-const theUsr = {
+const global = [
+    {
+        userAvatar: "/images/avatars/po.jpg",
+        userName: "user1",
+        points: 1,
+        userRank: 0,
+    },
+    {
+        userAvatar: "/images/avatars/mantis.jpg",
+        userName: "user2",
+        points: 1,
+        userRank: 1,
+    },    
+    {
+        userAvatar: "/images/avatars/tigress.jpg",
+        userName: "user3",
+        points: 1,
+        userRank: 2,
+    },
+];
+const theUsr1 = {
     userAvatar: "/images/avatars/shifu.jpg",
     userName: "theuser",
-    points: 2500,
-    userRank: 0,
-    
+    points: 250,
+    userRank: 1,
 }
+const theUsr2 = Object.assign({}, theUsr1);
+
+const isLocal = ref(true);
+const currentState = ref(local.slice());
+
+const findIndex = (scope: {userAvatar: string, userName: string, points: number, userRank: number}[], theUsr: {userAvatar: string, userName: string, points: number, userRank: number}) => {
+    let index = 0;
+    for (let i = 0; i < scope.length; i++)
+    {
+        if (theUsr.points > scope[i].points)
+        {
+            theUsr.userRank = i;
+            for (let j = i; j < 3; j++)
+                scope[j].userRank++;
+            return i;
+        }
+    }
+    return 3;
+};
+
+
 
 const switchScope= () => {
-    usrDisplayed = false;
-    if (isLocal.value) {
-        currentState.value = [
-            {
-                userAvatar: "/images/avatars/po.jpg",
-                userName: "user1",
-                points: 1,
-                userRank: 0,
-            },
-            {
-                userAvatar: "/images/avatars/mantis.jpg",
-                userName: "user2",
-                points: 1,
-                userRank: 1,
-            },    
-            {
-                userAvatar: "/images/avatars/tigress.jpg",
-                userName: "user3",
-                points: 1,
-                userRank: 2,
-            },
-        ]
-    }
+    if (isLocal.value)
+        currentState.value = global;
     else
-    currentState.value = local
-isLocal.value = !isLocal.value
+        currentState.value = local
+    isLocal.value = !isLocal.value
 }
 
-const userIsClassed = (points: number) => {
-    if (!usrDisplayed && theUsr.points > points)
-    {
-        usrDisplayed = true;
-        return true;
-    }
-    return false;
-}
-const userInPaudium = ref(usrDisplayed);
+onMounted(() => {
+    local.splice(findIndex(local, theUsr1), 0, theUsr1);
+    global.splice(findIndex(global, theUsr2), 0, theUsr2);
+    currentState.value = local;
+});
+
 
 // ------------------------------------------------------------
 
@@ -86,13 +97,12 @@ const userInPaudium = ref(usrDisplayed);
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <div v-for="usr in currentState" :class="`place${usr.userRank}`">
-                <CubeRank v-if="userIsClassed(usr.points)" :userAvatar=theUsr.userAvatar :username=theUsr.userName :points=theUsr.points :rank=usr.userRank />
-                <CubeRank v-else :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
+            <div v-for="(usr, index) in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="index != 3" :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
             </div>
         </div>
         <Switcher @click="switchScope()" class="switcher"/>
-        <table  v-if="userInPaudium" class ="userPosition" cellspacing="0" cellpadding="0">
+        <table class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>
                 <th>username</th>
@@ -164,12 +174,19 @@ const userInPaudium = ref(usrDisplayed);
 
 .switcher {
     position:absolute;
-    top:65%;
+    top: 0;
+    left: 0;
 }
 
 @media (width < 970px) {
     .rankWrapper {
         min-height: 500px;
+    }
+}
+@media (width < 600px) {
+    .cube {
+        width: 120px;
+        // height: 150px;
     }
 }
 </style>
@@ -187,40 +204,59 @@ const props = defineProps<{
   user: User
 }>();
 
-let currentState = ref(props.user.localRank);
-let isLocal = ref(true);
+const user1 = {
+    userAvatar: user.avatar,
+    userName: user.username,
+    points: user.points,
+    userRank: user.rank,
+}
+const theUsr2 = Object.assign({}, user1);
+
+const isLocal = ref(true);
+const currentState = ref();
+
+const findIndex = (scope: {userAvatar: string, userName: string, points: number, userRank: number}[], theUsr: {userAvatar: string, userName: string, points: number, userRank: number}) => {
+    let index = 0;
+    for (let i = 0; i < scope.length; i++)
+    {
+        if (theUsr.points > scope[i].points)
+        {
+            theUsr.userRank = i;
+            for (let j = i; j < 3; j++)
+                scope[j].userRank++;
+            return i;
+        }
+    }
+    return 3;
+};
+
+
 
 const switchScope= () => {
-    if (isLocal.value) {
-        currentState.value = props.user.globalRank;
-    }
+    if (isLocal.value)
+        currentState.value = global;
     else
-        currentState.value = props.user.localRank
+        currentState.value = local
     isLocal.value = !isLocal.value
 }
-const userIsClassed = (points: number) => {
-    if (!usrDisplayed && theUsr.points > points)
-    {
-        usrDisplayed = true;
-        return true;
-    }
-    return false;
-}
-const userInPaudium = ref(usrDisplayed);
-// ------------------------------------------------------------
+
+onMounted(() => {
+    local.splice(findIndex(local, theUsr1), 0, theUsr1);
+    global.splice(findIndex(global, theUsr2), 0, theUsr2);
+    currentState.value = local;
+});
 
 </script>
 
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <div v-for="usr in currentState" :class="`place${usr.userRank}`">
-                <CubeRank v-if="userIsClassed(usr.points)" :userAvatar=user.avatar :username=user.username :points=user.points :rank=usr.rank />
-                <CubeRank v-else :userAvatar=usr.avatar :username=usr.usenabe :points=usr.points :rank=usr.rank />
+            <div v-for="(usr, index) in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="index != 3" :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
             </div>
         </div>
         <Switcher @click="switchScope()" class="switcher"/>
-        <table  v-if="userInPaudium" class ="userPosition" cellspacing="0" cellpadding="0">
+        <table class ="userPosition" cellspacing="0" cellpadding="0">
         <table class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>
