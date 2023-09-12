@@ -151,7 +151,8 @@ const unblockUser = async () => {
   }
 
   .btn:hover {
-    color: rgb(var(--v-theme-colorTwo));
+    color: rgb(var(--v-theme-colorOne));
+    font-weight: bolder;
     background-color: rgb(var(--v-theme-colorTwo));
     border: 2px solid rgb(var(--v-theme-colorTwo));
   }
@@ -193,6 +194,37 @@ const unblockUser = async () => {
       width: 100px;
       font-size: 0.6rem;
       transition: width 0.5s;
+    }
+  }
+}
+@media (width < 480px) {
+  .interactWrapper {
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: .2rem;
+    padding-bottom: 0.1rem;
+    .request {
+      grid-row: 7;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .message {
+      grid-row: 8;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .gameInvite {
+      grid-row: 9;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .block {
+      grid-row: 10;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .btn{
+      height: 20px;
     }
   }
 }
