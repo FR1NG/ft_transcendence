@@ -147,7 +147,7 @@ export const useChatStore = defineStore('chat', {
         this.users.splice(index, 1);
         this.users.unshift(newobj)
       }
-    }
+    },
   },// end of actions
 
 })// end of define store
