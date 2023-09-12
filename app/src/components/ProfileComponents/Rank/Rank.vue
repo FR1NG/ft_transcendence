@@ -6,49 +6,79 @@ import Switcher from '../../Switcher.vue'
 import CustomCard from '@/components/CustomCard.vue'
 import { User } from '@/types/user';
 
-const local = {
-    userAvatar1: "/images/avatars/eagle.jpg",
-    userName1: "user1",
-    userPoints1: "1000",
-    userRank1: "1",
+const local = [
+    {
+        userAvatar: "/images/avatars/monkey.jpg",
+        userName: "user1",
+        points: 3000,
+        userRank: 0,
+    },
+    {
+        userAvatar: "/images/avatars/tigress.jpg",
+        userName: "user2",
+        points: 1000,
+        userRank: 1,
+    },
+    {
+        userAvatar: "/images/avatars/po.jpg",
+        userName: "user3",
+        points: 600,
+        userRank: 2,
+    },
+];
 
-    userAvatar2: "/images/avatars/lion.jpg",
-    userName2: "user2",
-    userPoints2: "3000",
-    userRank2: "0",
-
-    userAvatar3: "/images/avatars/shark.jpg",
-    userName3: "user3",
-    userPoints3: "600",
-    userRank3: "2",
-}
+let usrDisplayed = false;
 
 let currentState = ref(local);
 let isLocal = ref(true);
 
+const theUsr = {
+    userAvatar: "/images/avatars/shifu.jpg",
+    userName: "theuser",
+    points: 2500,
+    userRank: 0,
+    
+}
+
 const switchScope= () => {
+    usrDisplayed = false;
     if (isLocal.value) {
-        currentState.value = {
-            userAvatar1: "/images/avatars/eagle.jpg",
-            userName1: "user",
-            userPoints1: "1",
-            userRank1: "1",
-        
-            userAvatar2: "/images/avatars/eagle.jpg",
-            userName2: "user",
-            userPoints2: "1",
-            userRank2: "0",
-        
-            userAvatar3: "/images/avatars/eagle.jpg",
-            userName3: "user",
-            userPoints3: "1",
-            userRank3: "2",
-        }
+        currentState.value = [
+            {
+                userAvatar: "/images/avatars/po.jpg",
+                userName: "user1",
+                points: 1,
+                userRank: 0,
+            },
+            {
+                userAvatar: "/images/avatars/mantis.jpg",
+                userName: "user2",
+                points: 1,
+                userRank: 1,
+            },    
+            {
+                userAvatar: "/images/avatars/tigress.jpg",
+                userName: "user3",
+                points: 1,
+                userRank: 2,
+            },
+        ]
     }
     else
-        currentState.value = local
-    isLocal.value = !isLocal.value
+    currentState.value = local
+isLocal.value = !isLocal.value
 }
+
+const userIsClassed = (points: number) => {
+    if (!usrDisplayed && theUsr.points > points)
+    {
+        usrDisplayed = true;
+        return true;
+    }
+    return false;
+}
+const userInPaudium = ref(usrDisplayed);
+
 // ------------------------------------------------------------
 
 </script>
@@ -56,12 +86,13 @@ const switchScope= () => {
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <CubeRank :userAvatar=currentState.userAvatar1 :username=currentState.userName1 :points=currentState.userPoints1 :rank=currentState.userRank1 class="place2"/>
-            <CubeRank :userAvatar=currentState.userAvatar2 :username=currentState.userName2 :points=currentState.userPoints2 :rank=currentState.userRank2 class="place1"/>
-            <CubeRank :userAvatar=currentState.userAvatar3 :username=currentState.userName3 :points=currentState.userPoints3 :rank=currentState.userRank3 class="place3"/>
-            <Switcher @click="switchScope()" class="switcher"/>
+            <div v-for="usr in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="userIsClassed(usr.points)" :userAvatar=theUsr.userAvatar :username=theUsr.userName :points=theUsr.points :rank=usr.userRank />
+                <CubeRank v-else :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
+            </div>
         </div>
-        <table class ="userPosition" cellspacing="0" cellpadding="0">
+        <Switcher @click="switchScope()" class="switcher"/>
+        <table  v-if="userInPaudium" class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>
                 <th>username</th>
@@ -82,19 +113,27 @@ const switchScope= () => {
 
 .rankWrapper {
     position: relative;
-    max-height: 600px;
-    min-height: 400px;
     padding-top: 6rem;
-}
-.topThree {
     display: flex;
     justify-content: center;
-
+    align-items: center;
+}
+.topThree {
+    display: grid;
+    grid-template-areas: "place1 place0 place2";
+    gap: 0;
+    .place0{
+        margin-top:-80px;
+        grid-area: place0;
+    }
+    .place1{
+        grid-area: place1;
+    }
+    .place2{
+        grid-area: place2;
+    }
 }
 
-.place1{
-    margin-top:-80px;
-}
 
 .userPosition {
     position: absolute;
@@ -136,7 +175,8 @@ const switchScope= () => {
 </style>
 
 
-<!-- <script setup lang="ts">
+<!-- <script setup lang=
+let currentState = ref(local);"ts">
 import { ref } from 'vue'
 import CubeRank from './cubeRank.vue'
 import Switcher from '../../Switcher.vue'
@@ -158,6 +198,15 @@ const switchScope= () => {
         currentState.value = props.user.localRank
     isLocal.value = !isLocal.value
 }
+const userIsClassed = (points: number) => {
+    if (!usrDisplayed && theUsr.points > points)
+    {
+        usrDisplayed = true;
+        return true;
+    }
+    return false;
+}
+const userInPaudium = ref(usrDisplayed);
 // ------------------------------------------------------------
 
 </script>
@@ -165,11 +214,13 @@ const switchScope= () => {
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <CubeRank :avatar=currentState[0].avatar :username=currentState[0].username :points=currentState[0].points :rank=currentState[0].rank class="place1"/>
-            <CubeRank :avatar=currentState[1].avatar :username=currentState[1].username :points=currentState[1].points :rank=currentState[1].rank class="place2"/>
-            <CubeRank :avatar=currentState[2].avatar :username=currentState[2].username :points=currentState[2].points :rank=currentState[2].rank class="place3"/>
-            <Switcher @click="switchScope()" class="switcher"/>
+            <div v-for="usr in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="userIsClassed(usr.points)" :userAvatar=user.avatar :username=user.username :points=user.points :rank=usr.rank />
+                <CubeRank v-else :userAvatar=usr.avatar :username=usr.usenabe :points=usr.points :rank=usr.rank />
+            </div>
         </div>
+        <Switcher @click="switchScope()" class="switcher"/>
+        <table  v-if="userInPaudium" class ="userPosition" cellspacing="0" cellpadding="0">
         <table class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>
