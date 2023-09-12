@@ -67,10 +67,11 @@ const totalLosses = 20;
   display: flex;
 }
 .usrAvatar {
-  margin: 2px;
-  width: 200px;
-  height: 98%;
+  margin: 10px;
+  // width: 200px;
+  height: 150px;
   border-radius: 20px;
+  border: 1px solid;
 }
 
 .friendsCount {

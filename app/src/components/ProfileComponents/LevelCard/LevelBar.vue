@@ -61,6 +61,7 @@ $levl: v-bind(userLevel) + '%';
   align-items: center;
   .innerBar {
     height: 15px;
+    width: 0;
     background: linear-gradient(to right, rgb(var(--v-theme-colorThree)), rgb(var(--v-theme-colorTwo)));
     border-radius: 50px;
     margin: 2px 0;

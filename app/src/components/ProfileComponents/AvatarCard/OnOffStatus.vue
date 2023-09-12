@@ -28,7 +28,7 @@ const fontCouleur = ref(props.isOnline? "rgb(32, 241, 32)" : "rgb(249, 7, 7)")
     width: 80px;
     height: 20px;
     top: 82%;
-    left: 4rem;
+    left: 55px;
     display: flex;
     align-items: center;
     color: v-bind(fontCouleur);
