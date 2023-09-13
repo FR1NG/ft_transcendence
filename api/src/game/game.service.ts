@@ -20,7 +20,7 @@ export class GameService {
   private initializePlayers(): Player[] {
     return [
       {
-        id: 'Player1',
+        id: 'Host',
         paddleYRatio: 0.5,
         paddleWidthRatio: 0.020,
         paddleHeightRatio: 0.25,
@@ -28,7 +28,7 @@ export class GameService {
         xRatio: 0
       },
       {
-        id: 'Player2',
+        id: 'Guest',
         paddleYRatio: 0.5,
         paddleWidthRatio: 0.020,
         paddleHeightRatio: 0.25,
@@ -45,8 +45,8 @@ export class GameService {
           xRatio: 0.5,
           yRatio: 0.5,
           radiusRatio: 0.020,
-          velocityXRatio: 0.005,
-          velocityYRatio: 0.005,
+          velocityXRatio: 0.009,
+          velocityYRatio: 0,
         },
         gameStarted: false,
         gameOver: false,
@@ -82,6 +82,7 @@ export class GameService {
 
     if (ball.yRatio - ball.radiusRatio < 0 || ball.yRatio + ball.radiusRatio > 1) {
       ball.velocityYRatio = -ball.velocityYRatio;
+      this.normalizeVelocity(ball);
     }
     if (ball.xRatio - ball.radiusRatio > 1) {
       players[0].score++;
@@ -95,10 +96,22 @@ export class GameService {
     }
     if (this.checkCollision(ball, players[0])) {
       ball.velocityXRatio = Math.abs(ball.velocityXRatio);
+      ball.velocityYRatio += (Math.random() - 0.5) * 0.02; // Slight variation up or down
+      this.normalizeVelocity(ball);
     }
     if (this.checkCollision(ball, players[1])) {
-      ball.velocityXRatio = -Math.abs(ball.velocityXRatio);
-    }
+        ball.velocityXRatio = -Math.abs(ball.velocityXRatio);
+        ball.velocityYRatio += (Math.random() - 0.5) * 0.02; // Slight variation up or down
+        this.normalizeVelocity(ball);
+    }  
+  }
+
+  public normalizeVelocity(ball: Ball): void {
+    const magnitude = Math.sqrt(Math.pow(ball.velocityXRatio, 2) + Math.pow(ball.velocityYRatio, 2));
+    const desiredMagnitude = 0.009; // Assuming 0.05 is the speed you want
+
+    ball.velocityXRatio = (ball.velocityXRatio / magnitude) * desiredMagnitude;
+    ball.velocityYRatio = (ball.velocityYRatio / magnitude) * desiredMagnitude;
   }
 
   private checkForWinner(gameId: string, players: Player[]): void {
@@ -119,7 +132,7 @@ export class GameService {
       gameState.canvasWidth = width;
       gameState.canvasHeight = height;
       
-      const rightPlayer = gameState.players.find(p => p.id === 'Player2');
+      const rightPlayer = gameState.players.find(p => p.id === 'Guest');
       if (rightPlayer) {
         rightPlayer.xRatio = 1 - rightPlayer.paddleWidthRatio; // now ratio-based
       }
@@ -156,8 +169,8 @@ export class GameService {
     const ball = gameState.ball;
     ball.xRatio = 0.5;
     ball.yRatio = 0.5;
-    ball.velocityXRatio = (Math.random() > 0.5) ? 0.0033 : -0.0033;
-    ball.velocityYRatio = (Math.random() > 0.5) ? 0.0040 : -0.0040;
+    ball.velocityXRatio = (Math.random() < 0.05 ? -1 : 1) * 0.009;
+    ball.velocityYRatio = 0;
   }
 
   getCurrentState(gameId: string): GameState {
