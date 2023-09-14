@@ -5,7 +5,7 @@
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
     <div v-if="gameOver">
       <h1>{{ winner }} is the winner!</h1>
-      <button @click="restartGame">Restart Game</button>
+      <button @click="restartGame" id="startButton">Restart Game</button>
     </div>
   </div>
 </template>
