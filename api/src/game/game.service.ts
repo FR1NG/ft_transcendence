@@ -242,8 +242,10 @@ addPlayer(gameId: string, clientId: string): void {
   //Player Queue
 
   //add a player to the queue:
-  joinQueue(playerId: any): void { //take off the string 
-    this.playerQueue.push(playerId);
+  joinQueue(playerId: any): void { 
+    if (!this.isPlayerInQueue(playerId)) {
+       this.playerQueue.push(playerId);
+    }
   }
 
   // check the number of players in the queue:
@@ -290,5 +292,4 @@ addPlayer(gameId: string, clientId: string): void {
     }
     return null; // No winner determined.
   }
-  
 }

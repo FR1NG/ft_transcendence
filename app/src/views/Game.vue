@@ -19,43 +19,36 @@ import { GameState } from '@/types/game';
 export default {
   name: 'PongGame',
   setup() {
-    const socket = io('http://localhost:4443', {
-      // transports: ['websocket'],
-      // upgrade: false,
-      // reconnection: true,
-      // reconnectionAttempts: 5,
-      // reconnectionDelay: 1000,
-
-    });
+    const socket = io('http://localhost:4443', {});
 
     const ASPECT_RATIO = 16 / 9;
     const canvasWidth = ref(window.innerWidth);
     const canvasHeight = ref(window.innerWidth / ASPECT_RATIO);
     const gameCanvas = ref(null);
     const playerId = ref(null);
-    const scaleFactor = ref(1); // Initialize scale factor
+    const scaleFactor = ref(1);
     const lastFrameTime = ref(Date.now());
     const showStartButton = ref(false);
     const showGameElements = ref(false);
-    const gameOver = ref(false);  // Flag to check if the game is over
-    const winner = ref(null);     // To hold the winner's ID
+    const gameOver = ref(false);
+    const winner = ref<null | "player1" | "player2">(null);
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
-    
-  const restartGame = () => {
-    socket.emit('restartGame');
-  };
-
-  socket.on('restartGame', () => {
-    console.log('Received gameReset event.');
-    showGameElements.value = true;
-    gameOver.value = false;
-    winner.value = null;
-    // You may also want to reset other game state variables here if needed
-  });
+  
+    const restartGame = () => {
+      socket.emit('joinQueueAgain');
+      cleanupGameListeners();
+      gameOver.value = false;
+      winner.value = null;
+      waitingForOpponent.value = true;
+      showGameElements.value = false;
+      playerId.value = null;
+      gameId.value = null;
+      initializeGameListeners();
+    };
 
     socket.on('matchFound', (data: any) => {
-      console.log('Match found. Waiting for both players to start the game.');
+      console.log('Received matchFound event with data:', data);
       waitingForOpponent.value = false;
       showStartButton.value = true;
       playerId.value = data.role;
@@ -76,9 +69,13 @@ export default {
       alert(`${winnerId} is the winner!`);
     });
 
+    socket.on('hideStartButton', () => {
+      showStartButton.value = false;
+    });
+
     socket.on('waitingForOtherPlayer', () => {
       waitingForOpponent.value = true;
-      showStartButton.value = false;  // Hide the start button while waiting
+      showStartButton.value = false;
     });
 
     // Define the startGame function to emit the startGame event to the server
@@ -116,7 +113,7 @@ export default {
     };
     
     const gameLoop = () => {
-      if (gameOver.value) return;  // This will prevent the loop from continuing if the game is over
+      if (gameOver.value) return;
       const currentTime = Date.now();
       const deltaTime = currentTime - lastFrameTime.value;
       if (deltaTime >= (1000 / 60)) {
@@ -143,7 +140,7 @@ export default {
     const drawBall = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, radiusRatio: number) => {
       const x = xRatio * canvasWidth.value;
       const y = yRatio * canvasHeight.value;
-      const radius = radiusRatio * canvasWidth.value;  // Assuming width and height maintain an aspect ratio
+      const radius = radiusRatio * canvasWidth.value;
       ctx.fillStyle = '#0C134F';
       ctx.shadowColor = '#ff91f2';
       ctx.shadowBlur = 20;
@@ -151,7 +148,6 @@ export default {
       ctx.arc(x, y, radius, 0, Math.PI * 2, false);
       ctx.closePath();
       ctx.fill();
-      // Reset shadow properties after drawing to avoid unintended side-effects on other elements
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
     };
@@ -165,7 +161,6 @@ export default {
       ctx.shadowColor = '#ff91f2';
       ctx.shadowBlur = 20;
       ctx.fillRect(x, y - (height / 2), width, height);
-      // Reset shadow properties after drawing to avoid unintended side-effects on other elements
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
     };
@@ -218,7 +213,6 @@ export default {
         gameState.ball.yRatio, 
         gameState.ball.radiusRatio
       );
-      // Assume the drawScore function remains the same for now
       drawScore(ctx, leftPlayer.score, rightPlayer.score, canvasWidth.value);
     };
 
@@ -228,33 +222,37 @@ export default {
     });
 
     // Debounce the resize handler for performance
-    let debounceTimeout;
+    let debounceTimeout:any;
     const debouncedResizeHandler = () => {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(resizeHandler, 100);
     };
 
     // Initialization: set up listeners and join the game
-    onMounted(() => {
+    const initializeGameListeners = () => {
       socket.on('state', renderGameState);
       socket.emit('joinGame');
       window.addEventListener('resize', debouncedResizeHandler);
       window.addEventListener('keydown', handleKeyDownEvent);
       window.addEventListener('keyup', handleKeyUpEvent);
-      // Start the game loop
       requestAnimationFrame(gameLoop);
-    });
+    }
 
-    // Cleanup: remove listeners when the component is destroyed
-    onUnmounted(() => {
+    // Method to cleanup game listeners
+    const cleanupGameListeners = () => {
       socket.off('showStartButton');
       socket.off('state', renderGameState);
       window.removeEventListener('resize', debouncedResizeHandler);
       window.removeEventListener('keydown', handleKeyDownEvent);
       window.removeEventListener('keyup', handleKeyUpEvent);
-    });
+    }
 
-    // Log when successfully connected to the server
+    // Initialization: set up listeners and join the game
+    onMounted(initializeGameListeners);
+
+    // Cleanup: remove listeners when the component is destroyed
+    onUnmounted(cleanupGameListeners);
+
     socket.on('connect', () => {
       console.log('Connected to the server');
       socket.emit('joinGame');
@@ -262,12 +260,18 @@ export default {
 
     socket.on('disconnect', () => {
       console.log('disconnected from the server');
-      // Resetting game state
-      showStartButton.value = true;
-      showGameElements.value = false;
-      gameOver.value = false;
-      winner.value = null;
-      waitingForOpponent.value = false;
+      // Check if the game had actually started
+      if(showGameElements.value && !gameOver.value) {
+        gameOver.value = true;
+        winner.value = playerId.value === 'player1' ? 'player2' : 'player1';
+      } else {
+        // If game hadn't started, just reset state
+        showStartButton.value = true;
+        showGameElements.value = false;
+        gameOver.value = false;
+        winner.value = null;
+        waitingForOpponent.value = false;
+      }
     });
 
     return {
@@ -277,11 +281,11 @@ export default {
       gameCanvas,
       showStartButton,
       startGame,
-      restartGame,
       showGameElements,
       gameOver,
       winner,
-      waitingForOpponent
+      waitingForOpponent,
+      restartGame,
     };
   }
 }
