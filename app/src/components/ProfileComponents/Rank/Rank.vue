@@ -127,6 +127,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    min-height: 400px;
 }
 .topThree {
     display: grid;
@@ -185,8 +186,7 @@ onMounted(() => {
 }
 @media (width < 600px) {
     .cube {
-        width: 120px;
-        // height: 150px;
+        width: 100px;
     }
 }
 </style>

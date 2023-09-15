@@ -65,6 +65,7 @@ const totalLosses = 20;
 .statusWrapper {
   position: relative;
   display: flex;
+  overflow: hidden;
 }
 .usrAvatar {
   margin: 10px;
@@ -78,8 +79,17 @@ const totalLosses = 20;
   margin-top: 0.5rem;
   
   .username {
-    margin-top: -0.3rem;
     font-size: 1.5em;
+  }
+}
+@media (width < 480px) {
+  .statusWrapper {
+    .username {
+      font-size: 0.8rem;
+    }
+    .ms-2 {
+      height: 100px;
+    }
   }
 }
 </style>

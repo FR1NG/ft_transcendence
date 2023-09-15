@@ -48,6 +48,7 @@ const leagues = [
 .levelWrapper {
     position: relative;
     padding-top: 1rem;
+    overflow: hidden;
 }
 
 .leag {
@@ -61,7 +62,6 @@ const leagues = [
       height: 100px;
     }
 }
-
 </style>
 
 
