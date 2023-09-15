@@ -50,6 +50,7 @@ if (username) {
 .statusWrapper {
   position: relative;
   display: flex;
+  overflow: hidden;
 }
 .usrAvatar {
   margin: 10px;
@@ -63,8 +64,17 @@ if (username) {
   margin-top: 0.5rem;
 
   .username {
-    margin-top: -0.3rem;
     font-size: 1.5em;
+  }
+}
+@media (width < 480px) {
+  .statusWrapper {
+    .username {
+      font-size: 0.8rem;
+    }
+    .ms-2 {
+      height: 100px;
+    }
   }
 }
 </style>

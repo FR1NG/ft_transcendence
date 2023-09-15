@@ -78,8 +78,6 @@ const interv = setInterval(() => {
 
 .winRate {
     position: relative;
-    // display: flex;
-    // flex-direction: column;
     padding: 10px;
     .outer {
      height: 80px;
@@ -117,11 +115,17 @@ const interv = setInterval(() => {
         stroke-dashoffset: 220;
         animation: levelAnim 1s linear forwards;
     }
-
     @keyframes levelAnim {
         100% {
             stroke-dashoffset: v-bind(winLevel2);
             animation-timing-function: ease-in-out;
+        }
+    }
+}
+@media (width < 480px) {
+    .winWrapper {
+        .totals {
+            font-size: 0.5rem;
         }
     }
 }
