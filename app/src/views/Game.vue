@@ -31,7 +31,7 @@ export default {
     const showStartButton = ref(false);
     const showGameElements = ref(false);
     const gameOver = ref(false);
-    const winner = ref<null | "player1" | "player2">(null);
+    const winner = ref<null | "Host" | "Guest">(null);
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
   
@@ -136,6 +136,20 @@ export default {
       });
     };
 
+    // Draws a dotted line in the middle of the canvas
+    const drawCenterLine = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+      const segmentLength = 10; // Adjust this to the length you want for each segment of the dotted line
+      const gapLength = 10; // Adjust this to the length you want for the gap between segments
+      ctx.strokeStyle = '#5C469C';
+      ctx.lineWidth = 2; // Adjust the line width as needed
+      ctx.beginPath();
+      for(let y = 0; y < canvasHeight; y += segmentLength + gapLength) {
+        ctx.moveTo(canvasWidth / 2, y);
+        ctx.lineTo(canvasWidth / 2, y + segmentLength);
+      }
+      ctx.stroke();
+    };
+
     // Draw a ball on the canvas
     const drawBall = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, radiusRatio: number) => {
       const x = xRatio * canvasWidth.value;
@@ -193,6 +207,7 @@ export default {
       const leftPlayer = gameState.players[0];
       const rightPlayer = gameState.players[1];
 
+      drawCenterLine(ctx, canvasWidth.value, canvasHeight.value);
       drawPaddle(
         ctx, 
         leftPlayer.xRatio, 
@@ -247,7 +262,6 @@ export default {
       window.removeEventListener('keyup', handleKeyUpEvent);
     }
 
-    // Initialization: set up listeners and join the game
     onMounted(initializeGameListeners);
 
     // Cleanup: remove listeners when the component is destroyed
@@ -263,7 +277,7 @@ export default {
       // Check if the game had actually started
       if(showGameElements.value && !gameOver.value) {
         gameOver.value = true;
-        winner.value = playerId.value === 'player1' ? 'player2' : 'player1';
+        winner.value = playerId.value === 'Host' ? 'Guest' : 'Host';
       } else {
         // If game hadn't started, just reset state
         showStartButton.value = true;

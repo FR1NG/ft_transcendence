@@ -9,12 +9,11 @@ import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { Logger } from '@nestjs/common';
 
-@WebSocketGateway({pingTimeout: 10000, pingInterval: 2500})
+@WebSocketGateway()
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer() server: Server;
 
-  constructor(private readonly gameService: GameService) {};
-
+  constructor(private readonly gameService: GameService,) {};
   private clients: { [clientId: string]: { gameId: string, role: 'Host' | 'Guest' } } = {};
   private gameLoopIntervalIds: { [gameId: string]: NodeJS.Timeout } = {};
   private readyPlayers: { [gameId: string]: ('Host' | 'Guest')[] } = {};
@@ -31,29 +30,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     } else {
       client.emit('waitingForMatch');
     }
-  }
-
-  @SubscribeMessage('joinQueueAgain')
-  handleRestartRequest(client: Socket) {
-    const clientId = client.id;
-    // If the client was in a game, we should terminate that game (optional).
-    const clientData = this.clients[clientId];
-    if (clientData) {
-      const { gameId } = clientData;
-      const currentState = this.gameService.getCurrentState(gameId);
-      if (currentState) {
-        currentState.gameOver = true; // End the current game.
-        this.gameService.resetGameState(gameId);
-        this.broadcastGameState(gameId);
-      }
-    }
-    // Add player back into the queue for matchmaking.
-    this.handlePlayerConnection(client);
-  }
-
-  @SubscribeMessage('disconnect')
-  handleDisconnectEvent(client: Socket) {
-    this.handleDisconnect(client);
   }
   
   handlePlayerConnection(client: Socket): void {
@@ -93,6 +69,28 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     return null;
   }
 
+  @SubscribeMessage('joinQueueAgain')
+  handleRestartRequest(client: Socket) {
+    const clientId = client.id;
+    const clientData = this.clients[clientId];
+    if (clientData) {
+      const { gameId } = clientData;
+      const currentState = this.gameService.getCurrentState(gameId);
+      if (currentState) {
+        currentState.gameOver = true;
+        this.gameService.resetGameState(gameId);
+        this.broadcastGameState(gameId);
+      }
+    }
+    // Add player back into the queue for matchmaking.
+    this.handlePlayerConnection(client);
+  }
+
+  @SubscribeMessage('disconnect')
+  handleDisconnectEvent(client: Socket) {
+    this.handleDisconnect(client);
+  }
+
   startGameLoop(gameId: string) {
     const currentState = this.gameService.getCurrentState(gameId);
     if (!currentState.gameStarted || this.gameLoopIntervalIds[gameId]) return;
@@ -116,23 +114,23 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     console.log(`Client disconnected: ${client.id}`);
     // If client was not matched or just connected and then disconnected
     if (!this.clients[clientId]) {
-        console.log(`Client with ID ${clientId} was not found in the clients list. Possibly disconnected before a match.`);
-        this.gameService.removeFromQueue(clientId);  // remove from queue
-        return;
+      console.log(`Client with ID ${clientId} was not found in the clients list. Possibly disconnected before a match.`);
+      this.gameService.removeFromQueue(clientId);
+      return;
     }
     const { gameId, role } = this.clients[clientId];
     // Remove player from readyPlayers list (if they're in there)
     if (this.readyPlayers[gameId]) {
-        const index = this.readyPlayers[gameId].indexOf(role);
-        if (index > -1) {
-            this.readyPlayers[gameId].splice(index, 1);
-        }
+      const index = this.readyPlayers[gameId].indexOf(role);
+      if (index > -1) {
+          this.readyPlayers[gameId].splice(index, 1);
+      }
     }
     // If the client was unmatched
     if (typeof role === 'undefined') {
-        console.log(`Unmatched client with ID ${clientId} disconnected.`);
-        this.gameService.removeFromQueue(clientId);  // remove from queue
-        return;
+      console.log(`Unmatched client with ID ${clientId} disconnected.`);
+      this.gameService.removeFromQueue(clientId);
+      return;
     }
     // If the client was in an active game
     let winnerRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
@@ -144,7 +142,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     delete this.clients[clientId];
     this.broadcastGameState(gameId);
   }
-
 
   @SubscribeMessage('startGame')
   handleGameStart(client: Socket): void {
@@ -173,9 +170,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     if (!['Host', 'Guest'].includes(payload.player)) client.emit('error', 'Invalid player.');
     else if (![1, 2].includes(payload.direction)) client.emit('error', 'Invalid move direction.');
     else {
-        this.gameService.movePlayer(payload.player, payload.direction, gameId);
-        client.emit('moveReceived', `Move received for ${payload.player} with direction ${payload.direction}`);
-        this.broadcastGameState(gameId);
+      this.gameService.movePlayer(payload.player, payload.direction, gameId);
+      client.emit('moveReceived', `Move received for ${payload.player} with direction ${payload.direction}`);
+      this.broadcastGameState(gameId);
     }
   }  
 
@@ -205,6 +202,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   @SubscribeMessage('error')
   handleError(client: Socket, error: any) {
-      console.error("Server-side error:", error);
+    console.error("Server-side error:", error);
   }
 }
