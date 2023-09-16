@@ -1,5 +1,5 @@
 #!/bin/bash
 
-npx prisma migrate prod --name deploy
+npx prisma generate && npx npx prisma db push 
 
 exec $@

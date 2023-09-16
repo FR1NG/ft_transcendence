@@ -4,9 +4,6 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
 import { useSnackBarStore } from '@/store/snackbar'
-// for test
-import axios from '@/plugins/axios'
-import { getMaxListeners } from 'process'
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -20,11 +17,8 @@ const username = route.params.username;
 if (username) {
   userStore.getUser(username as string)
 }
-//--------for testing ------ to be deleted later------
-const userEmail:String = "username@gmail.com"
-//--------------------------------------------------
-// notification store
 
+// notification store
 const snackBarStore = useSnackBarStore();
 // sending frien request function
 const sendFrienRequest = async (userId: string) => {
@@ -93,8 +87,8 @@ const unblockUser = async () => {
 
 <template>
   <div class="interactWrapper">
-    <div class="message">
-      <v-btn   class="btn text-none" variant="outlined" rounded="lg" prepend-icon="mdi-message-text-outline">
+    <div class="message" v-if="user.id">
+      <v-btn :to="{name: 'Dm', params: { id: user.id }}"  class="btn text-none" variant="outlined" rounded="lg" prepend-icon="mdi-message-text-outline">
         message
       </v-btn>
     </div>
@@ -143,7 +137,7 @@ const unblockUser = async () => {
   display: grid;
   justify-items: end;
   gap: 0.9rem;
-  
+
   .btn {
     border: 2px solid rgb(var(--v-theme-colorTwo));
     color: rgb(var(--v-theme-colorTwo));

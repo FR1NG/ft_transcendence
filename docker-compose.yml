@@ -4,26 +4,34 @@ services:
     container_name: api
     build:
       context: ./api
+      target: ${MODE}
     networks:
       - ft_network
     volumes:
       - ./api/:/api/
+      - /api/node_modules/
     ports:
       - "5555:5555"
     env_file: .env
+    depends_on:
+      - db
+    init: true
   application:
     container_name: app
     build:
       context: ./app/
+      target: ${MODE}
     networks:
       - ft_network
     volumes:
       - ./app/:/app/
+      - /app/node_modules/
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - VITE_INTRA_LOGIN_URL=${VITE_INTRA_LOGIN_URL}
     ports: 
       - "3000:3000"
+    init: true
   db:
     image: postgres:15.3
     container_name: db

@@ -1,13 +1,20 @@
-import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, Body } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { InvitationService } from './invitation.service';
 import { User } from 'src/common/decorators';
 import { AuthenticatedUser } from 'src/types';
+import { CreateInvitationDto } from './dto/invitation.dto';
 
 @Controller('invitation')
 export class InvitationController {
 
   constructor(private invitationService: InvitationService) {}
+
+  @Post()
+  @UseGuards(AuthGuard)
+  async createInvitation(@User() user: AuthenticatedUser, @Body() data: CreateInvitationDto) {
+    return await this.invitationService.createInvitation(user, data) ;
+  }
 
   @Get(':id')
   @UseGuards(AuthGuard)
