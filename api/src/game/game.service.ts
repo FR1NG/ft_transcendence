@@ -204,7 +204,7 @@ export class GameService {
     this.gameStates[gameId].ball.velocityXRatio = 0;
     this.gameStates[gameId].ball.velocityYRatio = 0;
     this.gameStates[gameId].players.forEach(player => {
-      player.paddleYRatio = 0.5;e
+      player.paddleYRatio = 0.5;
     });
   }
 
