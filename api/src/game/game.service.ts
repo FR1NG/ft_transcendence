@@ -41,7 +41,7 @@ export class GameService {
       ball: {
         xRatio: 0.5,
         yRatio: 0.5,
-        radiusRatio: 0.020,
+        radiusRatio: 0.030,
         velocityXRatio: 0.009,
         velocityYRatio: 0,
       },

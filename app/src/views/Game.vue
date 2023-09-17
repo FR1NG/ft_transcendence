@@ -1,14 +1,21 @@
 <template>
   <div class="container">
-    <div v-if="waitingForOpponent">Waiting for another player...</div>
-    <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
-    <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
-    <div v-if="gameOver">
+    <div class="theme-selector" v-if="!themeSelected">
+      <h2>Select a Theme:</h2>
+      <button @click="setTheme('classic')" class="mode-button">Classic</button>
+      <button @click="setTheme('galaxy')" class="mode-button">Galaxy</button>
+      <button @click="setTheme('PacMan')" class="mode-button">PacMan</button>
+    </div>
+    <div v-if="themeSelected && waitingForOpponent">Waiting for another player...</div>
+    <button v-if="themeSelected && showStartButton" id="startButton" @click="startGame">Start</button>
+    <canvas v-if="themeSelected && showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
+    <div v-if="themeSelected && gameOver">
       <h1>{{ winner }} is the winner!</h1>
       <button @click="restartGame" id="startButton">Restart Game</button>
     </div>
   </div>
 </template>
+
 
 <script lang="ts">
 
@@ -20,7 +27,6 @@ export default {
   name: 'PongGame',
   setup() {
     const socket = io('http://localhost:4443', {});
-
     const ASPECT_RATIO = 16 / 9;
     const canvasWidth = ref(window.innerWidth);
     const canvasHeight = ref(window.innerWidth / ASPECT_RATIO);
@@ -34,7 +40,40 @@ export default {
     const winner = ref<null | "Host" | "Guest">(null);
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
-  
+    const themeSelected = ref(false);
+    type ThemeName = 'classic' | 'galaxy' | 'PacMan';
+    const themes = {
+      classic: {
+        backgroundColor: '#FFFFFF',
+        paddleColor: '#FFFFFF',
+        ballColor: '#0C134F',
+        lineColor: '#FFFFFF',
+        scoreColor: '#FFFFFF',
+        backgroundImage: '/../public/images/plain-black-background.jpg',
+        ballImage: "../../public/images/pngegg.png",
+      },
+      galaxy: {
+        backgroundColor: '#1E1E1E',
+        paddleColor: '#000000',
+        ballColor: '#E94560',
+        lineColor: '#FFFFFF',
+        scoreColor: '#FFFFFF',
+        ballImage: "../../public/images/earth.png",
+        backgroundImage: '/../public/images/galaxy.jpg',
+      },
+      PacMan: {
+        backgroundColor: '#F5DEB3',
+        paddleColor: '#172652',
+        ballColor: '#FF4500',
+        lineColor: '#FFFFFF',
+        scoreColor: '#FFFFFF',
+        backgroundImage: '/../public/images/PacMan.jpg',
+        ballImage: "../../public/images/Original_PacMan.png",
+      }
+    };
+    const currentTheme = ref(themes.classic);
+
+
     const restartGame = () => {
       socket.emit('joinQueueAgain');
       cleanupGameListeners();
@@ -136,57 +175,6 @@ export default {
       });
     };
 
-    // Draws a dotted line in the middle of the canvas
-    const drawCenterLine = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
-      const segmentLength = 10; // Adjust this to the length you want for each segment of the dotted line
-      const gapLength = 10; // Adjust this to the length you want for the gap between segments
-      ctx.strokeStyle = '#5C469C';
-      ctx.lineWidth = 2; // Adjust the line width as needed
-      ctx.beginPath();
-      for(let y = 0; y < canvasHeight; y += segmentLength + gapLength) {
-        ctx.moveTo(canvasWidth / 2, y);
-        ctx.lineTo(canvasWidth / 2, y + segmentLength);
-      }
-      ctx.stroke();
-    };
-
-    // Draw a ball on the canvas
-    const drawBall = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, radiusRatio: number) => {
-      const x = xRatio * canvasWidth.value;
-      const y = yRatio * canvasHeight.value;
-      const radius = radiusRatio * canvasWidth.value;
-      ctx.fillStyle = '#0C134F';
-      ctx.shadowColor = '#ff91f2';
-      ctx.shadowBlur = 20;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2, false);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-    };
-
-    const drawPaddle = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, widthRatio: number, heightRatio: number) => {
-      const x = xRatio * canvasWidth.value;
-      const y = yRatio * canvasHeight.value;
-      const width = widthRatio * canvasWidth.value;
-      const height = heightRatio * canvasHeight.value;
-      ctx.fillStyle = '#0C134F';
-      ctx.shadowColor = '#ff91f2';
-      ctx.shadowBlur = 20;
-      ctx.fillRect(x, y - (height / 2), width, height);
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-    };
-
-    // Display the score on the canvas
-    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number) => {
-      ctx.font = '40px Arial';
-      ctx.fillStyle = '#5C469C';
-      ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
-      ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
-    };
-
     // Validate the structure and values of the game state
     const isValidGameState = (gameState: GameState) => {
       return gameState &&
@@ -199,11 +187,99 @@ export default {
             !isNaN(gameState.players[1].paddleYRatio);
     };
 
+    // Draws a dotted line in the middle of the canvas
+    const drawCenterLine = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+      const segmentLength = 10;
+      const gapLength = 10;
+      ctx.strokeStyle = currentTheme.value.lineColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(let y = 0; y < canvasHeight; y += segmentLength + gapLength) {
+        ctx.moveTo(canvasWidth / 2, y);
+        ctx.lineTo(canvasWidth / 2, y + segmentLength);
+      }
+      ctx.stroke();
+    };
+
+    const drawBall = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, radiusRatio: number) => {
+      const x = xRatio * canvasWidth.value;
+      const y = yRatio * canvasHeight.value;
+      const radius = radiusRatio * canvasWidth.value;  // Assuming width is your reference dimension
+
+      if (currentTheme.value.ballImage) {
+        if (!loadedImages[currentTheme.value.ballImage]) {
+          const img = new Image();
+          img.src = currentTheme.value.ballImage;
+          img.onload = () => {
+            loadedImages[currentTheme.value.ballImage] = img;
+            ctx.drawImage(img, x - radius, y - radius, 2 * radius, 2 * radius);
+          };
+        } else {
+          ctx.shadowColor = '#FFFFFF';
+          ctx.shadowBlur = 20;
+          ctx.drawImage(loadedImages[currentTheme.value.ballImage], x - radius, y - radius, 2 * radius, 2 * radius);
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+        }
+      } else {
+        ctx.shadowColor = '#FFFFFF';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = currentTheme.value.ballColor;
+        ctx.fill();
+        ctx.closePath();
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+      }
+    };
+
+    const drawPaddle = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, widthRatio: number, heightRatio: number) => {
+      const x = xRatio * canvasWidth.value;
+      const y = yRatio * canvasHeight.value;
+      const width = widthRatio * canvasWidth.value;
+      const height = heightRatio * canvasHeight.value;
+      ctx.fillStyle = currentTheme.value.paddleColor;
+      ctx.shadowColor = '#FFFFFF';
+      ctx.shadowBlur = 20;
+      ctx.fillRect(x, y - (height / 2), width, height);
+      ctx.shadowColor = 'transparent';
+      ctx.shadowBlur = 0;
+    };
+
+    // Display the score on the canvas
+    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number) => {
+      ctx.font = '35px Verdana'; 
+      ctx.fillStyle = currentTheme.value.scoreColor;
+      ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
+      ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
+    };
+
+    let loadedImages: { [key: string]: HTMLImageElement } = {};
     // Render the current game state onto the canvas
     const renderGameState = (gameState: GameState) => {
       if (!gameCanvas.value || !isValidGameState(gameState)) return;
       const ctx = gameCanvas.value.getContext('2d');
-      ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
+        // Check if the theme has a background image
+      if (currentTheme.value.backgroundImage) {
+        if (!loadedImages[currentTheme.value.backgroundImage]) {
+          const img = new Image();
+          img.src = currentTheme.value.backgroundImage;
+          img.onload = () => {
+            loadedImages[currentTheme.value.backgroundImage] = img;
+            console.log("Image loaded: " + img.src)
+            ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value);
+          };
+        } else {
+          ctx.drawImage(loadedImages[currentTheme.value.backgroundImage], 0, 0, canvasWidth.value, canvasHeight.value);
+        }
+      } else {
+        // If no background image, use background color
+        ctx.fillStyle = currentTheme.value.backgroundColor;
+        ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
+      }
+      // ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
+      // ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       const leftPlayer = gameState.players[0];
       const rightPlayer = gameState.players[1];
 
@@ -288,6 +364,11 @@ export default {
       }
     });
 
+    const setTheme = (themeName: ThemeName) => {
+      currentTheme.value = themes[themeName];
+      themeSelected.value = true;
+    };
+
     return {
       ...toRefs(keyStates),
       canvasWidth,
@@ -300,6 +381,8 @@ export default {
       winner,
       waitingForOpponent,
       restartGame,
+      setTheme,
+      themeSelected,
     };
   }
 }
@@ -312,8 +395,17 @@ export default {
   padding: 0;
   // margin-right: 20px;
   display: block;
-  background-color: #debdff;
+  // background-color: #debdff;
 }
+// .gameCanvas.retro {
+//   background-color: #123456;
+//   background-image: url("../../public/images/retro_background.jpg");
+// }
+
+// .gameCanvas.dark {
+//   background-color: #654321;
+//   // background-image: url("/path/to/dark-image.jpg");
+// }
 
 .container {
   display: flex;
@@ -325,7 +417,49 @@ export default {
 body, html {
   overflow: hidden !important; /* Hide scrollbars */
 }
+.mode-button {
+  font-size: 24px;
+  font-family: 'Public Pixel', sans-serif;
+  padding: 16px 32px;
+  margin: 8px;
+  border: none;
+  background-color: #5C469C;
+  /* background-color: var(--v-primary-base); */
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(212, 173, 252, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
 
+/* Apply animation on hover */
+.mode-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(212, 173, 252, 0.4);
+}
+
+/* Apply animation on click */
+.mode-button:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 5px rgba(212, 173, 252, 0.2);
+}
+
+/* Animation on modes buttons */
+.mode-button {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(1.1);
+  }
+  100% {
+      transform: scale(1);
+  }
+}
 // Base Button Style
 #startButton {
   display: inline-block;
