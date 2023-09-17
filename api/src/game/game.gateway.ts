@@ -75,7 +75,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
         continue;
       }
       const gameId = this.generateUniqueGameId();
-      this.gameService.initializeGameState(gameId);
+      this.gameService.initializeGameState(gameId, mode);
       this.clients[player1] = { gameId, role: 'Host' };
       this.clients[player2] = { gameId, role: 'Guest' };
       this.server.sockets.sockets.get(player1)?.join(gameId);
@@ -96,11 +96,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       const currentState = this.gameService.getCurrentState(gameId);
       if (currentState) {
         currentState.gameOver = true;
-        this.gameService.resetGameState(gameId);
+        this.gameService.resetGameState(gameId, mode);
         this.broadcastGameState(gameId);
       }
     }
-    // Add player back into the queue for matchmaking.
     this.handlePlayerConnection(client, mode);
   }
 
@@ -130,7 +129,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   handleDisconnect(client: Socket, mode: GameMode) {
     const clientId = client.id;
     console.log(`Client disconnected: ${client.id}`);
-    
     // Remove player from all queues regardless of the game mode
     Object.values(GameMode).forEach(mode => {
       this.gameService.removeFromQueue(clientId, mode);

@@ -1,17 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { Player, Ball, GameState, GameMode} from './dto/game.dto';
 const BASE_MOVE_DISTANCE = 0.02;
+const GAME_MODE_CONFIGS = {
+  [GameMode.EASY]: {
+      MAX_Y_VELOCITY: 0.008,
+      MIN_X_VELOCITY: 0.006
+  },
+  [GameMode.NORMAL]: {
+      MAX_Y_VELOCITY: 0.014,
+      MIN_X_VELOCITY: 0.012
+  },
+  [GameMode.HARD]: {
+      MAX_Y_VELOCITY: 0.0021,
+      MIN_X_VELOCITY: 0.019
+  }
+};
+const BALL_SPEEDS = {
+  [GameMode.EASY]: 0.007,
+  [GameMode.NORMAL]: 0.013,
+  [GameMode.HARD]: 0.020
+};
 
 @Injectable()
 export class GameService {
   private gameStates: { [gameId: string]: GameState } = {};
-  private playerQueue: string[] = [];
 
   constructor() {}
 
-  public initializeGameState(gameId: string): void {
+  public initializeGameState(gameId: string, mode: GameMode): void {
     if (!this.gameStates[gameId]) {
-        this.resetGameState(gameId);
+        this.resetGameState(gameId, mode);
     }
   }
 
@@ -36,11 +54,11 @@ export class GameService {
     ];    
   }
 
-  public resetGameState(gameId: string, mode: GameMode = GameMode.NORMAL): void {
+  public resetGameState(gameId: string, mode: GameMode): void {
     const ballSpeeds = {
-      [GameMode.EASY]: 0.005,
+      [GameMode.EASY]: 0.001,
       [GameMode.NORMAL]: 0.009,
-      [GameMode.HARD]: 0.014
+      [GameMode.HARD]: 0.030
     };
     this.gameStates[gameId] = {
       players: this.initializePlayers(),
@@ -58,9 +76,7 @@ export class GameService {
   }
 
   private checkCollision(ball: Ball, player: Player): boolean {
-    if (!player || !ball) {
-      return ;
-    }  
+    if (!player || !ball) {return ;}  
     const ballTop = ball.yRatio - ball.radiusRatio;
     const ballBottom = ball.yRatio + ball.radiusRatio;
     const ballLeft = ball.xRatio - ball.radiusRatio;
@@ -75,6 +91,7 @@ export class GameService {
   public updateBallPosition(gameId: string): void {
     const gameState = this.gameStates[gameId];
     if (!gameState || gameState.gameOver) return;
+    const modeConfig = GAME_MODE_CONFIGS[gameState.mode];
     const ball = gameState.ball;
     const players = gameState.players;
     const newXRatio = ball.xRatio + ball.velocityXRatio;
@@ -82,16 +99,14 @@ export class GameService {
     ball.xRatio = newXRatio;
     ball.yRatio = newYRatio;
     // Limit the vertical velocity
-    const MAX_Y_VELOCITY = 0.005;
-    ball.velocityYRatio = Math.min(MAX_Y_VELOCITY, Math.max(-MAX_Y_VELOCITY, ball.velocityYRatio));
+    ball.velocityYRatio = Math.min(modeConfig.MAX_Y_VELOCITY, Math.max(-modeConfig.MAX_Y_VELOCITY, ball.velocityYRatio));
     // Ensure minimum horizontal velocity
-    const MIN_X_VELOCITY = 0.004;
-    if (Math.abs(ball.velocityXRatio) < MIN_X_VELOCITY) {
-      ball.velocityXRatio = (ball.velocityXRatio < 0 ? -1 : 1) * MIN_X_VELOCITY;
+    if (Math.abs(ball.velocityXRatio) < modeConfig.MIN_X_VELOCITY) {
+      ball.velocityXRatio = (ball.velocityXRatio < 0 ? -1 : 1) * modeConfig.MIN_X_VELOCITY;
     }
     if (ball.yRatio - ball.radiusRatio < 0 || ball.yRatio + ball.radiusRatio > 1) {
       ball.velocityYRatio = -ball.velocityYRatio;
-      this.normalizeVelocity(ball);
+      this.normalizeVelocity(ball, gameState.mode);
     }
     if (ball.xRatio - ball.radiusRatio > 1) {
       players[0].score++;
@@ -106,18 +121,18 @@ export class GameService {
     if (this.checkCollision(ball, players[0])) {
       ball.velocityXRatio = Math.abs(ball.velocityXRatio);
       ball.velocityYRatio += (Math.random() - 0.5) * 0.01;
-      this.normalizeVelocity(ball);
+      this.normalizeVelocity(ball, gameState.mode);
     }
     if (this.checkCollision(ball, players[1])) {
       ball.velocityXRatio = -Math.abs(ball.velocityXRatio);
       ball.velocityYRatio += (Math.random() - 0.5) * 0.01;
-      this.normalizeVelocity(ball);
+      this.normalizeVelocity(ball, gameState.mode);
     }
   }
 
-  public normalizeVelocity(ball: Ball): void {
+  public normalizeVelocity(ball: Ball, mode: GameMode): void {
+    const desiredMagnitude = BALL_SPEEDS[mode];
     const magnitude = Math.sqrt(Math.pow(ball.velocityXRatio, 2) + Math.pow(ball.velocityYRatio, 2));
-    const desiredMagnitude = 0.009;
     ball.velocityXRatio = (ball.velocityXRatio / magnitude) * desiredMagnitude;
     ball.velocityYRatio = (ball.velocityYRatio / magnitude) * desiredMagnitude;
   }
@@ -174,70 +189,23 @@ export class GameService {
     const ball = gameState.ball;
     ball.xRatio = 0.5;
     ball.yRatio = 0.5;
-    ball.velocityXRatio = (Math.random() < 0.05 ? -1 : 1) * 0.009;
-    ball.velocityYRatio = 0;
+    ball.velocityXRatio = (Math.random() < 0.5 ? -1 : 1) * BALL_SPEEDS[gameState.mode];
+    ball.velocityYRatio = 0; // The ball starts with no vertical movement
   }
 
   getCurrentState(gameId: string): GameState {
     return this.gameStates[gameId];
   }
 
-  removePlayer(gameId: string, playerId: string): string | null {
-    const gameState = this.gameStates[gameId];
-    if (!gameState) return null;
-    const removedPlayer = gameState.players.find(player => player.id === playerId);
-    gameState.players = gameState.players.filter(player => player.id !== playerId);
-    if (removedPlayer && gameState.gameStarted) {
-        gameState.gameStarted = false;
-        gameState.gameOver = true;
-        // Get the ID of the remaining player.
-        const remainingPlayer = gameState.players[0];
-        return remainingPlayer ? remainingPlayer.id : null;
-    }
-    return null;
-  }
-
-    private declareWinner(gameId: string, playerId: string): void {
-      console.log(`Player ${playerId} is the winner!`);
-      this.gameStates[gameId].gameOver = true;
-      // Stop the ball and paddles from moving
-      this.gameStates[gameId].ball.velocityXRatio = 0;
-      this.gameStates[gameId].ball.velocityYRatio = 0;
-      this.gameStates[gameId].players.forEach(player => {
-        player.paddleYRatio = 0.5; // Reset paddle position to the middle
-      });
-    }
-
-  addPlayer(gameId: string, clientId: string): void {
-    if (!this.gameStates[gameId]) {
-      this.resetGameState(gameId);
-    }
-    const gameState = this.gameStates[gameId];
-    // Check how many players are currently active
-    const playerCount = gameState.players.length;
-    let playerId = '';
-    if (playerCount === 0) {
-        playerId = 'Host';
-    } else if (playerCount === 1) {
-        playerId = 'Guest';
-    } else {
-      // More than two players are not allowed, so put the player in the queue
-      this.playerQueue.push(clientId);
-      return;
-    }
-    const newPlayer: Player = {
-      id: playerId,
-      paddleYRatio: 0.5,  // Initialized in the middle
-      paddleWidthRatio: 0.025,
-      paddleHeightRatio: 0.28,
-      score: 0,
-      xRatio: playerId === 'Host' ? 0 : 0.98  // Respectively at the left and right edges
-    };
-    gameState.players.push(newPlayer);
-  }
-
-  removeGame(gameId: string): void {
-    delete this.gameStates[gameId];
+  private declareWinner(gameId: string, playerId: string): void {
+    console.log(`Player ${playerId} is the winner!`);
+    this.gameStates[gameId].gameOver = true;
+    // Stop the ball and paddles from moving
+    this.gameStates[gameId].ball.velocityXRatio = 0;
+    this.gameStates[gameId].ball.velocityYRatio = 0;
+    this.gameStates[gameId].players.forEach(player => {
+      player.paddleYRatio = 0.5;e
+    });
   }
 
   //add a player to the queue:
@@ -294,20 +262,5 @@ export class GameService {
   // Check if a player is in the queue:
   isPlayerInQueue(playerId: string): boolean {
     return Object.values(this.playerQueues).some(queue => queue.includes(playerId));
-  }  
-
-  // Handle when a player disconnects from an active game:
-  handlePlayerDisconnection(assignedPlayerId: string, gameId: string): string | null {
-    const currentState = this.getCurrentState(gameId);
-    // If the game is not started, simply return null.
-    if (!currentState.gameStarted) return null;
-    const otherPlayer = currentState.players.find(player => player.id !== assignedPlayerId);
-    if (otherPlayer) {
-      // Update the game's state to end the game and set the winner.
-      currentState.gameOver = true;
-      currentState.winner = otherPlayer.id;
-      return otherPlayer.id;
-    }
-    return null; // No winner determined.
   }
 }
