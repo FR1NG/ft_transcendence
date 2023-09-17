@@ -32,7 +32,7 @@ const props = defineProps<{
 
 
 .contain {
-      background-color: rgb(var(--v-theme-secondary));
+      background-color: rgb(var(--v-theme-colorTwo));
       
       .bestOFFriendsIcon {
         position: absolute;
@@ -43,7 +43,7 @@ const props = defineProps<{
         filter: drop-shadow(1px 2px 1px white); 
       }
       h3 {
-        color: rgb(var(--v-theme-primary));
+        color: rgb(var(--v-theme-colorTwo));
       }
 }
 

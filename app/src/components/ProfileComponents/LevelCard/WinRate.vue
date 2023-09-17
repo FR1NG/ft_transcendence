@@ -52,16 +52,16 @@ const interv = setInterval(() => {
             <svg>
                 <defs>
                     <linearGradient id="gradient">
-                        <stop offset="0%" stop-color="#FF00BD"/>
-                        <stop offset="100%" stop-color="#9198e5"/>
+                        <stop offset="0%" stop-color="rgb(var(--v-theme-colorTwo))"/>
+                        <stop offset="100%" stop-color="rgb(var(--v-theme-colorThree))"/>
                     </linearGradient>
                 </defs>
                 <circle cx="50" cy="50" r="35" stroke-linecap="round"></circle>
             </svg>
         </div>
         <div class="totals">
-          <div class="mdi mdi-thumb-up-outline" style="color:#FF00BD;">. {{ wins}} wins</div>
-          <div class="mdi mdi-thumb-down-outline" style="color:#9198e5">. {{ losses}} losses</div>
+          <div class="mdi mdi-thumb-up-outline" style="color:rgb(var(--v-theme-sucess));">. {{ wins}} wins</div>
+          <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-colorTwo))">. {{ losses}} losses</div>
         </div>
     </div>
 </template>
@@ -78,8 +78,6 @@ const interv = setInterval(() => {
 
 .winRate {
     position: relative;
-    // display: flex;
-    // flex-direction: column;
     padding: 10px;
     .outer {
      height: 80px;
@@ -117,11 +115,17 @@ const interv = setInterval(() => {
         stroke-dashoffset: 220;
         animation: levelAnim 1s linear forwards;
     }
-
     @keyframes levelAnim {
         100% {
             stroke-dashoffset: v-bind(winLevel2);
             animation-timing-function: ease-in-out;
+        }
+    }
+}
+@media (width < 480px) {
+    .winWrapper {
+        .totals {
+            font-size: 0.5rem;
         }
     }
 }

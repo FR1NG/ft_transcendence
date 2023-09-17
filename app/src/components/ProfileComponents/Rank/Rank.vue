@@ -1,54 +1,95 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import CubeRank from './cubeRank.vue'
 import Switcher from '../../Switcher.vue'
 import CustomCard from '@/components/CustomCard.vue'
 import { User } from '@/types/user';
+import { log } from 'console'
 
-const local = {
-    userAvatar1: "/images/avatars/eagle.jpg",
-    userName1: "user1",
-    userPoints1: "1000",
-    userRank1: "1",
-
-    userAvatar2: "/images/avatars/lion.jpg",
-    userName2: "user2",
-    userPoints2: "3000",
-    userRank2: "0",
-
-    userAvatar3: "/images/avatars/shark.jpg",
-    userName3: "user3",
-    userPoints3: "600",
-    userRank3: "2",
+const local = [
+    {
+        userAvatar: "/images/avatars/monkey.jpg",
+        userName: "user1",
+        points: 3000,
+        userRank: 0,
+    },
+    {
+        userAvatar: "/images/avatars/tigress.jpg",
+        userName: "user2",
+        points: 1000,
+        userRank: 1,
+    },
+    {
+        userAvatar: "/images/avatars/po.jpg",
+        userName: "user3",
+        points: 600,
+        userRank: 2,
+    },
+];
+const global = [
+    {
+        userAvatar: "/images/avatars/po.jpg",
+        userName: "user1",
+        points: 1,
+        userRank: 0,
+    },
+    {
+        userAvatar: "/images/avatars/mantis.jpg",
+        userName: "user2",
+        points: 1,
+        userRank: 1,
+    },    
+    {
+        userAvatar: "/images/avatars/tigress.jpg",
+        userName: "user3",
+        points: 1,
+        userRank: 2,
+    },
+];
+const theUsr1 = {
+    userAvatar: "/images/avatars/shifu.jpg",
+    userName: "theuser",
+    points: 250,
+    userRank: 1,
 }
+const theUsr2 = Object.assign({}, theUsr1);
 
-let currentState = ref(local);
-let isLocal = ref(true);
+const isLocal = ref(true);
+const currentState = ref(local.slice());
 
-const switchScope= () => {
-    if (isLocal.value) {
-        currentState.value = {
-            userAvatar1: "/images/avatars/eagle.jpg",
-            userName1: "user",
-            userPoints1: "1",
-            userRank1: "1",
-        
-            userAvatar2: "/images/avatars/eagle.jpg",
-            userName2: "user",
-            userPoints2: "1",
-            userRank2: "0",
-        
-            userAvatar3: "/images/avatars/eagle.jpg",
-            userName3: "user",
-            userPoints3: "1",
-            userRank3: "2",
+const findIndex = (scope: {userAvatar: string, userName: string, points: number, userRank: number}[], theUsr: {userAvatar: string, userName: string, points: number, userRank: number}) => {
+    let index = 0;
+    for (let i = 0; i < scope.length; i++)
+    {
+        if (theUsr.points > scope[i].points)
+        {
+            theUsr.userRank = i;
+            for (let j = i; j < 3; j++)
+                scope[j].userRank++;
+            return i;
         }
     }
+    return 3;
+};
+
+
+
+const switchScope= () => {
+    if (isLocal.value)
+        currentState.value = global;
     else
         currentState.value = local
     isLocal.value = !isLocal.value
 }
+
+onMounted(() => {
+    local.splice(findIndex(local, theUsr1), 0, theUsr1);
+    global.splice(findIndex(global, theUsr2), 0, theUsr2);
+    currentState.value = local;
+});
+
+
 // ------------------------------------------------------------
 
 </script>
@@ -56,11 +97,11 @@ const switchScope= () => {
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <CubeRank :userAvatar=currentState.userAvatar1 :username=currentState.userName1 :points=currentState.userPoints1 :rank=currentState.userRank1 class="place2"/>
-            <CubeRank :userAvatar=currentState.userAvatar2 :username=currentState.userName2 :points=currentState.userPoints2 :rank=currentState.userRank2 class="place1"/>
-            <CubeRank :userAvatar=currentState.userAvatar3 :username=currentState.userName3 :points=currentState.userPoints3 :rank=currentState.userRank3 class="place3"/>
-            <Switcher @click="switchScope()" class="switcher"/>
+            <div v-for="(usr, index) in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="index != 3" :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
+            </div>
         </div>
+        <Switcher @click="switchScope()" class="switcher"/>
         <table class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>
@@ -82,19 +123,28 @@ const switchScope= () => {
 
 .rankWrapper {
     position: relative;
-    max-height: 600px;
-    min-height: 400px;
     padding-top: 6rem;
-}
-.topThree {
     display: flex;
     justify-content: center;
-
+    align-items: center;
+    min-height: 400px;
+}
+.topThree {
+    display: grid;
+    grid-template-areas: "place1 place0 place2";
+    gap: 0;
+    .place0{
+        margin-top:-80px;
+        grid-area: place0;
+    }
+    .place1{
+        grid-area: place1;
+    }
+    .place2{
+        grid-area: place2;
+    }
 }
 
-.place1{
-    margin-top:-80px;
-}
 
 .userPosition {
     position: absolute;
@@ -104,15 +154,15 @@ const switchScope= () => {
     height: 5%;
     text-align: left;
     thead{
-        color:rgb(128, 78, 151);
+        color:rgb(var(--v-theme-colorTwo));
         th {
             padding-bottom: 0.2rem;
         }
     }
     tbody {
-        color: rgb(var(--v-theme-secondary));
-        box-shadow: inset 0 0 20px 20px rgb(87, 53, 75),
-                          5px 0 0px 5px rgb(87, 53, 75);
+        color: white;
+        box-shadow: inset 0 0 20px 20px rgb(var(--v-theme-colorThree)),
+                          5px 0 0px 5px rgb(var(--v-theme-colorThree));
         border-radius: 10px;
     }
 }
@@ -125,7 +175,8 @@ const switchScope= () => {
 
 .switcher {
     position:absolute;
-    top:65%;
+    top: 0;
+    left: 0;
 }
 
 @media (width < 970px) {
@@ -133,10 +184,16 @@ const switchScope= () => {
         min-height: 500px;
     }
 }
+@media (width < 600px) {
+    .cube {
+        width: 100px;
+    }
+}
 </style>
 
 
-<!-- <script setup lang="ts">
+<!-- <script setup lang=
+let currentState = ref(local);"ts">
 import { ref } from 'vue'
 import CubeRank from './cubeRank.vue'
 import Switcher from '../../Switcher.vue'
@@ -147,29 +204,59 @@ const props = defineProps<{
   user: User
 }>();
 
-let currentState = ref(props.user.localRank);
-let isLocal = ref(true);
+const user1 = {
+    userAvatar: user.avatar,
+    userName: user.username,
+    points: user.points,
+    userRank: user.rank,
+}
+const theUsr2 = Object.assign({}, user1);
+
+const isLocal = ref(true);
+const currentState = ref();
+
+const findIndex = (scope: {userAvatar: string, userName: string, points: number, userRank: number}[], theUsr: {userAvatar: string, userName: string, points: number, userRank: number}) => {
+    let index = 0;
+    for (let i = 0; i < scope.length; i++)
+    {
+        if (theUsr.points > scope[i].points)
+        {
+            theUsr.userRank = i;
+            for (let j = i; j < 3; j++)
+                scope[j].userRank++;
+            return i;
+        }
+    }
+    return 3;
+};
+
+
 
 const switchScope= () => {
-    if (isLocal.value) {
-        currentState.value = props.user.globalRank;
-    }
+    if (isLocal.value)
+        currentState.value = global;
     else
-        currentState.value = props.user.localRank
+        currentState.value = local
     isLocal.value = !isLocal.value
 }
-// ------------------------------------------------------------
+
+onMounted(() => {
+    local.splice(findIndex(local, theUsr1), 0, theUsr1);
+    global.splice(findIndex(global, theUsr2), 0, theUsr2);
+    currentState.value = local;
+});
 
 </script>
 
 <template>
     <CustomCard class="rankWrapper">
         <div class="topThree">
-            <CubeRank :avatar=currentState[0].avatar :username=currentState[0].username :points=currentState[0].points :rank=currentState[0].rank class="place1"/>
-            <CubeRank :avatar=currentState[1].avatar :username=currentState[1].username :points=currentState[1].points :rank=currentState[1].rank class="place2"/>
-            <CubeRank :avatar=currentState[2].avatar :username=currentState[2].username :points=currentState[2].points :rank=currentState[2].rank class="place3"/>
-            <Switcher @click="switchScope()" class="switcher"/>
+            <div v-for="(usr, index) in currentState" :class="`place${usr.userRank}`">
+                <CubeRank v-if="index != 3" :userAvatar=usr.userAvatar :username=usr.userName :points=usr.points :rank=usr.userRank />
+            </div>
         </div>
+        <Switcher @click="switchScope()" class="switcher"/>
+        <table class ="userPosition" cellspacing="0" cellpadding="0">
         <table class ="userPosition" cellspacing="0" cellpadding="0">
             <thead class="thead">
                 <th></th>

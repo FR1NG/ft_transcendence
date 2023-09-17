@@ -76,11 +76,11 @@ export const useUserStore = defineStore('user', {
     sendFriendRequest(id: string): Promise<any> {
       return new Promise(async (resolve, reject) => {
         try {
-          const { data } = await axios.post('/friend',{
-            id
+          const { data } = await axios.post('/invitation',{
+            userId: id,
+            type: 'FRIEND'
           });
           resolve(data);
-          this.user.friendRequestsRecieved[0] = {id: data.id, status: 'PENDING'}
         } catch (error) {
           reject(error);
         }

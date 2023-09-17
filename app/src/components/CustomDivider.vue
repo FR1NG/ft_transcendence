@@ -9,7 +9,7 @@ const props = defineProps({
 
     <div class="divider">
         <h4 class="dividerTitle">{{title}}</h4>
-        <v-divider class="dividerLine"></v-divider>
+        <v-divider thickness="3"  class="dividerLine"></v-divider>
     </div>
 
 </template>
@@ -21,9 +21,14 @@ const props = defineProps({
   display: flex;
   align-items: center;
 
-  .dividerTitle {width: fit-content;
+  .dividerTitle {
+    width: fit-content;
     margin-right: 1rem;
     white-space: nowrap;
+  }
+  .dividerLine {
+    border-color: white;
+    border-radius: 20px;
   }
 }
 

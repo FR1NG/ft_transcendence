@@ -4,18 +4,12 @@ import { User } from '@/types/user'
 
 //just for testing------- will be deleted later-----
 
-const props = defineProps({
-    userAvatar :String,
-    username: String,
-    points: Number,
-    rank: String,
-});
-
-let nRank:number = 0;
-
-if(props.rank){
-    nRank = +props.rank
-}
+const props = defineProps < {
+    userAvatar :string,
+    username: string,
+    points: number,
+    rank: number,
+}>()
 
 const positions:string[] = [
     "/images/trophies/goldTrophy.png",
@@ -54,7 +48,7 @@ fill()
         <div class="face topFace"></div>
         <div class="face frontFace"></div>
         <div class="rankedData">
-            <img class="trophy" :src="positions[nRank]" alt="trophy">
+            <img class="trophy" :src="positions[props.rank]" alt="trophy">
             <div class="username">{{ username }}</div>
             <div class="lign"></div>
             <div class="points"> {{points}} points</div>
@@ -84,7 +78,7 @@ fill()
         position: absolute;
         top:20%;
         left: 4%;
-        background-image:  linear-gradient(rgb(87, 53, 75), rgb(var(--v-theme-primary)));
+        background-image:  linear-gradient(rgb(var(--v-theme-colorOne)), rgb(var(--v-theme-colorThree)));
         width: 90%;
         height: 50%;
         rotate: x 80deg;
@@ -92,10 +86,10 @@ fill()
     
     .frontFace {
         position: absolute;
-        top: 49.6%;
+        top: 49.4%;
         left: 2%;
-        background-image:  linear-gradient(rgb(87, 53, 75), rgb(var(--v-theme-primary)));
-        width: 95%;
+        background-image:  linear-gradient(rgb(var(--v-theme-colorThree)),rgb(var(--v-theme-colorOne)));
+        width: 94.2%;
         height: 35%;
     }
 
@@ -120,7 +114,7 @@ fill()
             height: 30px;
         }
         .points {
-            color: rgb(var(--v-theme-secondary));
+            color: rgb(var(--v-theme-colorTwo));
         }
     }
 }

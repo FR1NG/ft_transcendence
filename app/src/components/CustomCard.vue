@@ -19,10 +19,11 @@ https://www.youtube.com/watch?v=hv0rNxr1XXk
 <style global lang="scss">
 
 .customCard{
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  background-color: rgba(var(--v-theme-colorThree), 0.2);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 15px 5px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgb(var(--v-theme-colorThree));
+  box-shadow: 1px 1px 15px 0.1px rgba(var(--v-theme-colorTwo), 0.3),
+        inset 1px 1px 5px 0.1px rgba(var(--v-theme-colorTwo), 0.3);
   min-height: 170px;
   color:white
 }

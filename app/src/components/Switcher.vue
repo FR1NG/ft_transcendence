@@ -28,7 +28,7 @@ const props = defineProps({
         width: 200px;
         height: 50px;
         border-radius: 10px;
-        background-color:rgb(87, 53, 75);
+        background-color:rgb(var(--v-theme-colorThree));
         outline: none;
         transition: 0.25s;
     }
@@ -57,7 +57,7 @@ const props = defineProps({
     }
     input:checked::before,
     input:not(:checked)::after{
-        color: rgb(var(--v-theme-secondary));
+        color: rgb(var(--v-theme-colorTwo));
         transition:color 1.5s;
     }
     input:checked ~ label {
@@ -68,7 +68,7 @@ const props = defineProps({
     }
     input:not(:checked)::before,
     input:checked::after {
-       color: rgb(var(--v-theme-primary));
+       color: rgb(var(--v-theme-colorOne));
         transition:color 1.5s;
     }
     input:not(:checked) ~ label {
@@ -76,6 +76,9 @@ const props = defineProps({
         right: 10px;
         background-color: black;
         transition: left 0.4s 0.2s, right 0.5s;
+    }
+    input:hover {
+        cursor: pointer;
     }
 }
 

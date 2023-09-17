@@ -3,19 +3,14 @@ import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
-import axios from '@/plugins/axios'
 import CustomCard from '@/components/CustomCard.vue';
 import OnOffStatus from './OnOffStatus.vue';
 import UserInteract from './Request.vue'
-import { ref } from 'vue'
 
 const userStore = useUserStore();
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
 const route = useRoute()
-const data = reactive({
-  sending: false
-});
 
 const username = route.params.username;
 if (username) {
@@ -32,17 +27,6 @@ if (username) {
     immediate: true
   }
 )
-const st = ref(true);
-
-
-// temp variable to test----------------- going to be deleted later-----------------------------------------//
-const userAvatar = "/images/avatars/eagle.jpg";
-const userName = "WWWWWWWWWW";
-const totalWins = 40;
-const totalTies = 5;
-const totalLosses = 20;
-//----------------------------------------------------------------------------------------------------------//
-
 
 </script>
 
@@ -50,13 +34,13 @@ const totalLosses = 20;
 
 <template>
   <CustomCard class="statusWrapper">
-    <img class="usrAvatar" src="https://cdn.intra.42.fr/users/9a65446eb4e52003992947a9cb266862/ael-rhai.jpg" alt="avatar image">
+    <img class="usrAvatar" :src="user.avatar" alt="avatar image">
     <div class="friendsCount">
-      <h4 class="username"> {{userName}} </h4>
-      <v-chip class="ms-2 text-medium-emphasis" color="secondary" prepend-icon="mdi-account-multiple" size="small"
+      <h4 class="username"> {{ user.username }} </h4>
+      <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
       variant="flat"> {{ userStore.friendsCount.toString() }} friends</v-chip>
     </div>
-    <OnOffStatus :isOnline="st" :avatar="userAvatar"/>
+    <OnOffStatus :isOnline="user.isOnline" :avatar="user.avatar"/>
     <UserInteract/>
   </CustomCard>
 </template>
@@ -66,19 +50,31 @@ const totalLosses = 20;
 .statusWrapper {
   position: relative;
   display: flex;
+  overflow: hidden;
 }
 .usrAvatar {
-  width: 200px;
-  height: 100%;
+  margin: 10px;
+  // width: 200px;
+  height: 150px;
   border-radius: 20px;
+  border: 1px solid;
 }
 
 .friendsCount {
   margin-top: 0.5rem;
-  
+
   .username {
-    margin-top: -0.3rem;
     font-size: 1.5em;
+  }
+}
+@media (width < 480px) {
+  .statusWrapper {
+    .username {
+      font-size: 0.8rem;
+    }
+    .ms-2 {
+      height: 100px;
+    }
   }
 }
 </style>

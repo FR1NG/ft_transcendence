@@ -23,11 +23,12 @@ const fontCouleur = ref(props.isOnline? "rgb(32, 241, 32)" : "rgb(249, 7, 7)")
 <style lang="scss">
 
   .status {
-    position: relative;
+    position: absolute;
     background-color: v-bind(backgroudCouleur);
     width: 80px;
-    height: 27px;
-    margin-top: 0.3rem;
+    height: 20px;
+    top: 82%;
+    left: 55px;
     display: flex;
     align-items: center;
     color: v-bind(fontCouleur);
@@ -42,12 +43,5 @@ const fontCouleur = ref(props.isOnline? "rgb(32, 241, 32)" : "rgb(249, 7, 7)")
       margin-right: 0.5rem;
     }
   }
-@media (width < 600px) {
-  .status {
-    position: absolute;
-    left: 320px;
-    top: 18%;
-  }
-}
 
 </style>

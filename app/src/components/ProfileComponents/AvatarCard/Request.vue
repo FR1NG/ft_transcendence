@@ -4,9 +4,6 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
 import { useSnackBarStore } from '@/store/snackbar'
-// for test
-import axios from '@/plugins/axios'
-import { getMaxListeners } from 'process'
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -20,11 +17,8 @@ const username = route.params.username;
 if (username) {
   userStore.getUser(username as string)
 }
-//--------for testing ------ to be deleted later------
-const userEmail:String = "username@gmail.com"
-//--------------------------------------------------
-// notification store
 
+// notification store
 const snackBarStore = useSnackBarStore();
 // sending frien request function
 const sendFrienRequest = async (userId: string) => {
@@ -93,8 +87,8 @@ const unblockUser = async () => {
 
 <template>
   <div class="interactWrapper">
-    <div class="message">
-      <v-btn   class="btn text-none" variant="outlined" rounded="lg" prepend-icon="mdi-message-text-outline">
+    <div class="message" v-if="user.id">
+      <v-btn :to="{name: 'Dm', params: { id: user.id }}"  class="btn text-none" variant="outlined" rounded="lg" prepend-icon="mdi-message-text-outline">
         message
       </v-btn>
     </div>
@@ -143,17 +137,18 @@ const unblockUser = async () => {
   display: grid;
   justify-items: end;
   gap: 0.9rem;
-  
+
   .btn {
-    border: 2px solid rgb(var(--v-theme-secondary));
-    color: rgb(var(--v-theme-secondary));
+    border: 2px solid rgb(var(--v-theme-colorTwo));
+    color: rgb(var(--v-theme-colorTwo));
     width: 150px;
   }
 
   .btn:hover {
-    color: rgb(var(--v-theme-primary));
-    background-color: rgb(var(--v-theme-secondary));
-    border: 2px solid rgb(var(--v-theme-secondary));
+    color: rgb(var(--v-theme-colorOne));
+    font-weight: bolder;
+    background-color: rgb(var(--v-theme-colorTwo));
+    border: 2px solid rgb(var(--v-theme-colorTwo));
   }
     grid-template-rows: repeat(10, 1fr);
     grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -193,6 +188,37 @@ const unblockUser = async () => {
       width: 100px;
       font-size: 0.6rem;
       transition: width 0.5s;
+    }
+  }
+}
+@media (width < 480px) {
+  .interactWrapper {
+    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: .2rem;
+    padding-bottom: 0.1rem;
+    .request {
+      grid-row: 7;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .message {
+      grid-row: 8;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .gameInvite {
+      grid-row: 9;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .block {
+      grid-row: 10;
+      grid-column: 8;
+      transition: grid-column 0.5s;
+    }
+    .btn{
+      height: 20px;
     }
   }
 }

@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { AuthenticatedUser } from 'src/types';
 
+type FriendshipStatus = 'FRIENDS' | 'INVITATION_SENT' | 'INVITATION_RECIEVED' | 'NONE'
+type InvitationStatus = 'SENT' | 'RECIEVED' | 'NONE'
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService, private config: ConfigService) { }
@@ -42,28 +44,8 @@ export class UserService {
         email: true,
         avatar: true,
         isOnline: true,
-        friendRequestsSent : {
-          where: {
-            recieverId: auth.sub
-          },
-          select: {
-            id: true,
-            status: true
-          }
-        },
-        friendRequestsRecieved: {
-          where: {
-            senderId: auth.sub,
-          },
-          select: {
-            id: true,
-            status: true
-          }
-        },
         _count: {
           select: {
-            friendOf: true,
-            friendWith: true,
             blockedBy: {
               where: {
                 blockerId: auth.sub
@@ -78,13 +60,24 @@ export class UserService {
         }
       },
     });
-    // TODO change this with the correct error
-    if(!user) {
-      console.log(user)
+
+    if(!user)
       throw new NotFoundException();
-    }
+
+    // checking if the searched user is blocking the current user
     if(user._count.blocked > 0)
       throw new ForbiddenException();
+
+    user['blocked'] = false;
+    if(user._count.blockedBy > 0)
+      user['blocked'] = true;
+
+    delete user['_count']['blockedBy'];
+    delete user['_count']['blocked'];
+
+    // getting friendshipt status
+    user['friendshipStatus'] = await this.getFriendShipStatus(auth, user.id);
+
     return user;
   }
 
@@ -224,6 +217,46 @@ export class UserService {
       return result;
     }
     return user;
+  }
+
+  // is a user friend or not
+  private async isFriend(user: AuthenticatedUser, userId: string): Promise<Boolean> {
+    const friendship = await this.prisma.friends.findFirst({
+      where: {
+        OR: [
+          {friendOfId: user.sub, friendId: userId},
+          {friendOfId: userId, friendId: user.sub},
+        ]
+      }
+    });
+    if(friendship)
+      return true;
+    return false;
+  }
+
+  private async isInvited(user: AuthenticatedUser, userId: string): Promise<FriendshipStatus> {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: {
+        OR:[
+          { toId: userId, byId: user.sub },
+          { toId: user.sub, byId: userId }
+        ]
+      }
+    });
+    console.log(user);
+    if(!invitation)
+      return 'NONE';
+    if(invitation.byId === userId)
+      return 'INVITATION_RECIEVED';
+    else 
+      return 'INVITATION_SENT';
+  }
+
+  private async getFriendShipStatus(user: AuthenticatedUser, userId: string): Promise<FriendshipStatus> {
+   const friends = await this.isFriend(user, userId);
+    if(friends)
+      return 'FRIENDS';
+    return await this.isInvited(user, userId);
   }
 
 }

@@ -126,6 +126,8 @@ model Games {
   host       Users      @relation("gameHost", fields: [hostId], references: [id])
   guest      Users      @relation("gameGuest", fields: [guestId], references: [id])
   winner     Users?     @relation("gameWinner", fields: [winnerId], references: [id])
+  winnerScore Int?
+  loserScore Int?
   created_at DateTime   @default(now())
   updated_at DateTime   @updatedAt
 }
