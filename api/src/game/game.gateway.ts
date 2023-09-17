@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
 import { Logger } from '@nestjs/common';
+import { GameMode } from './dto/game.dto';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
@@ -21,8 +22,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   handleConnection(client: Socket, ...args: any[]): void {
     this.logger.log(`Client ${client.id} connected at ${Date.now()}`);
-    this.handlePlayerConnection(client);
-    const gameId = this.matchPlayers();
+    const mode = client.handshake.query.mode as GameMode;
+    if (!mode) {
+      console.error("Mode not provided in initial connection");
+      return;
+    }
+    this.handlePlayerConnection(client, mode);
+    const gameId = this.matchPlayers(mode);
     if (gameId) {
       console.log("Game ID:", gameId);
       const currentState = this.gameService.getCurrentState(gameId);
@@ -31,27 +37,39 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       client.emit('waitingForMatch');
     }
   }
-  
-  handlePlayerConnection(client: Socket): void {
+
+  @SubscribeMessage('setSelectedMode')
+  setSelectedMode(client: Socket, mode: GameMode): void {
+    this.handlePlayerConnection(client, mode);
+    const gameId = this.matchPlayers(mode);
+    if (gameId) {
+        console.log("Game ID:", gameId);
+        this.broadcastGameState(gameId);
+    } else {
+        client.emit('waitingForMatch');
+    }
+  }
+
+  handlePlayerConnection(client: Socket, mode: GameMode): void {
     console.log(`Client connected: ${client.id}`);
-    this.gameService.joinQueue(client.id);
+    this.gameService.joinQueue(client.id, mode);
     client.emit('showStartButton');
   }
 
-  matchPlayers(): string | null {
+  matchPlayers(mode: GameMode): string | null {
     console.log("Attempting to match players...");
     let players: [string, string] | null = null;
     while (!players) {
-      players = this.gameService.getPlayersForMatch();
+      players = this.gameService.getPlayersForMatch(mode);
       if (!players) return null;
       const [player1, player2] = players;
       if (!(this.server.sockets.sockets.get(player1) && this.server.sockets.sockets.get(player2))) {
         // Remove disconnected players from the queue
         if (!this.server.sockets.sockets.get(player1)) {
-            this.gameService.removeFromQueue(player1);
+            this.gameService.removeFromQueue(player1, mode);
         }
         if (!this.server.sockets.sockets.get(player2)) {
-            this.gameService.removeFromQueue(player2);
+            this.gameService.removeFromQueue(player2, mode);
         }
         players = null;
         continue;
@@ -70,7 +88,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   }
 
   @SubscribeMessage('joinQueueAgain')
-  handleRestartRequest(client: Socket) {
+  handleRestartRequest(client: Socket, mode: GameMode) {
     const clientId = client.id;
     const clientData = this.clients[clientId];
     if (clientData) {
@@ -83,12 +101,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       }
     }
     // Add player back into the queue for matchmaking.
-    this.handlePlayerConnection(client);
+    this.handlePlayerConnection(client, mode);
   }
 
   @SubscribeMessage('disconnect')
-  handleDisconnectEvent(client: Socket) {
-    this.handleDisconnect(client);
+  handleDisconnectEvent(client: Socket, mode: GameMode) {
+    this.handleDisconnect(client, mode);
   }
 
   startGameLoop(gameId: string) {
@@ -109,13 +127,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       }, 16);
   }
 
-  handleDisconnect(client: Socket) {
+  handleDisconnect(client: Socket, mode: GameMode) {
     const clientId = client.id;
     console.log(`Client disconnected: ${client.id}`);
-    // If client was not matched or just connected and then disconnected
+    
+    // Remove player from all queues regardless of the game mode
+    Object.values(GameMode).forEach(mode => {
+      this.gameService.removeFromQueue(clientId, mode);
+    });
+  
     if (!this.clients[clientId]) {
       console.log(`Client with ID ${clientId} was not found in the clients list. Possibly disconnected before a match.`);
-      this.gameService.removeFromQueue(clientId);
       return;
     }
     const { gameId, role } = this.clients[clientId];
@@ -129,7 +151,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     // If the client was unmatched
     if (typeof role === 'undefined') {
       console.log(`Unmatched client with ID ${clientId} disconnected.`);
-      this.gameService.removeFromQueue(clientId);
+      this.gameService.removeFromQueue(clientId, mode);
       return;
     }
     // If the client was in an active game

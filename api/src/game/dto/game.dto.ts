@@ -15,12 +15,19 @@ export interface Ball {
   velocityYRatio: number;
 }
 
+export enum GameMode {
+  EASY = 'EASY',
+  NORMAL = 'NORMAL',
+  HARD = 'HARD'
+}
+
 export interface GameState {
   gameStarted: boolean;
   gameOver: boolean;
   winner?: string;
   players: Player[];
   ball: Ball;
+  mode: GameMode;
   canvasWidth?: number;     // Current width of the canvas
   canvasHeight?: number;    // Current height of the canvas
 }

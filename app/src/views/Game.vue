@@ -6,6 +6,12 @@
       <button @click="setTheme('galaxy')" class="mode-button">Galaxy</button>
       <button @click="setTheme('PacMan')" class="mode-button">PacMan</button>
     </div>
+    <div class="mode-selector" v-if="themeSelected && !modeSelected">
+      <h2>Select a Speed Mode:</h2>
+      <button @click="setMode('EASY')" class="mode-button">Easy</button>
+      <button @click="setMode('NORMAL')" class="mode-button">Normal</button>
+      <button @click="setMode('HARD')" class="mode-button">Hard</button>
+    </div>
     <div v-if="themeSelected && waitingForOpponent">Waiting for another player...</div>
     <button v-if="themeSelected && showStartButton" id="startButton" @click="startGame">Start</button>
     <canvas v-if="themeSelected && showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
@@ -72,9 +78,22 @@ export default {
       }
     };
     const currentTheme = ref(themes.classic);
+    const modeSelected = ref(false);
+    type GameMode = 'EASY' | 'NORMAL' | 'HARD';
+    const selectedMode = ref<GameMode | null>(null);
 
+    const setMode = (mode: GameMode) => {
+      console.log('Setting mode:', mode);
+      selectedMode.value = mode;
+      modeSelected.value = true;
+      socket.emit('setSelectedMode', mode);
+    };
+
+    let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     const restartGame = () => {
+      selectedMode.value = null;
+      modeSelected.value = false;
       socket.emit('joinQueueAgain');
       cleanupGameListeners();
       gameOver.value = false;
@@ -204,8 +223,7 @@ export default {
     const drawBall = (ctx: CanvasRenderingContext2D, xRatio: number, yRatio: number, radiusRatio: number) => {
       const x = xRatio * canvasWidth.value;
       const y = yRatio * canvasHeight.value;
-      const radius = radiusRatio * canvasWidth.value;  // Assuming width is your reference dimension
-
+      const radius = radiusRatio * canvasWidth.value;
       if (currentTheme.value.ballImage) {
         if (!loadedImages[currentTheme.value.ballImage]) {
           const img = new Image();
@@ -255,12 +273,10 @@ export default {
       ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
     };
 
-    let loadedImages: { [key: string]: HTMLImageElement } = {};
     // Render the current game state onto the canvas
     const renderGameState = (gameState: GameState) => {
       if (!gameCanvas.value || !isValidGameState(gameState)) return;
       const ctx = gameCanvas.value.getContext('2d');
-        // Check if the theme has a background image
       if (currentTheme.value.backgroundImage) {
         if (!loadedImages[currentTheme.value.backgroundImage]) {
           const img = new Image();
@@ -274,12 +290,9 @@ export default {
           ctx.drawImage(loadedImages[currentTheme.value.backgroundImage], 0, 0, canvasWidth.value, canvasHeight.value);
         }
       } else {
-        // If no background image, use background color
         ctx.fillStyle = currentTheme.value.backgroundColor;
         ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       }
-      // ctx.clearRect(0, 0, canvasWidth.value, canvasHeight.value);
-      // ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       const leftPlayer = gameState.players[0];
       const rightPlayer = gameState.players[1];
 
@@ -367,6 +380,8 @@ export default {
     const setTheme = (themeName: ThemeName) => {
       currentTheme.value = themes[themeName];
       themeSelected.value = true;
+      modeSelected.value = false;  // Reset mode selection
+      selectedMode.value = null;
     };
 
     return {
@@ -383,6 +398,8 @@ export default {
       restartGame,
       setTheme,
       themeSelected,
+      modeSelected,
+      setMode
     };
   }
 }
@@ -393,19 +410,8 @@ export default {
 // Game Elements
 .gameCanvas {
   padding: 0;
-  // margin-right: 20px;
   display: block;
-  // background-color: #debdff;
 }
-// .gameCanvas.retro {
-//   background-color: #123456;
-//   background-image: url("../../public/images/retro_background.jpg");
-// }
-
-// .gameCanvas.dark {
-//   background-color: #654321;
-//   // background-image: url("/path/to/dark-image.jpg");
-// }
 
 .container {
   display: flex;
@@ -429,15 +435,9 @@ body, html {
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(212, 173, 252, 0.2);
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out, box-shadow 
+  // margin-right: 20px;
 }
-
-/* Apply animation on hover */
-.mode-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 15px rgba(212, 173, 252, 0.4);
-}
-
 /* Apply animation on click */
 .mode-button:active {
   transform: scale(0.9);

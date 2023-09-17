@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Player, Ball, GameState } from './dto/game.dto';
+import { Player, Ball, GameState, GameMode} from './dto/game.dto';
 const BASE_MOVE_DISTANCE = 0.02;
+
 @Injectable()
 export class GameService {
   private gameStates: { [gameId: string]: GameState } = {};
@@ -35,16 +36,22 @@ export class GameService {
     ];    
   }
 
-  public resetGameState(gameId: string): void {
+  public resetGameState(gameId: string, mode: GameMode = GameMode.NORMAL): void {
+    const ballSpeeds = {
+      [GameMode.EASY]: 0.005,
+      [GameMode.NORMAL]: 0.009,
+      [GameMode.HARD]: 0.014
+    };
     this.gameStates[gameId] = {
       players: this.initializePlayers(),
       ball: {
         xRatio: 0.5,
         yRatio: 0.5,
         radiusRatio: 0.030,
-        velocityXRatio: 0.009,
+        velocityXRatio: ballSpeeds[mode],
         velocityYRatio: 0,
       },
+      mode: mode,
       gameStarted: false,
       gameOver: false,
     };
@@ -188,21 +195,20 @@ export class GameService {
         return remainingPlayer ? remainingPlayer.id : null;
     }
     return null;
-}
+  }
 
-private declareWinner(gameId: string, playerId: string): void {
-  console.log(`Player ${playerId} is the winner!`);
-  this.gameStates[gameId].gameOver = true;
-  // Stop the ball and paddles from moving
-  this.gameStates[gameId].ball.velocityXRatio = 0;
-  this.gameStates[gameId].ball.velocityYRatio = 0;
-  this.gameStates[gameId].players.forEach(player => {
-    player.paddleYRatio = 0.5; // Reset paddle position to the middle
-  });
-}
+    private declareWinner(gameId: string, playerId: string): void {
+      console.log(`Player ${playerId} is the winner!`);
+      this.gameStates[gameId].gameOver = true;
+      // Stop the ball and paddles from moving
+      this.gameStates[gameId].ball.velocityXRatio = 0;
+      this.gameStates[gameId].ball.velocityYRatio = 0;
+      this.gameStates[gameId].players.forEach(player => {
+        player.paddleYRatio = 0.5; // Reset paddle position to the middle
+      });
+    }
 
   addPlayer(gameId: string, clientId: string): void {
-    // If the game doesn't exist, initialize it
     if (!this.gameStates[gameId]) {
       this.resetGameState(gameId);
     }
@@ -235,48 +241,67 @@ private declareWinner(gameId: string, playerId: string): void {
   }
 
   //add a player to the queue:
-  joinQueue(playerId: any): void { 
+  private playerQueues: Record<GameMode, string[]> = {
+    [GameMode.EASY]: [],
+    [GameMode.NORMAL]: [],
+    [GameMode.HARD]: []
+  };
+
+  joinQueue(playerId: string, mode: GameMode): void {
     if (!this.isPlayerInQueue(playerId)) {
-       this.playerQueue.push(playerId);
+      if (this.isValidMode(mode)) {
+        console.log(`joined queue in: ${mode}`);
+        this.playerQueues[mode].push(playerId);
+      } else {
+        console.error(`Invalid mode: ${mode}.`);
+      }
+    } else {
+      console.error(`Player already in queue.`);
     }
+  }
+
+  isValidMode(mode: GameMode): boolean {
+      return this.playerQueues.hasOwnProperty(mode);
   }
 
   // check the number of players in the queue:
-  getQueueLength(): number {
-    return this.playerQueue.length;
-  }
+  getQueueLength(mode: GameMode): number {
+    return this.playerQueues[mode].length;
+  }  
   
   //get players from the queue for a match:
-  getPlayersForMatch(): any {
-    if (this.playerQueue.length >= 2) {
-      const player1 = this.playerQueue.shift();
-      const player2 = this.playerQueue.shift();
+  getPlayersForMatch(mode: GameMode): any {
+    if (this.playerQueues[mode].length >= 2) {
+      const player1 = this.playerQueues[mode].shift();
+      const player2 = this.playerQueues[mode].shift();
       return [player1!, player2!];
     }
     return null;
-  }
+  }  
 
   //remove player from the queue (in case they disconnect before the match starts) 
-  removeFromQueue(playerId: string): void {
-    const index = this.playerQueue.indexOf(playerId);
-    if (index !== -1) {
-      this.playerQueue.splice(index, 1);
+  removeFromQueue(playerId: string, mode: GameMode): void {
+    if (!this.playerQueues[mode]) {
+        console.error('Invalid mode provided:', mode);
+        return;
     }
-  }  
+    const index = this.playerQueues[mode].indexOf(playerId);
+    if (index !== -1) {
+        this.playerQueues[mode].splice(index, 1);
+    }
+  }
 
   // Check if a player is in the queue:
   isPlayerInQueue(playerId: string): boolean {
-    return this.playerQueue.includes(playerId);
-  }
+    return Object.values(this.playerQueues).some(queue => queue.includes(playerId));
+  }  
 
   // Handle when a player disconnects from an active game:
   handlePlayerDisconnection(assignedPlayerId: string, gameId: string): string | null {
     const currentState = this.getCurrentState(gameId);
     // If the game is not started, simply return null.
     if (!currentState.gameStarted) return null;
-    // Determine the other player.
     const otherPlayer = currentState.players.find(player => player.id !== assignedPlayerId);
-    // If there is another player, they win. Otherwise, there's no winner.
     if (otherPlayer) {
       // Update the game's state to end the game and set the winner.
       currentState.gameOver = true;
