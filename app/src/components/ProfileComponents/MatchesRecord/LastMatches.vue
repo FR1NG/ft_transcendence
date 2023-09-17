@@ -1,44 +1,40 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Match, User } from '@/types/user'
+// import { User } from '@/types/user'
 import CustomCard from '@/components/CustomCard.vue';
 
 //just for testing------- will be deleted later-----
 
-const users = ref<User[]>([]);
-const testMatches = ref<Match[]>([])
-const fill = () => {
-    for (let a = 10; a < 20; a++)
-{
-    const tmpUser:User = {
-        id: "" + Math.random(),
-        isOnline: true,
-        _count: {
-            blockedBy: 3,
-            friendOf: 2,
-            friendWith: 1},
-        username: "username" +a.toString(),
-        avatar: "sdfa",
-        email:"email",
-    }
-    users.value.push(tmpUser);
-}
+// const users = ref<User[]>([]);
+const testMatches = ref([])
+// const fill = () => {
+//     for (let a = 10; a < 20; a++)
+// {
+//     const tmpUser:User = {
+//         id: "" + Math.random(),
+//         isOnline: true,
+//         username: "username" +a.toString(),
+//         avatar: "sdfa",
+//         email:"email",
+//     }
+//     users.value.push(tmpUser);
+// }
 
 
-for (let a = 0; a < 10; a++)
-{
-    const tmpMatch:Match = {
-        matchId: a.toString() ,
-        matchHost: users.value[a],
-        matchGuest: users.value[(a + 1) % 9],
-        matchResult: "0 - 0",
-        matchWinner: users.value[a].id,
-        matchLoser: users.value[(a + 1) % 9].id,
-    }
-    testMatches.value.push(tmpMatch)
-}
-}
-fill()
+// for (let a = 0; a < 10; a++)
+// {
+//     const tmpMatch:Match = {
+//         matchId: a.toString() ,
+//         matchHost: users.value[a],
+//         matchGuest: users.value[(a + 1) % 9],
+//         matchResult: "0 - 0",
+//         matchWinner: users.value[a].id,
+//         matchLoser: users.value[(a + 1) % 9].id,
+//     }
+//     testMatches.value.push(tmpMatch)
+// }
+// }
+// fill()
 // ------------------------------------------------------------
 
 </script>
@@ -82,7 +78,7 @@ fill()
     align-items: center;
     max-height: 600px;
     overflow: hidden;
-    
+
     .matchesHeader {
         padding-top: 0.5rem;
         color:rgb(var(--v-theme-two));
@@ -146,7 +142,7 @@ const props = defineProps<{
                 result
             </th>
             <th class="text-right">
-                
+
             </th>
             </tr>
         </thead>

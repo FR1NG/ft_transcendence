@@ -44,6 +44,14 @@ const routes = [
         }
       },
       {
+        path: '/invitation/:id',
+        name: 'Invitation',
+        component: () => import('@/views/Invitation.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
         path: '/users/:username',
         name: 'UserProfile',
         component: () => import('@/views/UserProfile.vue'),

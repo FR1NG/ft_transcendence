@@ -1,17 +1,18 @@
-import { ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Invitation } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import { CreateInvitationDto } from './dto/invitation.dto';
 import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class InvitationService {
-  constructor(private prisma: PrismaService, private notificationService: NotificationService){}
+  constructor(private prisma: PrismaService, private notificationService: NotificationService, private userService: UserService){}
 
   async createInvitation(user: AuthenticatedUser, data: CreateInvitationDto) {
     switch (data.type) {
-      case 'FRIEND': return await this.createFrindInvit(user, data);
+      case 'FRIEND': return await this.createFriendInvit(user, data);
       case 'GAME': return await this.createGameInvit(user, data);
       case 'ROOM': return await this.createRoomInvit(user, data);
     }
@@ -57,11 +58,29 @@ export class InvitationService {
     });
     if(!invit)
       throw new NotFoundException('invitation not found');
-    this.deleteInvitation(id);
+    this.deleteInvitation(invit.byId, id);
   }
 
-  private async acceptFrindInvit(user: AuthenticatedUser, id: Invitation) {
+  private async acceptFrindInvit(user: AuthenticatedUser, invit: Invitation) {
+    const inviter = await this.prisma.users.findUnique({
+      where: {
+        id: invit.byId
+      }
+    });
 
+    if(!inviter)
+      throw new NotFoundException('inviter not found');
+    const block = await this.userService.isBlock(user, inviter.id);
+    if(block)
+      throw new ForbiddenException();
+    await this.prisma.friends.create({
+      data: {
+        friendId: user.sub,
+        friendOfId: inviter.id
+      }
+    });
+    this.deleteInvitation(inviter.id, invit.id);
+    return { message: `you and ${inviter.username} are friends now` };
   }
 
   private async acceptGameInvit(user: AuthenticatedUser, id: Invitation) {
@@ -85,7 +104,7 @@ export class InvitationService {
     });
     if(!result)
       throw new InternalServerErrorException();
-    this.deleteInvitation(invit.id);
+    this.deleteInvitation(result.roomId, invit.id);
     return {
       message: 'you hanve joined the room',
     };
@@ -101,10 +120,11 @@ export class InvitationService {
   }
 
   // delete the invitation
-  async deleteInvitation(id: string) {
+  async deleteInvitation(inviterId: string, id: string) {
     const result = await this.prisma.invitation.delete({
       where: {
-        id
+        id,
+        byId: inviterId
       }
     });
     return result;
@@ -113,14 +133,54 @@ export class InvitationService {
   //  create invitation 
 
   private async createGameInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
-
+    const guest = await this.prisma.users.findUnique({
+      where: {
+        id: data.userId
+      },
+      select: {
+        id: true,
+        isInGame: true,
+        username: true,
+      }
+    });
+    const host = await this.prisma.users.findUnique({
+      where: {
+        id: user.sub,
+      },
+      select: {
+        id: true,
+        isInGame: true,
+      }
+    });
+    if (!guest)
+      throw new NotFoundException('user you trying to invite not found');
+    if(guest.isInGame)
+      throw new ConflictException(`${guest.username} already in a game`);
+    if(host.isInGame)
+      throw new ConflictException('you can\'t send invitation to a game, you are already in a game');
+    const result = await this.checkAndCreate(user, data);
+    if(result)
+      this.notificationService.createNotification(data.userId, `${user.username} sent you invitation to play a game`, `/invitation/${result.id}`);
+    return  result;
   }
 
   private async createRoomInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
 
   }
 
-  private async createFrindInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
+  private async createFriendInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
+    const isFriend = await this.userService.isFriend(user, data.userId);
+    if(isFriend)
+      throw new ConflictException(`you are already friends`);
+    const result = await this.checkAndCreate(user, data);
+    if(result)
+      this.notificationService.createNotification(data.userId, `${user.username} sent you a friend request`, `/users/${user.username}`);
+
+    return result;
+  }
+
+  // check if invitation aleardy exist and create it if not
+  private async checkAndCreate(user: AuthenticatedUser, data: CreateInvitationDto) {
     const count = await this.prisma.invitation.count({
       where: {
         OR: [
@@ -130,6 +190,7 @@ export class InvitationService {
         type: data.type
       }
     });
+
     if(count !== 0)
       throw new ConflictException();
     const result = await this.prisma.invitation.create({
@@ -139,9 +200,6 @@ export class InvitationService {
         type: data.type
       }
     });
-    if(result)
-      this.notificationService.createNotification(data.userId, `${user.username} sent you a friend request`, `/users/${user.username}`);
-
     return result;
   }
 

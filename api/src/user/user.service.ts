@@ -55,7 +55,7 @@ export class UserService {
               where: {
                 blockedId: auth.sub
               }
-            }
+            },
           }
         }
       },
@@ -71,13 +71,12 @@ export class UserService {
     user['blocked'] = false;
     if(user._count.blockedBy > 0)
       user['blocked'] = true;
-
-    delete user['_count']['blockedBy'];
-    delete user['_count']['blocked'];
-
+    delete user['_count'];
     // getting friendshipt status
-    user['friendshipStatus'] = await this.getFriendShipStatus(auth, user.id);
-
+     const friendship = await this.getFriendShipStatus(auth, user.id);
+    user['friendshipStatus'] = friendship.status;
+    user['invitationId'] = friendship.invitationId;
+    user['friendsCount'] = await this.friendsCount(auth);
     return user;
   }
 
@@ -88,6 +87,24 @@ export class UserService {
       },
     });
     return user;
+  }
+
+  private async friendsCount(user: AuthenticatedUser): Promise<number> {
+    const friends = await this.prisma.friends.findMany({
+      where: {
+        OR:[
+          {friendId: user.sub},
+          {friendOfId: user.sub}
+        ]
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    if(friends)
+      return friends.length;
+    return 0;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -184,7 +201,6 @@ export class UserService {
       });
 
       if (!user) {
-        console.log('user no existoo')
         throw new HttpException('user not found', HttpStatus.NOT_FOUND);
       }
       return user;
@@ -219,8 +235,23 @@ export class UserService {
     return user;
   }
 
+  // is one of the users block the other
+  async isBlock(user: AuthenticatedUser, userId: string): Promise<Boolean> {
+    const block = await this.prisma.block.findFirst({
+      where: {
+        OR: [
+          {blockerId: user.sub, blockedId: userId},
+          {blockerId: userId, blockedId: user.sub},
+        ]
+      }
+    });
+    if(block)
+      return true;
+    return false;
+  }
+
   // is a user friend or not
-  private async isFriend(user: AuthenticatedUser, userId: string): Promise<Boolean> {
+  async isFriend(user: AuthenticatedUser, userId: string): Promise<Boolean> {
     const friendship = await this.prisma.friends.findFirst({
       where: {
         OR: [
@@ -234,7 +265,7 @@ export class UserService {
     return false;
   }
 
-  private async isInvited(user: AuthenticatedUser, userId: string): Promise<FriendshipStatus> {
+  private async isInvited(user: AuthenticatedUser, userId: string): Promise<{status: FriendshipStatus, invitationId: string}> {
     const invitation = await this.prisma.invitation.findFirst({
       where: {
         OR:[
@@ -243,19 +274,18 @@ export class UserService {
         ]
       }
     });
-    console.log(user);
     if(!invitation)
-      return 'NONE';
+      return {status: 'NONE', invitationId: ''};
     if(invitation.byId === userId)
-      return 'INVITATION_RECIEVED';
+      return {status: 'INVITATION_RECIEVED', invitationId: invitation.id};
     else 
-      return 'INVITATION_SENT';
+      return {status: 'INVITATION_SENT', invitationId: invitation.id};
   }
 
-  private async getFriendShipStatus(user: AuthenticatedUser, userId: string): Promise<FriendshipStatus> {
+  private async getFriendShipStatus(user: AuthenticatedUser, userId: string): Promise<{status: FriendshipStatus, invitationId: string}> {
    const friends = await this.isFriend(user, userId);
     if(friends)
-      return 'FRIENDS';
+      return {status: 'FRIENDS', invitationId: ''};
     return await this.isInvited(user, userId);
   }
 

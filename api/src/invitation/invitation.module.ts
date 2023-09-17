@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   providers: [
@@ -12,7 +13,8 @@ import { NotificationService } from 'src/notification/notification.service';
     ConfigService,
     JwtService,
     PrismaService,
-    NotificationService
+    NotificationService,
+    UserService
   ],
   controllers: [InvitationController]
 

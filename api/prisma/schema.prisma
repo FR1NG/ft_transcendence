@@ -17,6 +17,7 @@ model Users {
   email                  String              @unique
   avatar                 String?
   isOnline               Boolean             @default(false)
+  isInGame               Boolean             @default(false)
   ownedRooms             Rooms[]             @relation("roomOner")
   rooms                  UsersRooms[]        @relation("userRooms")
   hostedGames            Games[]             @relation("gameHost")
@@ -139,6 +140,7 @@ model Notifications {
   userId     String
   seen       Boolean  @default(false)
   user       Users    @relation(fields: [userId], references: [id])
+  Invitation Invitation? 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -160,6 +162,8 @@ model Invitation {
   byId       String
   toId       String
   type       InvitationType
+  notificationId Int? @unique
+  notification Notifications? @relation(fields: [notificationId], references: [id]) 
   user       Users?         @relation(fields: [toId], references: [id])
   created_at DateTime       @default(now())
   updated_at DateTime       @updatedAt

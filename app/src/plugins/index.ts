@@ -9,6 +9,7 @@ import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
 import router from '../router'
 import pinia from './pinia'
+// composables
 
 // Types
 import type { App } from 'vue'

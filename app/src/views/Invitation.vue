@@ -1,0 +1,88 @@
+<script setup lang="ts">
+import { useInvitationStore } from '@/store/invitation';
+import { storeToRefs } from 'pinia';
+import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router';
+import { ref } from 'vue';
+import { resetObject } from '@/composables/helpers';
+
+const router = useRouter();
+const route = useRoute();;
+const invitationStore = useInvitationStore();
+const { invitation } = storeToRefs(invitationStore);
+const loading = ref(false);
+
+// watching route change
+onBeforeRouteUpdate((to) => {
+  getData(to.params.id as string);
+});
+
+const errorMessage = ref('');
+
+const handleAccept = () => {
+
+}
+
+const handleDecline = () => {
+  loading.value = true;
+  invitationStore.declineInvitation(invitation.value.id).then(() => {
+    loading.value = false;
+    back();
+  }).catch(() => {
+    loading.value = false;
+  });
+}
+
+const getData = (invitId: string) => {
+  resetObject(invitation.value);
+  loading.value = true;
+  invitationStore.getInvitation(invitId).then((result) => {
+    console.log(result);
+    loading.value = false;
+  }).catch((error:any) => {
+    errorMessage.value = error?.data?.message
+    loading.value = false;
+});
+}
+
+const back = () => {
+  router.go(-1);
+}
+
+// getting data
+getData(route.params.id as string);
+
+</script>
+
+<template>
+  <v-main>
+      <v-card :loading="loading" class="d-flex justify-center ma-4" rounded="xl" variant="outlined" min-height="200" color="colorTwo">
+      <div v-if="invitation.id">
+          <v-card-text>
+           {{ invitation.inviter}} invite you for a game
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="handleAccept" :disabled="loading">accept</v-btn>
+            <v-btn @click="handleDecline" :disabled="loading">decline</v-btn>
+          </v-card-actions>
+      </div>
+      <div v-else>
+          <v-card-text>
+            {{ errorMessage }}
+          </v-card-text>
+          <v-card-actions class="d-flex justify-center">
+            <v-btn variant="outlined" @click="back" prepend-icon="mdi-home-outline">Home</v-btn>
+          </v-card-actions>
+      </div>
+
+      </v-card>
+  </v-main>
+</template>
+
+
+<style lang="scss">
+
+.container {
+  height: 100%;
+  width: 100%;
+}
+</style>

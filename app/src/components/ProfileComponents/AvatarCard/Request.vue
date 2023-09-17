@@ -4,6 +4,8 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
 import { useSnackBarStore } from '@/store/snackbar'
+import { useInvitationStore } from '@/store/invitation'
+import { Invitation } from '@/types/invitation'
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -11,12 +13,12 @@ const data = reactive({
   sending: false
 });
 
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
+// const username = route.params.username;
+// if (username) {
+//   userStore.getUser(username as string)
+// }
 
 // notification store
 const snackBarStore = useSnackBarStore();
@@ -44,10 +46,11 @@ const cancelFriendRequest = async (requestId: string) => {
 }
 
 // confirm friend requst
-const confirmFriendRequest = async (requestId: string) => {
+const confirmFriendInvitaion = async (invitationId: string) => {
   try {
-    const result = await userStore.confirmFriendRequest(requestId);
-    console.log('success')
+    const result = await useInvitationStore().acceptInvitation(invitationId);
+    user.value.friendshipStatus = 'FRIENDS';
+    user.value.invitationId = '';
   } catch (error) {
     console.log('error here')
   }
@@ -83,6 +86,24 @@ const unblockUser = async () => {
     console.log(error)
   }
 }
+
+// unfriend a user
+
+const unfriend = (userId: string) => {
+  userStore.unfriend(userId)
+}
+
+// invite for a geme
+const inviteGame = (userId: string) => {
+  useInvitationStore().createInvitation(userId, 'GAME').then((result: Invitation) => {
+    console.log('invitation has been created');
+  }).catch((error: any) => {
+    console.log('error when creating game invitation')
+  });
+}
+
+// invite user for a game
+
 </script>
 
 <template>
@@ -93,29 +114,34 @@ const unblockUser = async () => {
       </v-btn>
     </div>
     <div class="gameInvite">
-      <v-btn class="btn text-none" rounded="lg" variant="outlined" prepend-icon="mdi-gamepad-variant-outline">
+      <v-btn class="btn text-none" rounded="lg" variant="outlined" prepend-icon="mdi-gamepad-variant-outline" @click="inviteGame(user.id)">
         Game invite
       </v-btn>
     </div>
     <div class="request">
       <div class="addFriend">
-        <v-btn v-if="getRequstStatus === 'sent'" class="btn text-none"  rounded="lg" :loading="data.sending"
-        @click="cancelFriendRequest(user.friendRequestsRecieved[0].id)" color="secondary" variant="flat">
+        <v-btn v-if="user.friendshipStatus === 'INVITATION_SENT'" class="btn text-none"  rounded="lg" :loading="data.sending"
+        @click="cancelFriendRequest(user.invitationId)" color="colorThree" variant="flat">
         cancel request
       </v-btn>
-      <v-btn v-else-if="getRequstStatus === 'recieved'" class="btn text-none" rounded="lg" :loading="data.sending"
-      @click="confirmFriendRequest(user.friendRequestsSent[0].id)" color="secondary" variant="flat">
+      <v-btn v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" class="btn text-none" rounded="lg" :loading="data.sending"
+      @click="confirmFriendInvitaion(user.invitationId)" color="secondary" variant="flat">
       confirm
     </v-btn>
-    <v-btn v-else class="btn  text-none" variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
+
+    <v-btn v-else-if="user.friendshipStatus === 'FRIENDS'" class="btn  text-none" variant="outlined" rounded="lg" prepend-icon="mdi-minus"
+    :loading="data.sending" @click="unfriend(user.id)" >
+          unfriend
+  </v-btn>
+    <v-btn v-else="user.friendshipStatus === 'NONE'" class="btn  text-none" variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
     :loading="data.sending" @click="sendFrienRequest(user.id)">
     add friend
   </v-btn>
     </div>
   </div>
       <div class="block">
-        <v-btn v-if="isBlocked" @click="unblockUser" color="pri" prepend-icon="mdi-lock-open-variant-outline"
-         variant="flat">
+        <v-btn v-if="user.blocked" @click="unblockUser" class="btn text-none" rounded="lg" prepend-icon="mdi-lock-open-variant-outline"
+         variant="outlined">
         unblock
       </v-btn>
     <v-btn v-else class="btn  text-none" variant="outlined" rounded="lg"
