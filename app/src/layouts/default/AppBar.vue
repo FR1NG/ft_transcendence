@@ -6,19 +6,19 @@
     </v-app-bar-title>
 
     <v-spacer></v-spacer>
-     <v-card min-height="50" width="500" class="d-flex justify-center my-2">
-      <v-btn icon color="secondary" >
-        <v-icon>mdi-home-circle-outline</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon color="secondary" :to="{name : 'Chat'}">
-        <v-icon>mdi-chat-outline</v-icon>
-      </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn icon color="secondary">
-        <v-icon>mdi-cog-outline</v-icon>
-      </v-btn>
-      </v-card>
+     <!-- <v-card min-height="50" width="500" class="d-flex justify-center my-2"> -->
+     <!--  <v-btn icon color="secondary" > -->
+     <!--    <v-icon>mdi-home-circle-outline</v-icon> -->
+     <!--  </v-btn> -->
+     <!--  <v-spacer></v-spacer> -->
+     <!--  <v-btn icon color="secondary" :to="{name : 'Chat'}"> -->
+     <!--    <v-icon>mdi-chat-outline</v-icon> -->
+     <!--  </v-btn> -->
+     <!--  <v-spacer></v-spacer> -->
+     <!--  <v-btn icon color="secondary"> -->
+     <!--    <v-icon>mdi-cog-outline</v-icon> -->
+     <!--  </v-btn> -->
+     <!--  </v-card> -->
     <v-spacer></v-spacer>
     <NavNotification />
       <user-search>
