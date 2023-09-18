@@ -9,27 +9,6 @@ import UserInteract from './Request.vue'
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
-
-const route = useRoute()
-
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
-
-
-// watching the username change on route parame to refetch data
-  watch(
-    () => route.params.username, async newUsername => {
-      console.log(newUsername)
-    userStore.getUser(newUsername as string).then(() => {
-      console.log(user.value);
-    })
-    }, {
-    immediate: true
-  }
-)
-
 </script>
 
 

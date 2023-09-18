@@ -1,29 +1,14 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
-import { ref, onBeforeUnmount } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { reactive, watch } from 'vue'
-import WinRate from './WinRate.vue'
-import LevelBar from './LevelBar.vue'
-import CustomCard from '@/components/CustomCard.vue'
 
 
 const userStore = useUserStore();
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
-const route = useRoute()
-
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
-
-// temp variable to test----------------- going to be deleted later---------//
-const wins = 40;
-const losses = 10;
-const rate = (wins * 100) / (wins + losses)
-//-------------------------------------------------------------------------//
+const rate = (user.value.winsCount * 100) / (user.value.winsCount + user.value.loseCount)
 
 // const rate = (user.winnedGames * 100) / (user.hostedGames + user.guestedGames)
 let winLevel = ref(rate);
@@ -60,8 +45,8 @@ const interv = setInterval(() => {
             </svg>
         </div>
         <div class="totals">
-          <div class="mdi mdi-thumb-up-outline" style="color:rgb(var(--v-theme-sucess));">. {{ wins}} wins</div>
-          <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-colorTwo))">. {{ losses}} losses</div>
+          <div class="mdi mdi-thumb-up-outline" style="color:rgb(var(--v-theme-sucess));">. {{ user.winsCount }} wins</div>
+          <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-colorTwo))">. {{ user.loseCount }} losses</div>
         </div>
     </div>
 </template>
@@ -83,8 +68,8 @@ const interv = setInterval(() => {
      height: 80px;
      width: 80px;
      border-radius: 50%;
-     padding: 10px; 
-     box-shadow: 2px 2px 4px 5px rgba(0, 0, 0, 0.7), 
+     padding: 10px;
+     box-shadow: 2px 2px 4px 5px rgba(0, 0, 0, 0.7),
                  -2px -2px 4px 1px rgb(181 160 160 / 70%);
         .inner {
             display: flex;
@@ -92,8 +77,8 @@ const interv = setInterval(() => {
             align-items: center;
             height: 60px;
             width: 60px;
-            border-radius: 50%; 
-            box-shadow: inset 2px 2px 4px 5px rgba(0, 0, 0, 0.7), 
+            border-radius: 50%;
+            box-shadow: inset 2px 2px 4px 5px rgba(0, 0, 0, 0.7),
                         inset -2px -2px 4px 1px rgb(181 160 160 / 70%);
         }
     }

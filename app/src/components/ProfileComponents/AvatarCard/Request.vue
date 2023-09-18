@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/user'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
 import { useSnackBarStore } from '@/store/snackbar'
@@ -14,11 +14,7 @@ const data = reactive({
 });
 
 const { user } = storeToRefs(userStore);
-
-// const username = route.params.username;
-// if (username) {
-//   userStore.getUser(username as string)
-// }
+const router = useRouter();
 
 // notification store
 const snackBarStore = useSnackBarStore();
@@ -28,10 +24,9 @@ const sendFrienRequest = async (userId: string) => {
     data.sending = true;
     const result = await userStore.sendFriendRequest(userId);
     data.sending = false;
-    console.log(result)
-  } catch (error) {
+  } catch (error: any) {
     data.sending = false;
-    console.log(error)
+    useSnackBarStore().notify(error?.data?.message)
   }
 }
 
@@ -39,9 +34,7 @@ const sendFrienRequest = async (userId: string) => {
 const cancelFriendRequest = async (requestId: string) => {
   try {
     const result = await userStore.cancelFriendRequest(requestId);
-    console.log('success')
   } catch (error) {
-    console.log('error here')
   }
 }
 
@@ -52,19 +45,8 @@ const confirmFriendInvitaion = async (invitationId: string) => {
     user.value.friendshipStatus = 'FRIENDS';
     user.value.invitationId = '';
   } catch (error) {
-    console.log('error here')
   }
 }
-
-// watching the username change on route parame to refetch data
-watch(
-  () => route.params.username, async newUsername => {
-    console.log(newUsername)
-    userStore.getUser(newUsername as string)
-  }, {
-  immediate: true
-}
-)
 
 // test blocking user
 const blockUser = async () => {
@@ -95,10 +77,11 @@ const unfriend = (userId: string) => {
 
 // invite for a geme
 const inviteGame = (userId: string) => {
-  useInvitationStore().createInvitation(userId, 'GAME').then((result: Invitation) => {
-    console.log('invitation has been created');
+  useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
+    console.log('trying to change the route')
+    router.push({ name: 'GameWaiting', params: { invitationId: result.id}});
   }).catch((error: any) => {
-    console.log('error when creating game invitation')
+      useSnackBarStore().notify(error.data.message);
   });
 }
 
