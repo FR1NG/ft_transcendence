@@ -34,6 +34,9 @@ model Users {
   blockedBy              Block[]             @relation("blockedBy")
   blocked                Block[]             @relation("blocked")
   invitations            Invitation[]
+  points                 Int                 @default(0)
+  leagId                 Int                 @default(1)
+  leag                   Leag                @relation(fields: [leagId], references: [id])
   created_at             DateTime            @default(now())
   updated_at             DateTime            @updatedAt
 }
@@ -119,30 +122,30 @@ model UsersRooms {
 }
 
 model Games {
-  id         String     @id @default(uuid())
-  hostId     String
-  guestId    String
-  status     GameStatus @default(CEATED)
-  winnerId   String?
-  host       Users      @relation("gameHost", fields: [hostId], references: [id])
-  guest      Users      @relation("gameGuest", fields: [guestId], references: [id])
-  winner     Users?     @relation("gameWinner", fields: [winnerId], references: [id])
+  id          String     @id @default(uuid())
+  hostId      String
+  guestId     String
+  status      GameStatus @default(CREATED)
+  winnerId    String?
+  host        Users      @relation("gameHost", fields: [hostId], references: [id])
+  guest       Users      @relation("gameGuest", fields: [guestId], references: [id])
+  winner      Users?     @relation("gameWinner", fields: [winnerId], references: [id])
   winnerScore Int?
-  loserScore Int?
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  loserScore  Int?
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 }
 
 model Notifications {
-  id         Int      @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   content    String
   link       String?
   userId     String
-  seen       Boolean  @default(false)
-  user       Users    @relation(fields: [userId], references: [id])
-  Invitation Invitation? 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  seen       Boolean     @default(false)
+  user       Users       @relation(fields: [userId], references: [id])
+  Invitation Invitation?
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
 }
 
 model Block {
@@ -158,17 +161,23 @@ model Block {
 }
 
 model Invitation {
-  id         String         @id @default(uuid())
-  byId       String
-  toId       String
-  type       InvitationType
-  notificationId Int? @unique
-  notification Notifications? @relation(fields: [notificationId], references: [id]) 
-  user       Users?         @relation(fields: [toId], references: [id])
-  created_at DateTime       @default(now())
-  updated_at DateTime       @updatedAt
+  id             String         @id @default(uuid())
+  byId           String
+  toId           String
+  type           InvitationType
+  notificationId Int?           @unique
+  notification   Notifications? @relation(fields: [notificationId], references: [id])
+  user           Users?         @relation(fields: [toId], references: [id])
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
 
-  @@unique([byId, toId])
+  @@unique([byId, toId, type])
+}
+
+model Leag {
+  id    Int     @id @default(autoincrement())
+  name  String
+  users Users[]
 }
 
 // enums 
@@ -185,7 +194,7 @@ enum RoomRoles {
 }
 
 enum GameStatus {
-  CEATED
+  CREATED
   STARTED
   FINISHED
 }
