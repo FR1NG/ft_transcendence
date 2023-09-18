@@ -494,9 +494,10 @@ async banUser(roomId: string, userId: string) {
   async deleteInvitation(roomId: string, userId: string) {
     const invitation = await this.prisma.invitation.findUnique({
       where: {
-        byId_toId: {
+        byId_toId_type: {
           byId: roomId,
-          toId: userId
+          toId: userId,
+          type: 'ROOM'
         },
       },
     });
