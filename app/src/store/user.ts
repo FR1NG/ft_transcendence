@@ -48,9 +48,8 @@ export const useUserStore = defineStore('user', {
       try {
         const { data } = await axios.get(`/user/filter/?username=${username}`);
         this.user = data;
-        console.log('succed')
+        console.log(data)
       } catch (error) {
-        console.log('error')
         console.log(error)
       }
     },
@@ -115,7 +114,6 @@ export const useUserStore = defineStore('user', {
           chatStore.deleteConversation(id);
           this.user.blocked = true;
           resolve(response);
-          this.user._count.blockedBy = 1;
         } catch (error) {
           reject(error);
         }
