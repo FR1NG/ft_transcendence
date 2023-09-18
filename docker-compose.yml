@@ -27,6 +27,7 @@ services:
       - ./app/:/app/
       - /app/node_modules/
     environment:
+      - MODE=${MODE}
       - VITE_API_URL=${VITE_API_URL}
       - VITE_INTRA_LOGIN_URL=${VITE_INTRA_LOGIN_URL}
     ports: 
