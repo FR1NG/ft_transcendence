@@ -1,8 +1,11 @@
 <script lang="ts" setup>
 import SnackBar from '@/components/SnackBar.vue'
 import { bootstrap } from './composables/socket';
+import { onMounted } from 'vue';
 
-// bootstrap();
+onMounted(() => {
+  bootstrap();
+})
 </script>
 
 <template>

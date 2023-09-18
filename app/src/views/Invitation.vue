@@ -19,7 +19,13 @@ onBeforeRouteUpdate((to) => {
 const errorMessage = ref('');
 
 const handleAccept = () => {
+  loading.value = true;
+  invitationStore.acceptInvitation(invitation.value.id).then((result: any) => {
+    if (invitation.value.type === 'GAME')
+    router.push({name: 'GameWaiting', params: { invitationId: invitation.value.id}});
+  }).catch((error: any) => {
 
+    });
 }
 
 const handleDecline = () => {
@@ -36,8 +42,8 @@ const getData = (invitId: string) => {
   resetObject(invitation.value);
   loading.value = true;
   invitationStore.getInvitation(invitId).then((result) => {
-    console.log(result);
     loading.value = false;
+    console.log(result)
   }).catch((error:any) => {
     errorMessage.value = error?.data?.message
     loading.value = false;
@@ -58,7 +64,7 @@ getData(route.params.id as string);
       <v-card :loading="loading" class="d-flex justify-center ma-4" rounded="xl" variant="outlined" min-height="200" color="colorTwo">
       <div v-if="invitation.id">
           <v-card-text>
-           {{ invitation.inviter}} invite you for a game
+          {{ invitation.notification?.content}}
           </v-card-text>
           <v-card-actions>
             <v-btn @click="handleAccept" :disabled="loading">accept</v-btn>
