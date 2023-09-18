@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { AuthenticatedUser } from 'src/types';
+import { Prisma } from '@prisma/client';
 
 type FriendshipStatus = 'FRIENDS' | 'INVITATION_SENT' | 'INVITATION_RECIEVED' | 'NONE'
 type InvitationStatus = 'SENT' | 'RECIEVED' | 'NONE'
@@ -31,10 +32,6 @@ export class UserService {
     return users;
   }
 
-  findOne(id: number) {
-    return 'find uno';
-  }
-
   async findUser(where, auth: AuthenticatedUser) {
     const user = await this.prisma.users.findUnique({
       where,
@@ -44,6 +41,8 @@ export class UserService {
         email: true,
         avatar: true,
         isOnline: true,
+        points: true,
+        leag: true,
         _count: {
           select: {
             blockedBy: {
@@ -73,10 +72,16 @@ export class UserService {
       user['blocked'] = true;
     delete user['_count'];
     // getting friendshipt status
-     const friendship = await this.getFriendShipStatus(auth, user.id);
+   const friendship = await this.getFriendShipStatus(auth, user.id);
     user['friendshipStatus'] = friendship.status;
     user['invitationId'] = friendship.invitationId;
     user['friendsCount'] = await this.friendsCount(auth);
+    // getting games
+    user['games'] = await this.getUserGames(user.id);
+    user['winsCount'] = user['games'].filter((el: any) => el.winnerId === user.id).length;
+    user['loseCount'] = user['games'].filter((el: any) => el.winnerId !== user.id).length;
+    user['rank'] = await this.getRank(user.id);
+    user['leaderboard'] = await this.getLeaderboard();
     return user;
   }
 
@@ -271,9 +276,11 @@ export class UserService {
         OR:[
           { toId: userId, byId: user.sub },
           { toId: user.sub, byId: userId }
-        ]
+        ],
+        type: 'FRIEND'
       }
     });
+    
     if(!invitation)
       return {status: 'NONE', invitationId: ''};
     if(invitation.byId === userId)
@@ -287,6 +294,73 @@ export class UserService {
     if(friends)
       return {status: 'FRIENDS', invitationId: ''};
     return await this.isInvited(user, userId);
+  }
+
+  // getting the user games with a specific user
+  async getUserGames(userId: string) {
+    const games = await this.prisma.games.findMany({
+      where: {
+        OR: [
+          {guestId: userId},
+          {hostId: userId},
+        ],
+        status: 'FINISHED'
+      },
+      select: {
+        id: true,
+        status: true,
+        winnerId: true,
+        winnerScore: true,
+        loserScore: true,
+        created_at: true,
+        guest: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          }
+        },
+        host: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          }
+        }
+      }
+    });
+    return games;
+  }
+
+  async getRank(userId: string) {
+    const users = await this.prisma.users.findMany({
+      select: {
+        id: true
+      },
+      orderBy:{
+        points: 'desc',
+      },
+    });
+    const index = users.findIndex(user => user.id === userId);
+    if (index >= 0)
+      return index + 1;
+    return 0;
+  }
+
+  async getLeaderboard() {
+    const users = await this.prisma.users.findMany({
+      orderBy: {
+        points: 'desc'
+      },
+      take: 3,
+      select: {
+        id: true,
+        username: true,
+        points: true,
+        avatar: true
+      }
+    });
+    return users;
   }
 
 }
