@@ -1,122 +1,167 @@
-import { 
+import {
   SubscribeMessage,
   WebSocketGateway,
   OnGatewayInit,
   WebSocketServer,
   OnGatewayConnection,
-  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { Logger } from '@nestjs/common';
+import { GameMode } from './dto/game.dto';
 
 @WebSocketGateway()
-export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer() server: Server;
 
-  constructor(private readonly gameService: GameService) {};
-
-  private clients: { [clientId: string]: { gameId: string, role: 'Player1' | 'Player2' } } = {}; // 1.1
-  
-  private gameLoopIntervalIds: { [gameId: string]: NodeJS.Timeout } = {}; // 1.2
-  private readyPlayers: { [gameId: string]: ('Player1' | 'Player2')[] } = {};
-
-  handlePlayerConnection(client: Socket): void {
-    console.log(`Client connected: ${client.id}`);
-    this.gameService.joinQueue(client.id); 
-    client.emit('showStartButton');
-  }
-
-  matchPlayers(): string | null {
-    console.log("Attempting to match players...");
-    const players = this.gameService.getPlayersForMatch();
-    if (!players) {
-        return null;
-    }
-    const [player1, player2] = players;
-    // Ensure players are still connected
-    if (!(this.server.sockets.sockets.get(player1) && this.server.sockets.sockets.get(player2))) {
-      console.log("One or both of the players are not connected. Retry matching...");
-      return this.matchPlayers();
-    }
-    const gameId = this.generateUniqueGameId();
-    this.gameService.initializeGameState(gameId);
-    //join client instead of player.id
-    this.clients[player1] = { gameId, role: 'Player1' }; 
-    this.clients[player2] = { gameId, role: 'Player2' };
-    this.server.sockets.sockets.get(player1)?.join(gameId);
-    this.server.sockets.sockets.get(player2)?.join(gameId);
-    console.log("Updated clients object:", this.clients);
-    this.server.to(player1).emit('assignPlayer', { role: 'Player1', gameId });
-    this.server.to(player2).emit('assignPlayer', { role: 'Player2', gameId });
-
-    return gameId;
-  }
+  constructor(private readonly gameService: GameService,) {};
+  private clients: { [clientId: string]: { gameId: string, role: 'Host' | 'Guest' } } = {};
+  private gameLoopIntervalIds: { [gameId: string]: NodeJS.Timeout } = {};
+  private readyPlayers: { [gameId: string]: ('Host' | 'Guest')[] } = {};
+  private readonly logger = new Logger(GameGateway.name);
 
   handleConnection(client: Socket, ...args: any[]): void {
-    console.log('client has been connected')
-    this.handlePlayerConnection(client);
-    const gameId = this.matchPlayers();
+    this.logger.log(`Client ${client.id} connected at ${Date.now()}`);
+    const mode = client.handshake.query.mode as GameMode;
+    if (!mode) {
+      console.error("Mode not provided in initial connection");
+      return;
+    }
+    this.handlePlayerConnection(client, mode);
+    const gameId = this.matchPlayers(mode);
     if (gameId) {
       console.log("Game ID:", gameId);
       const currentState = this.gameService.getCurrentState(gameId);
       this.broadcastGameState(gameId);
     } else {
+      client.emit('waitingForMatch');
+    }
+  }
+
+  @SubscribeMessage('setSelectedMode')
+  setSelectedMode(client: Socket, mode: GameMode): void {
+    this.handlePlayerConnection(client, mode);
+    const gameId = this.matchPlayers(mode);
+    if (gameId) {
+        console.log("Game ID:", gameId);
+        this.broadcastGameState(gameId);
+    } else {
         client.emit('waitingForMatch');
     }
   }
-  
-  handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
-    // Check if client exists in the clients list
-    if (!this.clients[client.id]) {
-        console.log(`Client with ID ${client.id} was not found in the clients list.`);
-        return;
+
+  handlePlayerConnection(client: Socket, mode: GameMode): void {
+    console.log(`Client connected: ${client.id}`);
+    this.gameService.joinQueue(client.id, mode);
+    client.emit('showStartButton');
+  }
+
+  matchPlayers(mode: GameMode): string | null {
+    console.log("Attempting to match players...");
+    let players: [string, string] | null = null;
+    while (!players) {
+      players = this.gameService.getPlayersForMatch(mode);
+      if (!players) return null;
+      const [player1, player2] = players;
+      if (!(this.server.sockets.sockets.get(player1) && this.server.sockets.sockets.get(player2))) {
+        // Remove disconnected players from the queue
+        if (!this.server.sockets.sockets.get(player1)) {
+            this.gameService.removeFromQueue(player1, mode);
+        }
+        if (!this.server.sockets.sockets.get(player2)) {
+            this.gameService.removeFromQueue(player2, mode);
+        }
+        players = null;
+        continue;
+      }
+      const gameId = this.generateUniqueGameId();
+      this.gameService.initializeGameState(gameId, mode);
+      this.clients[player1] = { gameId, role: 'Host' };
+      this.clients[player2] = { gameId, role: 'Guest' };
+      this.server.sockets.sockets.get(player1)?.join(gameId);
+      this.server.sockets.sockets.get(player2)?.join(gameId);
+      this.server.to(player1).emit('matchFound', { role: 'Host', gameId });
+      this.server.to(player2).emit('matchFound', { role: 'Guest', gameId });        
+      return gameId;
     }
-    const { gameId, role } = this.clients[client.id];
-    // Handle the client that is in the game queue
-    if (!role && this.gameService.isPlayerInQueue(client.id)) {
-        this.gameService.removeFromQueue(client.id);
-    }
-    // Handle the client that was in an active game
-    if (role) {
-      let winnerId: string | null = this.gameService.handlePlayerDisconnection(role, gameId);
-      // Remove the client from the clients list
-      delete this.clients[client.id];
-      // Update game state for other clients
-      this.broadcastGameState(gameId);
+    return null;
+  }
+
+  @SubscribeMessage('joinQueueAgain')
+  handleRestartRequest(client: Socket, mode: GameMode) {
+    const clientId = client.id;
+    const clientData = this.clients[clientId];
+    if (clientData) {
+      const { gameId } = clientData;
       const currentState = this.gameService.getCurrentState(gameId);
-      const activePlayers = Object.values(this.clients).filter(client => ['Player1', 'Player2'].includes(client.role));
-      if (activePlayers.length === 0 && this.gameLoopIntervalIds && this.gameLoopIntervalIds[gameId]) {
-          clearInterval(this.gameLoopIntervalIds[gameId]);
-          delete this.gameLoopIntervalIds[gameId];
-          currentState.gameStarted = false;
-      }
-      // Announce the winner if there is one
-      if (winnerId) {
-          this.server.emit('announceWinner', winnerId);
+      if (currentState) {
+        currentState.gameOver = true;
+        this.gameService.resetGameState(gameId, mode);
+        this.broadcastGameState(gameId);
       }
     }
+    this.handlePlayerConnection(client, mode);
+  }
+
+  @SubscribeMessage('disconnect')
+  handleDisconnectEvent(client: Socket, mode: GameMode) {
+    this.handleDisconnect(client, mode);
   }
 
   startGameLoop(gameId: string) {
     const currentState = this.gameService.getCurrentState(gameId);
-    if (currentState.gameStarted) {
+    if (!currentState.gameStarted || this.gameLoopIntervalIds[gameId]) return;
       this.gameLoopIntervalIds[gameId] = setInterval(() => {
         this.gameService.updateBallPosition(gameId);
         this.broadcastGameState(gameId);
-        // Check for a winner and stop the game if found
-        const players = this.gameService.getCurrentState(gameId).players; // assuming players have scores
+        const players = this.gameService.getCurrentState(gameId).players;
         const winner = players.find(player => player.score >= 10);
         if (winner) {
           clearInterval(this.gameLoopIntervalIds[gameId]);
           currentState.gameOver = true;
           currentState.winner = winner.id;
-          this.server.emit('announceWinner', winner.id); // announce the winner
+          this.server.to(gameId).emit('announceWinner', winner.id);
           this.broadcastGameState(gameId);
         }
       }, 16);
+  }
+
+  handleDisconnect(client: Socket, mode: GameMode) {
+    const clientId = client.id;
+    console.log(`Client disconnected: ${client.id}`);
+    // Remove player from all queues regardless of the game mode
+    Object.values(GameMode).forEach(mode => {
+      this.gameService.removeFromQueue(clientId, mode);
+    });
+  
+    if (!this.clients[clientId]) {
+      console.log(`Client with ID ${clientId} was not found in the clients list. Possibly disconnected before a match.`);
+      return;
     }
-  }  
+    const { gameId, role } = this.clients[clientId];
+    // Remove player from readyPlayers list (if they're in there)
+    if (this.readyPlayers[gameId]) {
+      const index = this.readyPlayers[gameId].indexOf(role);
+      if (index > -1) {
+          this.readyPlayers[gameId].splice(index, 1);
+      }
+    }
+    // If the client was unmatched
+    if (typeof role === 'undefined') {
+      console.log(`Unmatched client with ID ${clientId} disconnected.`);
+      this.gameService.removeFromQueue(clientId, mode);
+      return;
+    }
+    // If the client was in an active game
+    let winnerRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
+    this.server.to(gameId).emit('announceWinner', winnerRole);
+    this.server.to(gameId).emit('hideStartButton');
+    const currentState = this.gameService.getCurrentState(gameId);
+    currentState.gameOver = true;
+    clearInterval(this.gameLoopIntervalIds[gameId]);
+    delete this.clients[clientId];
+    this.broadcastGameState(gameId);
+  }
 
   @SubscribeMessage('startGame')
   handleGameStart(client: Socket): void {
@@ -125,35 +170,29 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       return;
     }
     const { gameId, role } = this.clients[client.id];
-    if (!gameId || (role !== 'Player1' && role !== 'Player2')) return;
-    if (!this.readyPlayers[gameId]) {
-        this.readyPlayers[gameId] = [];
-    }
+    if (!gameId || (role !== 'Host' && role !== 'Guest')) return;
+    if (!this.readyPlayers[gameId]) this.readyPlayers[gameId] = [];
     this.readyPlayers[gameId].push(role);
     if (this.readyPlayers[gameId].length === 2) {
-        this.server.to(gameId).emit('gameStarted');
-        const currentState = this.gameService.getCurrentState(gameId);
-        currentState.gameStarted = true;
-        if (currentState.gameStarted) {
-          this.startGameLoop(gameId);
-        }
-        this.broadcastGameState(gameId);
+      this.server.to(gameId).emit('gameStarted');
+      const currentState = this.gameService.getCurrentState(gameId);
+      currentState.gameStarted = true;
+      if (currentState.gameStarted) this.startGameLoop(gameId);
+      this.broadcastGameState(gameId);
     } else {
-        client.emit('waitingForOtherPlayer');
+      client.emit('waitingForOtherPlayer');
     }
   }
 
   @SubscribeMessage('move')
   handlePlayerMove(client: Socket, payload: { player: string, direction: number }): void {
     const { gameId } = this.clients[client.id];
-    if (!['Player1', 'Player2'].includes(payload.player)) {
-        client.emit('error', 'Invalid player.');
-    } else if (![1, 2].includes(payload.direction)) {
-        client.emit('error', 'Invalid move direction.');
-    } else {
-        this.gameService.movePlayer(payload.player, payload.direction, gameId); // Pass gameId here
-        client.emit('moveReceived', `Move received for ${payload.player} with direction ${payload.direction}`);
-        this.broadcastGameState(gameId);
+    if (!['Host', 'Guest'].includes(payload.player)) client.emit('error', 'Invalid player.');
+    else if (![1, 2].includes(payload.direction)) client.emit('error', 'Invalid move direction.');
+    else {
+      this.gameService.movePlayer(payload.player, payload.direction, gameId);
+      client.emit('moveReceived', `Move received for ${payload.player} with direction ${payload.direction}`);
+      this.broadcastGameState(gameId);
     }
   }  
 
@@ -178,11 +217,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
   
   afterInit(server: Server) {
-    console.log('Initialized!');
+    this.logger.log('Initialized!');
   }
 
   @SubscribeMessage('error')
   handleError(client: Socket, error: any) {
-      console.error("Server-side error:", error);
+    console.error("Server-side error:", error);
   }
 }
