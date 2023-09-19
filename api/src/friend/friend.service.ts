@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { FriendRequestStatus } from '@prisma/client';
 import { AuthenticatedUser } from 'src/types';
@@ -80,10 +80,20 @@ export class FriendService {
     }
   }
 
-  async cancelRequest(user: any, id: number) {
-    const result = await this.prisma.friendRequests.delete({
+  async unfriend(user: AuthenticatedUser, userId: string) {
+    const friend = await this.prisma.friends.findFirst({
       where: {
-        id
+        OR: [
+          { friendOfId: user.sub, friendId: userId},
+          { friendOfId: userId, friendId: user.sub},
+        ]
+      }
+    });
+    if(!friend)
+      throw new NotFoundException();
+    const result = await this.prisma.friends.delete({
+      where: {
+        id: friend.id
       }
     });
     return result;

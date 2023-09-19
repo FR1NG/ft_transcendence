@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import AvatarStatus from '@/components/ProfileComponents/AvatarCard/AvatarStatus.vue' 
-import Level from '@/components/ProfileComponents/LevelCard/Level.vue' 
+import AvatarStatus from '@/components/ProfileComponents/AvatarCard/AvatarStatus.vue'
+import Level from '@/components/ProfileComponents/LevelCard/Level.vue'
 import LastMatches from '@/components/ProfileComponents/MatchesRecord/LastMatches.vue'
 import Rank from '@/components/ProfileComponents/Rank/Rank.vue'
 import Achievemets from '@/components/ProfileComponents/Achievements/Achievements.vue'
@@ -11,22 +11,13 @@ import { storeToRefs } from 'pinia'
 import { reactive, watch } from 'vue'
 
 const userStore = useUserStore();
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
 const route = useRoute()
-const data = reactive({
-  sending: false
-});
-
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
 
 // watching the username change on route parame to refetch data
   watch(
     () => route.params.username, async newUsername => {
-      console.log(newUsername)
       userStore.getUser(newUsername as string)
     }, {
     immediate: true
@@ -35,7 +26,7 @@ if (username) {
 </script>
 
 <template>
-  <v-card elevation="4" class="profileContainer">
+  <v-card elevation="4" class="profileContainer" v-if="user.id">
     <h1 class="viewHeader element">Profile</h1>
     <AvatarStatus :user="user" class="avatarStatus element"/>
     <Level :user="user" class="level element"/>
@@ -62,7 +53,7 @@ if (username) {
   grid-auto-columns: 1fr;
   gap: 1rem;
   grid-template-rows: 5% 20% 50% 20%;
-  grid-template-areas: 
+  grid-template-areas:
   "header    .         .         .        .        ."
   "profile   profile   profile   level    level    level"
   "rank      rank      rank      rank     matches  matches  "

@@ -53,11 +53,6 @@ export class UserController {
     return await this.userService.getProfile(sub);
   }
 
-  @Get('find/:id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
   @Get('filter')
   @UseGuards(AuthGuard)
   async findUser(@Query() params: FilterUserDto, @Req() request: any) {

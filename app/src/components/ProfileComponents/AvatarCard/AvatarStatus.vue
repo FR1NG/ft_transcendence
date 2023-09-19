@@ -9,38 +9,19 @@ import UserInteract from './Request.vue'
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
-
-const route = useRoute()
-
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
-
-
-// watching the username change on route parame to refetch data
-  watch(
-    () => route.params.username, async newUsername => {
-      console.log(newUsername)
-      userStore.getUser(newUsername as string)
-    }, {
-    immediate: true
-  }
-)
-
 </script>
 
 
 
 <template>
-  <CustomCard class="statusWrapper">
+  <CustomCard class="statusWrapper" >
     <img class="usrAvatar" :src="user.avatar" alt="avatar image">
     <div class="friendsCount">
       <h4 class="username"> {{ user.username }} </h4>
       <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
-      variant="flat"> {{ userStore.friendsCount.toString() }} friends</v-chip>
+      variant="flat"> {{ user.friendsCount.toString() }} friends</v-chip>
     </div>
-    <OnOffStatus :isOnline="user.isOnline" :avatar="user.avatar"/>
+    <OnOffStatus v-if="user" :isOnline="user.isOnline" :avatar="user.avatar"/>
     <UserInteract/>
   </CustomCard>
 </template>

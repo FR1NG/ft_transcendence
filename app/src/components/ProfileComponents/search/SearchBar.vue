@@ -12,7 +12,8 @@ defineProps({
 const emit = defineEmits(['change'])
 
 const handleSearch = () => {
-  searchStore.searchUsers(search.value);
+  if(search.value.length > 0)
+    searchStore.searchUsers(search.value);
 }
 
 defineExpose({

@@ -11,6 +11,9 @@ https://www.youtube.com/watch?v=hv0rNxr1XXk
 <template>
 
     <div class="customCard">
+   <!-- <v-progress-linear indeterminate -->
+   <!--    color="yellow-darken-2" -->
+   <!--  ></v-progress-linear> -->
       <slot></slot>
     </div>
 

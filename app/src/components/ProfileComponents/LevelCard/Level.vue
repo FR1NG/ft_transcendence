@@ -1,22 +1,7 @@
 <script setup lang="ts">
-import { useUserStore } from '@/store/user'
-import { storeToRefs } from 'pinia'
-import { useRoute } from 'vue-router'
-import { reactive, watch } from 'vue'
 import WinRate from './WinRate.vue'
 import LevelBar from './LevelBar.vue'
 import CustomCard from '@/components/CustomCard.vue'
-
-
-const userStore = useUserStore();
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
-
-const route = useRoute()
-
-const username = route.params.username;
-if (username) {
-  userStore.getUser(username as string)
-}
 
 const leagues = [
     "bronze",
@@ -40,7 +25,7 @@ const leagues = [
   </div>
     <LevelBar/>
 </CustomCard>
-    
+
 </template>
 
 <style lang="scss">
@@ -96,5 +81,5 @@ const leagueIcon = "/images/levels/" + props.user.leag.name + ".png";
   </div>
     <LevelBar :lvl="level"/>
 </CustomCard>
-    
+
 </template> -->

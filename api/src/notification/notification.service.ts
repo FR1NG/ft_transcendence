@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { unuse } from 'passport';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 
@@ -17,7 +18,6 @@ export class NotificationService {
       }
     });
     
-    
     // sending notification on the socket
     this.eventEmitter.emit('notification.create', {
       userId,
@@ -27,6 +27,7 @@ export class NotificationService {
         link: link,
       }
     });
+    console.log(notification);
     return notification;
   }
 
@@ -51,13 +52,23 @@ export class NotificationService {
 
   async markRead(user: AuthenticatedUser, ids: Array<number>) {
     const updated: Array<number> = [];
-    ids.forEach(async (el: number) => {
+    const unseen = await this.prisma.notifications.findMany({
+      where: {
+        user: {
+          id: user.sub
+        },
+        seen: false,
+      },
+      select: {
+        id: true
+      }
+    });
+
+    unseen.forEach(async (el) => {
+      if(ids.includes(el.id)) {
       const result = await this.prisma.notifications.update({
         where: {
-          id: el,
-          user: {
-          id : user.sub
-          }
+          id: el.id,
         },
         data: {
           seen: true
@@ -68,7 +79,8 @@ export class NotificationService {
       });
       if(result)
         updated.push(result.id);
-    });
+      }
+    })
     return updated;
   }
 }
