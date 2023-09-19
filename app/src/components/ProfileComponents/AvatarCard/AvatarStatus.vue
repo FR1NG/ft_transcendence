@@ -1,28 +1,44 @@
 <script setup lang="ts">
-import { useUserStore } from '@/store/user'
-import { useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { reactive, watch } from 'vue'
 import CustomCard from '@/components/CustomCard.vue';
 import OnOffStatus from './OnOffStatus.vue';
 import UserInteract from './Request.vue'
+import type { User } from '@/types/user'
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+defineProps<{user: User, loading: Boolean}>()
+
 </script>
 
 
 
 <template>
-  <CustomCard class="statusWrapper" >
-    <img class="usrAvatar" :src="user.avatar" alt="avatar image">
+  <CustomCard :loading="loading" class="statusWrapper" >
+    <!-- <img class="usrAvatar" :src="user.avatar" alt="avatar image"> -->
+    <!-- <div class="friendsCount"> -->
+    <!--   <h4 class="username"> {{ user.username }} </h4> -->
+    <!--   <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small" -->
+    <!--   variant="flat"> {{ user.friendsCount.toString() }} friends</v-chip> -->
+    <!-- </div> -->
+    <!-- <OnOffStatus v-if="user" :isOnline="user.isOnline" :avatar="user.avatar"/> -->
+    <!-- <UserInteract :user="user"/> -->
+    <v-row>
+      <v-col cols="6" sm="3" class="d-flex justify-center pa-4">
+        <v-avatar rounded="lg" size="150" class="mt-2">
+          <v-img :src="user.avatar"></v-img>
+             <OnOffStatus v-if="user" :isOnline="user.isOnline" :avatar="user.avatar"/>
+        </v-avatar>
+      </v-col>
+      <v-col cols="6" sm="3">
     <div class="friendsCount">
       <h4 class="username"> {{ user.username }} </h4>
       <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
       variant="flat"> {{ user.friendsCount.toString() }} friends</v-chip>
     </div>
-    <OnOffStatus v-if="user" :isOnline="user.isOnline" :avatar="user.avatar"/>
-    <UserInteract/>
+      </v-col>
+      <v-col cols="12" sm="6">
+        <UserInteract :user="user"/>
+      </v-col>
+
+    </v-row>
   </CustomCard>
 </template>
 

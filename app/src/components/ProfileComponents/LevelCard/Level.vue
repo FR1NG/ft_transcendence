@@ -1,51 +1,58 @@
 <script setup lang="ts">
-import WinRate from './WinRate.vue'
-import LevelBar from './LevelBar.vue'
-import CustomCard from '@/components/CustomCard.vue'
+import WinRate from './WinRate.vue';
+import LevelBar from './LevelBar.vue';
+import CustomCard from '@/components/CustomCard.vue';
+import { User } from '@/types/user';
+import { watch, ref } from 'vue';
 
-const leagues = [
-    "bronze",
-    "silver",
-    "gold",
-    "platinum",
-    "diamond",
-    "heroic",
-    "Master"]
-  const leagueIcon = "/images/levels/" + leagues[6] + ".png";
+const props = defineProps({
+  points: {
+    type: Number,
+    default: 0
+  },
+  league: {
+    type: String,
+    deafult: 'none'
+},
+  loading: {
+    type: Boolean,
+    default: true
+  }
+});
+
 </script>
 
 <template>
-<CustomCard class="levelWrapper">
-  <div class="leag">
-    <div class="leag">
-      <img class="levelIcon" :src="leagueIcon" alt="level icon">
-      <div class="leagueName"> {{ leagues[6] }}</div> <!-- this one to be removed and replaced by the one under it-->
-    </div>
-      <WinRate/>
-  </div>
-    <LevelBar/>
-</CustomCard>
-
+  <CustomCard class="levelWrapper" :loading="loading">
+      <div class="leag">
+        <div class="leag">
+          <img class="levelIcon" :src="`/images/levels/${league}.png`" alt="level icon">
+          <div class="leagueName"> {{ league }}</div> <!-- this one to be removed and replaced by the one under it-->
+        </div>
+        <WinRate />
+      </div>
+      <LevelBar :points="points" />
+  </CustomCard>
 </template>
 
 <style lang="scss">
-
 .levelWrapper {
-    position: relative;
-    padding-top: 1rem;
-    overflow: hidden;
+  position: relative;
+  padding-top: 1rem;
+  overflow: hidden;
 }
 
 .leag {
-    display: flex;
-    font-size: 1.5rem;
-    align-content: space-around;
-    justify-content: space-around;
-    align-items: center;
-    .levelIcon {
-      width: 100px;
-      height: 100px;
-    }
+  display: flex;
+  font-size: 1.5rem;
+  align-content: space-around;
+  justify-content: space-around;
+  align-items: center;
+
+  .levelIcon {
+    width: 100px;
+    height: 100px;
+  }
 }
 </style>
 

@@ -15,35 +15,33 @@ let winLevel = ref(rate);
 let winLevel1 = ref(0);
 const winLevel2 = 220 - (220 * winLevel.value / 100);
 let count = 0;
-const interv = setInterval(() => {
-    if (winLevel1.value >= winLevel.value){
-        clearInterval(interv);
-    }else{
-        winLevel1.value++;
-    }
-}, 10)
+
+if(rate != 0) {
+  const interv = setInterval(() => {
+      if (winLevel1.value >= winLevel.value){
+          clearInterval(interv);
+      }else{
+          winLevel1.value++;
+      }
+  }, 10)
+}
 
 
 </script>
 
 <template>
     <div class="winWrapper">
-        <div class="winRate">
-            <div class="outer">
-                <div class="inner">
-                    <div class="levelNum"> win rate {{ winLevel1 }} %</div>
-                </div>
-            </div>
-            <svg>
-                <defs>
-                    <linearGradient id="gradient">
-                        <stop offset="0%" stop-color="rgb(var(--v-theme-colorTwo))"/>
-                        <stop offset="100%" stop-color="rgb(var(--v-theme-colorThree))"/>
-                    </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="35" stroke-linecap="round"></circle>
-            </svg>
-        </div>
+        <v-progress-circular
+            :rotate="360"
+            :size="100"
+            :width="15"
+            :model-value="winLevel1"
+            color="colorTwo"
+            class="ma-2"
+            bg-color="#2a0307"
+          >
+            {{ winLevel1 }}%
+          </v-progress-circular>
         <div class="totals">
           <div class="mdi mdi-thumb-up-outline" style="color:rgb(var(--v-theme-sucess));">. {{ user.winsCount }} wins</div>
           <div class="mdi mdi-thumb-down-outline" style="color:rgb(var(--v-theme-colorTwo))">. {{ user.loseCount }} losses</div>
