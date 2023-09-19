@@ -7,6 +7,7 @@ export type User = {
   friendsCount: number
   winsCount: number
   loseCount: number
+  points: number
   friendshipStatus: FriendshipStatus
   invitationId: string
   blocked: boolean
