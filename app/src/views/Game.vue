@@ -3,21 +3,22 @@
     <div class="theme-selector" v-if="!themeSelected">
       <h2>Select a Theme:</h2>
       <button @click="setTheme('classic')" class="mode-button">Classic</button>
-      <button @click="setTheme('galaxy')" class="mode-button">Galaxy</button>
+      <button @click="setTheme('Retro')" class="mode-button">Retro</button>
       <button @click="setTheme('PacMan')" class="mode-button">PacMan</button>
     </div>
     <div class="mode-selector" v-if="themeSelected && !modeSelected">
-      <h2>Select a Speed Mode:</h2>
+      <h2>Select a Mode:</h2>
       <button @click="setMode('EASY')" class="mode-button">Easy</button>
       <button @click="setMode('NORMAL')" class="mode-button">Normal</button>
       <button @click="setMode('HARD')" class="mode-button">Hard</button>
     </div>
-    <div v-if="themeSelected && waitingForOpponent">Waiting for another player...</div>
+    <div v-if="themeSelected && waitingForOpponent && modeSelected" class="waiting">Waiting for another player...</div>
     <button v-if="themeSelected && showStartButton" id="startButton" @click="startGame">Start</button>
+    <p v-if="themeSelected && showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
     <canvas v-if="themeSelected && showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
-    <div v-if="themeSelected && gameOver">
+    <div v-if="themeSelected && gameOver" class="game-over-container">
       <h1>{{ winner }} is the winner!</h1>
-      <button @click="restartGame" id="startButton">Restart Game</button>
+      <button @click="restartGame" id="restartButton">Restart Game</button>
     </div>
   </div>
 </template>
@@ -47,7 +48,7 @@ export default {
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
     const themeSelected = ref(false);
-    type ThemeName = 'classic' | 'galaxy' | 'PacMan';
+    type ThemeName = 'classic' | 'Retro' | 'PacMan';
     const themes = {
       classic: {
         backgroundColor: '#FFFFFF',
@@ -58,14 +59,14 @@ export default {
         backgroundImage: '/../public/images/plain-black-background.jpg',
         ballImage: "../../public/images/pngegg.png",
       },
-      galaxy: {
+      Retro: {
         backgroundColor: '#1E1E1E',
         paddleColor: '#000000',
         ballColor: '#E94560',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        ballImage: "../../public/images/earth.png",
-        backgroundImage: '/../public/images/galaxy.jpg',
+        backgroundImage: '/../public/images/test.jpeg',
+        ballImage: '/../public/images/pngegg.png',
       },
       PacMan: {
         backgroundColor: '#F5DEB3',
@@ -77,6 +78,7 @@ export default {
         ballImage: "../../public/images/Original_PacMan.png",
       }
     };
+
     const currentTheme = ref(themes.classic);
     const modeSelected = ref(false);
     type GameMode = 'EASY' | 'NORMAL' | 'HARD';
@@ -87,6 +89,7 @@ export default {
       selectedMode.value = mode;
       modeSelected.value = true;
       socket.emit('setSelectedMode', mode);
+      waitingForOpponent.value = true;
     };
 
     let loadedImages: { [key: string]: HTMLImageElement } = {};
@@ -411,37 +414,65 @@ export default {
 .gameCanvas {
   padding: 0;
   display: block;
+  color: rgb(var(--v-theme-colorTwo));
 }
 
 .container {
+  background-color: rgb(var(--v-theme-colorOne));
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center;     
   height: 100vh;
+  width: 100vw; 
+  overflow: hidden !important;          
 }
 
-body, html {
-  overflow: hidden !important; /* Hide scrollbars */
+.waiting, .theme-selector, .mode-selector {
+  position: absolute;
+  z-index: 1;
+  display: flex;           
+  flex-direction: column;  
+  justify-content: center;
+  align-items: center;    
+  width: 100%;            
+  font-family: 'Public Pixel';
+  font-size: 20px;
+  color: rgb(var(--v-theme-colorFoure));
 }
-.mode-button {
+
+
+body, html {
+  overflow: hidden !important;
+  color: rgb(var(--v-theme-colorOne));
+}
+
+.mode-button, #startButton, #restartButton {
+  margin-top: 20px;
   font-size: 24px;
   font-family: 'Public Pixel', sans-serif;
   padding: 16px 32px;
-  margin: 8px;
+  margin: 12px;
   border: none;
-  background-color: #5C469C;
-  /* background-color: var(--v-primary-base); */
-  color: white;
+  background-color: transparent; 
+  color: rgb(var(--v-theme-colorTwo));
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(212, 173, 252, 0.2);
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 
-  // margin-right: 20px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
+
+  /* Neon effect */
+  box-shadow: 
+    0 0 5px rgb(var(--v-theme-colorTwo)),
+    0 0 10px rgb(var(--v-theme-colorTwo)),
+    0 0 15px rgb(var(--v-theme-colorThree)),
+    0 0 20px rgb(var(--v-theme-colorThree)),
+    0 0 25px rgb(var(--v-theme-colorThree)),
+    0 0 30px rgb(var(--v-theme-colorThree));
 }
-/* Apply animation on click */
-.mode-button:active {
+
+.mode-button:active, #startButton:active {
   transform: scale(0.9);
-  box-shadow: 0 2px 5px rgba(212, 173, 252, 0.2);
+  box-shadow: 0 2px 5px rgb(var(--v-theme-colorThree));
 }
 
 /* Animation on modes buttons */
@@ -460,54 +491,120 @@ body, html {
       transform: scale(1);
   }
 }
-// Base Button Style
+
 #startButton {
   display: inline-block;
   position: absolute;
   justify-content: center;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #5C469C;
-  color: white;
   font-size: 16px;
-  font-family: 'Public Pixel', sans-serif;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 
-  // Hover State
+  /* Hover State */
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 15px rgba(212, 173, 252, 0.4);
+    box-shadow: 
+      0 0 10px rgb(var(--v-theme-colorTwo)),
+      0 0 20px rgb(var(--v-theme-colorTwo)),
+      0 0 30px rgb(var(--v-theme-colorThree)),
+      0 0 40px rgb(var(--v-theme-colorThree)),
+      0 0 50px rgb(var(--v-theme-colorThree)),
+      0 0 60px rgb(var(--v-theme-colorThree));
   }
 
-  // Active State (when button is clicked)
+  /* Active State (when button is clicked) */
   &:active {
-    background-color: darken(#5C469C, 20%);
+    box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
   }
 
-  // Disabled State
+  /* Disabled State */
   &:disabled {
-    background-color: #D4ADFC;
+    box-shadow: 
+      0 0 5px rgb(var(--v-theme-colorFoure)),
+      0 0 10px rgb(var(--v-theme-colorFoure));
     cursor: not-allowed;
+    color: rgb(var(--v-theme-colorFoure));
   }
 }
 
-h1 {
-    font-family: 'Public Pixel', sans-serif; 
-    font-size: 2.5em;
-    color: #0C134F;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    margin-top: 50px;
-    border-bottom: 2px solid #5C469C; 
-    padding-bottom: 10px;
-    letter-spacing: 1.5px;
-    transition: color 0.3s ease;
+.game-guide {
+  font-family: 'Public Pixel', sans-serif;
+  font-size: 15px;
+  color: rgb(var(--v-theme-colorFoure)); 
+  text-align: center;
+  position: absolute;
+  bottom: 70px; 
+  left: 50%;
+  transform: translateX(-50%);
+  animation: fadeIn 1s forwards;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+.game-over-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+h1{
+  font-family: 'Public Pixel', sans-serif;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgb(var(--v-theme-colorThree));
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  letter-spacing: 1.5px;
+  animation: flicker 0.5s infinite alternate;
+  transition: color 0.3s ease;
+}
+
+@keyframes flicker {
+  0% {
+  color: rgb(var(--v-theme-colorFoure));
+  }
+  100% {
+  color: rgb(var(--v-theme-colorTwo));
+  }
 }
 
 h1:hover {
-    color: #1D267D;
+  color: rgb(var(--v-theme-colorTwo));
+}
+
+#restartButton {
+  display: inline-block;
+  justify-content: center;
+  font-size: 16px;
+
+  /* Hover State */
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 
+      0 0 10px rgb(var(--v-theme-colorTwo)),
+      0 0 20px rgb(var(--v-theme-colorTwo)),
+      0 0 30px rgb(var(--v-theme-colorThree)),
+      0 0 40px rgb(var(--v-theme-colorThree)),
+      0 0 50px rgb(var(--v-theme-colorThree)),
+      0 0 60px rgb(var(--v-theme-colorThree));
+  }
+
+  /* Active State (when button is clicked) */
+  &:active {
+    box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
+    }
+
+  /* Disabled State */
+  &:disabled {
+    box-shadow: 
+      0 0 5px rgb(var(--v-theme-colorFoure)),
+      0 0 10px rgb(var(--v-theme-colorFoure));
+    cursor: not-allowed;
+    color: rgb(var(--v-theme-colorFoure));
+  }
 }
 
 </style>
