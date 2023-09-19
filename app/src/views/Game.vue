@@ -47,7 +47,7 @@ export default {
     const winner = ref<null | "Host" | "Guest">(null);
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
-    const { themeSelected, modeSelected, selectedMode, currentTheme } = toRefs(gameStore);
+    const { themeSelected, modeSelected, selectedMode, currentTheme } = toRefs(gameStore);//TO DO: make them work together using pinia
     // const themeSelected = ref(false);
     // type ThemeName = 'classic' | 'Retro' | 'PacMan';
     // const themes = {
