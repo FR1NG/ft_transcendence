@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Param, UseGuards, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, UseGuards, Body } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { InvitationService } from './invitation.service';
 import { User } from 'src/common/decorators';
 import { AuthenticatedUser } from 'src/types';
 import { CreateInvitationDto } from './dto/invitation.dto';
+import { BlockGuard } from 'src/common/guards/block/block.guard';
 
 @Controller('invitation')
 export class InvitationController {
@@ -11,6 +12,7 @@ export class InvitationController {
   constructor(private invitationService: InvitationService) {}
 
   @Post()
+  @UseGuards(BlockGuard)
   @UseGuards(AuthGuard)
   async createInvitation(@User() user: AuthenticatedUser, @Body() data: CreateInvitationDto) {
     return await this.invitationService.createInvitation(user, data) ;
@@ -32,6 +34,12 @@ export class InvitationController {
   @UseGuards(AuthGuard)
   async declineInvitation(@User() user: AuthenticatedUser, @Param('id') id: string) {
     return await this.invitationService.declineInvitation(user, id);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  async cancelInviataion(@User() user: AuthenticatedUser, @Param('id') id: string) {
+    return await this.invitationService.deleteInvitation(user.sub, id);
   }
 
 }

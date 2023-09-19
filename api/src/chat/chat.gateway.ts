@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, UseFilters, UseGuards } from '@nestjs/common';
+import {  UseFilters, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
@@ -24,7 +24,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   @WebSocketServer()
   private server: Server;
 
-  private clients: Map<string, any> = new Map();
+  private clients: Map<string, Socket> = new Map();
 
   async handleConnection(client: Socket, ...args: any[]) {
     const payload = await this.getUser(client);
@@ -117,6 +117,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   @OnEvent('notification.create')
   handleNotificationCreate(payload) {
     const client = this.clients.get(payload.userId);
-    client.emit('notification', payload.data);
+    if(client)
+      client.emit('notification', payload.data);
+  }
+
+  // TODO to be moved to game gateway
+  @OnEvent('game.created')
+  handleGameCreate(payload) {
+    console.log('emiting event');
+    const to = this.clients.get(payload.toId);
+    const by = this.clients.get(payload.byId);
+    if(to)
+      to.emit('user-joined', payload);
+    if(by)
+      by.emit('user-joined', payload);
+  }
+
+  //client getters
+  getClient(id: string): Socket {
+    return this.clients.get(id);
   }
 }

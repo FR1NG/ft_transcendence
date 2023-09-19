@@ -22,7 +22,7 @@ export default createVuetify({
           colorTwo: '#DB022B',
           colorThree: '#5c0606',
           colorFoure: '#FAF0E6',
-          sucess: '#0080000',
+          sucess: '#008000',
           test: '#6A1B9A',
         },
       },

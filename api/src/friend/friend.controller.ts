@@ -2,6 +2,8 @@ import { Controller, Post, Get, Body, UseGuards, Req, Delete } from '@nestjs/com
 import { FriendService } from './friend.service';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { NotificationService } from 'src/notification/notification.service';
+import { AuthenticatedUser } from 'src/types';
+import { User } from 'src/common/decorators'
 
 @Controller('friend')
 export class FriendController {
@@ -25,10 +27,8 @@ export class FriendController {
 
   @Delete()
   @UseGuards(AuthGuard)
-  async cancelRequest(@Body('id') requestId: number , @Req() request: any) {
-    const {user} = request;
-    return await this.friendService.cancelRequest(user, requestId);
-
+  async unfriend(@User() user: AuthenticatedUser, @Body('userId') userId: string) {
+    return await this.friendService.unfriend(user, userId);
   }
 
   @Get('requests-sent')

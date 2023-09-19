@@ -7,6 +7,25 @@ function getRandom(min: number, max: number) {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+async function seedLeags() {
+  console.log('seeding leags')
+  const leags = [
+     {id: 1, name: "Wood"} ,
+     {id: 2, name: "Silver"} ,
+     {id: 3, name: "Gold"} ,
+     {id: 4, name: "Legend"} ,
+  ];
+  leags.forEach(async el => {
+    console.log(el)
+    await prisma.leag.create({
+      data: {
+        id: el.id,
+        name: el.name
+      }
+    })
+  })
+}
+
 async function seedUsers() {
   console.log('creating users');
   const users: Users[] = [];
@@ -26,7 +45,7 @@ async function seedUsers() {
         email: user.email,
         username: user.username,
         intra_id: user.intra_id,
-        avatar: user.avatar
+        avatar: user.avatar,
       },
     });
     users.push(record);
@@ -59,6 +78,7 @@ const seedGames = async (users: Users[]) => {
 }
 
 async function main() {
+  await seedLeags();
   const users = await seedUsers();
   const games = await seedGames(users);
 }

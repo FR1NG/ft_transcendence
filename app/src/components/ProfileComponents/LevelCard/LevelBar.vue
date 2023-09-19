@@ -4,7 +4,7 @@ import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
 const userStore = useUserStore();
-const { user, getRequstStatus, isBlocked } = storeToRefs(userStore);
+const { user } = storeToRefs(userStore);
 
 
 // temp variable to test----------------- going to be deleted later---------//

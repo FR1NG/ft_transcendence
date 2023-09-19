@@ -5,16 +5,12 @@ import { useSocketStore } from '@/store/socket';
 import { useChatStore } from '@/store/chat';
 import { useSnackBarStore } from '@/store/snackbar'
 
-const appStore = useAppStore();
-const authStore = useAuthStore();
-const socketStore = useSocketStore();
-const chatStore = useChatStore();
-const snackBarStore = useSnackBarStore();
-const { me } = storeToRefs(authStore);
-appStore.getInitialData();
-authStore.getMe();
 
 const init = (): boolean => {
+  const socketStore = useSocketStore();
+  const appStore = useAppStore();
+  appStore.getInitialData();
+
   return socketStore.init(import.meta.env.DOMAIN, {
     auth: {
       token: sessionStorage.getItem('access_token'),
@@ -23,6 +19,13 @@ const init = (): boolean => {
 }
 
 const listen = () => {
+
+  const authStore = useAuthStore();
+  const socketStore = useSocketStore();
+  const chatStore = useChatStore();
+  const { me } = storeToRefs(authStore);
+  authStore.getMe();
+
   socketStore.listen((event: string, data: any) => {
     if (event === 'message') {
       data["loading"] = false;
@@ -47,6 +50,9 @@ const listen = () => {
 }
 
 const showNotification = (content: string, title: string) => {
+  const snackBarStore = useSnackBarStore();
+  const chatStore = useChatStore();
+
   snackBarStore.notify(content, title);
   chatStore.playNotificationSound();
 }

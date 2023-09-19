@@ -3,11 +3,14 @@ export type User = {
   username: string
   avatar: string
   email: string
-  friendRequestsSent?: FrienRequest[]
-  friendRequestsRecieved?: FrienRequest[]
   isOnline: boolean
-  _count: Count
-  block?: boolean
+  friendsCount: number
+  winsCount: number
+  loseCount: number
+  friendshipStatus: FriendshipStatus
+  invitationId: string
+  blocked: boolean
+  games: Game[]
 }
 
 export type FrienRequest = {
@@ -15,8 +18,29 @@ export type FrienRequest = {
   status: 'PENDING' | 'REJECTED' | 'CONFIRMED',
 }
 
-type Count = {
-  blockedBy: number
-  friendOf: number
-  friendWith: number
+type FriendshipStatus = 'FRIENDS' | 'INVITATION_SENT' | 'INVITATION_RECIEVED' | 'NONE'
+type GameSatus = 'CREATED' | 'STARTED' | 'FINISHED';
+
+export interface Game {
+  id: string
+  status: GameSatus
+  winnerId?: string
+  winnerScore?: number
+  loserScore: number
+  guest: Guest
+  host: Host
+  created_at: string
+}
+
+
+export interface Guest {
+  id: string
+  username: string
+  avatar: string
+}
+
+export interface Host {
+  id: string
+  username: string
+  avatar: string
 }

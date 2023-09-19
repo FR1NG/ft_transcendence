@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Player, Ball, GameState, GameMode} from './dto/game.dto';
+import { PrismaService } from 'src/prisma.service';
+import { AuthenticatedUser } from 'src/types';
+import { GameStatus } from '@prisma/client';
+
 const BASE_MOVE_DISTANCE = 0.02;
 const GAME_MODE_CONFIGS = {
   [GameMode.EASY]: {
@@ -25,7 +29,7 @@ const BALL_SPEEDS = {
 export class GameService {
   private gameStates: { [gameId: string]: GameState } = {};
 
-  constructor() {}
+  constructor(private prisma: PrismaService) {}
 
   public initializeGameState(gameId: string, mode: GameMode): void {
     if (!this.gameStates[gameId]) {
@@ -262,5 +266,28 @@ export class GameService {
   // Check if a player is in the queue:
   isPlayerInQueue(playerId: string): boolean {
     return Object.values(this.playerQueues).some(queue => queue.includes(playerId));
+  }
+
+  // db logic
+  async createGame(hostId: string, guestId: string) {
+    const game = this.prisma.games.create({
+      data: {
+        hostId: hostId,
+        guestId: guestId,
+      }
+    });
+    return game;
+  }
+
+  // getting created game for two users
+  async getGame(hostId: string, guestId: string, status: GameStatus) {
+    const game = await this.prisma.games.findFirst({
+      where: {
+        hostId,
+        guestId,
+        status
+      }
+    });
+    return game;
   }
 }

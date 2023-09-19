@@ -18,7 +18,15 @@ const routes = [
         }
       },
       {
-        path: '/game',
+        path: '/game/waiting/:invitationId',
+        name: 'GameWaiting',
+        component: () => import('@/views/GameWaiting.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/game/:id',
         name: 'Game',
         component: () => import('@/views/Game.vue')
       },
@@ -39,6 +47,14 @@ const routes = [
         path: '/settings',
         name: 'Settings',
         component: () => import('@/views/AccountSettings.vue'),
+        meta: {
+          auth: true
+        }
+      },
+      {
+        path: '/invitation/:id',
+        name: 'Invitation',
+        component: () => import('@/views/Invitation.vue'),
         meta: {
           auth: true
         }

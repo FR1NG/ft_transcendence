@@ -7,20 +7,30 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { GameMode } from './dto/game.dto';
+import { OnEvent } from '@nestjs/event-emitter';
+import { WsAuthGuard } from 'src/auth/ws.guard';
+import { InvitationService } from 'src/invitation/invitation.service';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   @WebSocketServer() server: Server;
 
-  constructor(private readonly gameService: GameService,) {};
+  constructor(
+    private readonly gameService: GameService,
+    private invitationService: InvitationService,
+  ) {};
+
   private clients: { [clientId: string]: { gameId: string, role: 'Host' | 'Guest' } } = {};
   private gameLoopIntervalIds: { [gameId: string]: NodeJS.Timeout } = {};
   private readyPlayers: { [gameId: string]: ('Host' | 'Guest')[] } = {};
   private readonly logger = new Logger(GameGateway.name);
+  private sockets: Map<string, Socket> = new Map();
 
   handleConnection(client: Socket, ...args: any[]): void {
+    // adding user to the list of connected users
     this.logger.log(`Client ${client.id} connected at ${Date.now()}`);
     const mode = client.handshake.query.mode as GameMode;
     if (!mode) {
@@ -224,4 +234,27 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   handleError(client: Socket, error: any) {
     console.error("Server-side error:", error);
   }
+
+  // requesting game infos
+  @SubscribeMessage('request-info')
+  @UseGuards(WsAuthGuard)
+  async requestInfo(client: any, payload: any) {
+    const { user } = client;
+    if(!this.sockets.has(user.sub))
+      this.sockets.set(user.sub, client);
+    const game = await this.invitationService.getGameByInvit(payload.invitationId);
+    client.join(game.id);
+    console.log(this.server.sockets.adapter.rooms.get(game.id))
+    // const host = this.sockets.get(game.hostId);
+    // const guest = this.sockets.get(game.guestId);
+    // if(host)
+    //   host.emit('user-joined', game)
+    // if(guest)
+    //   host.emit('user-joined', game)
+  }
+  // listning for events
+  // @OnEvent('game.created')
+  // handleGameCreate(payload) {
+  // }
+
 }
