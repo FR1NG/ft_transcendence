@@ -60,7 +60,6 @@ const callback = async (response: any) => {
     wrongCode.value = true;
     faCode.value = '';
   }
-  
 }
 
 </script>
@@ -79,7 +78,7 @@ const callback = async (response: any) => {
           <v-divider thinkness="50" color="white" class="my-4"></v-divider>
         </form>
         <v-btn block variant="outlined" color="colorTwo" :loading="attemptinLoginWithIntra"
-          :disabled="attemptinLoginWithIntra" :href="intra_url"  @click="dialog = !dialog">
+          :disabled="attemptinLoginWithIntra" :href="intra_url">
           login with intra
         </v-btn>
 
@@ -96,6 +95,7 @@ const callback = async (response: any) => {
               <v-btn type="submit" @click="check2fa" :loading="loading">
                 login
               </v-btn>
+              <v-snackbar class="snack" v-model="wrongCode" location="top" timeout="4000" color="colorOne" width="100%"> invalid authenticator code</v-snackbar>
               <v-spacer></v-spacer>
               <v-btn type="submit" @click="dialog=false">
                 cancel
@@ -124,6 +124,18 @@ const callback = async (response: any) => {
     max-height: 350px;
   }
 }
+.v-overlay--active {
+    backdrop-filter: blur(2px);
+    background: rgba(var(--v-theme-colorTwo),0.3);
+}
+.snack {
+  animation: fade-at-leave 0.8s linear forwards 3200ms;
+}
 
+@keyframes fade-at-leave {
+  100% {
+    opacity: 0;
+  }
+}
 </style>
 
