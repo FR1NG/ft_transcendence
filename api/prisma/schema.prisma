@@ -35,8 +35,7 @@ model Users {
   blocked                Block[]             @relation("blocked")
   invitations            Invitation[]
   points                 Int                 @default(0)
-  leagId                 Int                 @default(1)
-  leag                   Leag                @relation(fields: [leagId], references: [id])
+  achievments Achievments[]
   created_at             DateTime            @default(now())
   updated_at             DateTime            @updatedAt
 }
@@ -174,12 +173,12 @@ model Invitation {
   @@unique([byId, toId, type])
 }
 
-model Leag {
-  id    Int     @id @default(autoincrement())
-  name  String
+model Achievments {
+  id String @id @default(uuid())
+  name String
+  description String
   users Users[]
 }
-
 // enums 
 enum RoomType {
   PRIVATE
