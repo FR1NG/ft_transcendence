@@ -2,12 +2,15 @@
 import { ref, watch } from 'vue';
 import axios from '@/plugins/axios'
 import { useSnackBarStore } from '@/store/snackbar';
+import { useAuthStore } from '@/store/auth';
+import { storeToRefs } from 'pinia';
 
 const snackBarStore = useSnackBarStore();
 const dialog = ref(false);
 const loading = ref(false);
 const avatar = ref();
 const transparent = 'rgba(255, 255, 255, 0)';
+const { me } = storeToRefs(useAuthStore());
 
 const props = defineProps({
   link: String,
@@ -123,7 +126,7 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
 <template>
     <v-card  elevation="0" color="transparent">
       <div class="avatarPic">
-        <img class="pic" src="https://cdn.intra.42.fr/users/9a65446eb4e52003992947a9cb266862/ael-rhai.jpg" alt="Avatar image">
+        <img class="pic" :src="me.avatar" alt="Avatar image">
         <v-btn @click="dialog = !dialog" variant="text" class="changePic"
         color="gray" small icon="mdi-image-edit"></v-btn>
       </div>
