@@ -2,7 +2,6 @@
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 
 const userStore = useUserStore();
@@ -10,13 +9,11 @@ const { user } = storeToRefs(userStore);
 
 const rate = (user.value.winsCount * 100) / (user.value.winsCount + user.value.loseCount)
 
-// const rate = (user.winnedGames * 100) / (user.hostedGames + user.guestedGames)
 let winLevel = ref(rate);
 let winLevel1 = ref(0);
 const winLevel2 = 220 - (220 * winLevel.value / 100);
-let count = 0;
 
-if(rate != 0) {
+if(user.value.winsCount || user.value.loseCount) {
   const interv = setInterval(() => {
       if (winLevel1.value >= winLevel.value){
           clearInterval(interv);

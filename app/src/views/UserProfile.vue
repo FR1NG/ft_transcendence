@@ -8,10 +8,12 @@ import Achievemets from '@/components/ProfileComponents/Achievements/Achievement
 import { useUserStore } from '@/store/user'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { ref, watch, reactive } from 'vue'
+import { ref, watch } from 'vue'
+import { useAuthStore } from '@/store/auth'
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
+const { me } = storeToRefs(useAuthStore());
 
 const route = useRoute()
 const loading = ref(true);
@@ -43,19 +45,19 @@ const leagues = [
 ];
 
 const setLeag = (points: number) => {
-  const selected: {name: string, points: number} = leagues.find((el: any) => el.points > points);
-  league.value = selected?.name || 'none';
+  const selected: {name: string, points: number} = leagues.find((el: any) => el.points > points) || {name: '', points:0};
+  league.value = selected.name;
 }
 </script>
 
 <template>
   <v-card elevation="4" class="profileContainer" v-if="user.id">
     <h1 class="viewHeader element">Profile</h1>
-    <AvatarStatus :loading="loading" :user="user" class="avatarStatus element" />
+    <AvatarStatus :me="me" :loading="loading" :user="user" class="avatarStatus element" />
     <Level :loading="loading" :league="league" :points="user.points" class="level element" />
-    <LastMatches :user="user" class="matchsRecord element" />
-    <Rank :user="user" class="rank element" />
-    <Achievemets :user="user" class="achievements element" />
+    <LastMatches :loading="loading" :user="user" class="matchsRecord element" />
+    <Rank :user="user" :loading="loading" :league="league" class="rank element" />
+    <Achievemets :user="user" :loading="loading" class="achievements element" />
   </v-card>
 </template>
 

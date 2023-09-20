@@ -1,3 +1,8 @@
+export type Me = {
+  id: string
+  username: string
+  avatar: string
+}
 export type User = {
   id: string
   username: string
@@ -11,7 +16,22 @@ export type User = {
   friendshipStatus: FriendshipStatus
   invitationId: string
   blocked: boolean
+  rank: number
+  achievments: Achiement[]
+  leaderboard: Leaderboard
   games: Game[]
+}
+
+export interface Leaderboard {
+  username: string
+  avatar: string
+  points: number
+}
+
+export interface Achiement {
+  id: string
+  name: string
+  description: string
 }
 
 export type FrienRequest = {

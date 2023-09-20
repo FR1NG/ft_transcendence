@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import CubeRank from './cubeRank.vue'
 import CustomCard from '@/components/CustomCard.vue'
-import { useUserStore } from '@/store/user'
+import { User } from '@/types/user'
+import { useRouter } from 'vue-router';
 
-const userStore = useUserStore();
-const { user } = storeToRefs(userStore);
+defineProps<{user: User, loading: Boolean, league: String}>()
+const router = useRouter();
 
+const handleClick = (username: string) => {
+  router.push({name: 'UserProfile', params: {username}})
+}
 </script>
 
 <template>
-    <CustomCard class="rankWrapper">
+    <CustomCard class="rankWrapper" :loading="loading">
         <div class="topThree">
             <div v-for="(usr, index) in user.leaderboard" :class="`place${index}`">
-                <CubeRank :userAvatar="usr.avatar" :username="usr.username" :points="usr.points" :rank="index" />
+                <CubeRank @click="handleClick(usr.username)" :userAvatar="usr.avatar" :username="usr.username" :points="usr.points" :rank="index" />
             </div>
         </div>
         <table class ="userPosition" cellspacing="0" cellpadding="0">
@@ -27,7 +30,7 @@ const { user } = storeToRefs(userStore);
         <th class="pad"> {{ user.rank }}</th>
         <th>{{ user.username }}</th>
         <th>{{ user.points }}</th>
-        <th class="alignRight">{{ user.leag?.name}}</th>
+        <th class="alignRight">{{ league }}</th>
             </tbody>
         </table>
     </CustomCard>

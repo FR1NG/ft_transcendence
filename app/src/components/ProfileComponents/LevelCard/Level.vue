@@ -2,10 +2,8 @@
 import WinRate from './WinRate.vue';
 import LevelBar from './LevelBar.vue';
 import CustomCard from '@/components/CustomCard.vue';
-import { User } from '@/types/user';
-import { watch, ref } from 'vue';
 
-const props = defineProps({
+defineProps({
   points: {
     type: Number,
     default: 0
