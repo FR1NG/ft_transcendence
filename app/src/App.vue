@@ -15,6 +15,10 @@ onMounted(() => {
 
 <style lang="scss">
 @import url('https://fonts.googleapis.com/css2?family=Gugi&display=swap');
+
+::-webkit-scrollbar {
+  display: none;
+}
 body {
   font-family: 'Gugi', cursive;
 }

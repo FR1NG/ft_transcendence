@@ -15,11 +15,5 @@ import Play from '@/components/HomeComponents/Play.vue'
 ::-webkit-scrollbar {
   display: none;
 }
-.homeContainer {
-  background-color: rgb(var(--v-theme-colorOne));
-  font-family: 'Gugi', cursive;
-  height: 93vh;
-  overflow:scroll;
-}
 
 </style>
