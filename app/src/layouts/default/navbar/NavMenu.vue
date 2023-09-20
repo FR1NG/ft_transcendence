@@ -1,3 +1,33 @@
+<script lang="ts">
+import { useUserStore } from '@/store/user'
+import { useAuthStore } from '@/store/auth'
+import { computed } from 'vue'
+import { storeToRefs } from 'pinia';
+
+  export default {
+    data: () => ({
+      fav: true,
+      menu: false,
+      message: false,
+      hints: true,
+    }),
+    setup() {
+
+      const userStore = useUserStore();
+      const authStore = useAuthStore();
+      const { me } = storeToRefs(authStore);
+    const logout = () => {
+      authStore.logout();
+    }
+      return {
+      // profile,
+      logout,
+      me
+    }
+    }
+  }
+</script>
+
 <template>
   <div class="text-center">
     <v-menu
@@ -10,7 +40,7 @@
           color="indigo"
           v-bind="props"
         >
-          <v-avatar size="40" :image="profile.avatar">
+          <v-avatar size="40" :image="me.avatar">
           </v-avatar>
         </v-btn>
       </template>
@@ -18,8 +48,8 @@
       <v-card min-width="250">
         <v-list>
           <v-list-item
-            :prepend-avatar="profile.avatar"
-            :title="profile.username"
+            :prepend-avatar="me.avatar"
+            :title="me.username"
           >
           </v-list-item>
         </v-list>
@@ -27,6 +57,10 @@
         <v-divider></v-divider>
 
         <v-list>
+
+          <v-list-item :to="{name: 'UserProfile', params: { username: me.username}}">
+            Profile
+          </v-list-item>
           <v-list-item :to="{name: 'Settings'}">
             Settings
           </v-list-item>
@@ -40,32 +74,3 @@
     </v-menu>
   </div>
 </template>
-<script lang="ts">
-import { useUserStore } from '@/store/user'
-import { useAuthStore } from '@/store/auth'
-import { computed } from 'vue'
-  export default {
-    data: () => ({
-      fav: true,
-      menu: false,
-      message: false,
-      hints: true,
-    }),
-    setup() {
-
-      const userStore = useUserStore();
-      const authStore = useAuthStore();
-      const profile = computed({
-      get() { return userStore.profile },
-      set(value) { userStore.profile = value }
-    })
-    const logout = () => {
-      authStore.logout();
-    }
-      return {
-      profile,
-      logout
-    }
-    }
-  }
-</script>
