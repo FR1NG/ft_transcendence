@@ -1,32 +1,10 @@
 import { faker } from '@faker-js/faker'
 
-import { GameStatus, Games, PrismaClient, Users } from '@prisma/client'
+import {  Games, PrismaClient, Users } from '@prisma/client'
 const prisma = new PrismaClient()
 
 function getRandom(min: number, max: number) {
   return Math.floor(Math.random() * (max - min) + min);
-}
-
-async function seedLeags() {
-  console.log('seeding leags')
-  const leags = [
-     {id: 1, name: "Bronze"},
-     {id: 2, name: "Silver"},
-     {id: 3, name: "Gold"} ,
-     {id: 4, name: "platinum"} ,
-     {id: 5, name: "diamond"} ,
-     {id: 6, name: "heroic"} ,
-     {id: 7, name: "Master"} ,
-  ];
-  leags.forEach(async el => {
-    console.log(el)
-    await prisma.leag.create({
-      data: {
-        id: el.id,
-        name: el.name
-      }
-    })
-  })
 }
 
 async function seedUsers() {
@@ -65,10 +43,21 @@ const hchakoub = async () => {
       avatar: 'https://cdn.intra.42.fr/users/8274a9f7c70a8331a1b719c1eaf39417/medium_hchakoub.jpg',
       intra_id: 90322,
       points: getRandom(1, 5000),
-      leagId: 4
   } 
   });
   return user;
+}
+
+const seedAchevments = async () => {
+  const ach = [
+    {name: 'pong win', description: 'win a game'},
+    {name: 'hot streak', description: 'win 5 games in a row'},
+    {name: 'hotter streak', description: 'win 10 games in a row'},
+  ];
+
+  await prisma.achievments.createMany({
+    data: ach
+  });
 }
 
 const seedGames = async (users: Users[]) => {
@@ -113,7 +102,7 @@ const seedGames = async (users: Users[]) => {
 }
 
 async function main() {
-  await seedLeags();
+  await seedAchevments();
   await hchakoub();
   const users = await seedUsers();
   const games = await seedGames(users);

@@ -29,6 +29,7 @@ export class UserService {
         isOnline: true,
       }
     });
+
     return users;
   }
 
@@ -42,7 +43,7 @@ export class UserService {
         avatar: true,
         isOnline: true,
         points: true,
-        leag: true,
+        achievments: true,
         _count: {
           select: {
             blockedBy: {
