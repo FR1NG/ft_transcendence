@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { User } from '@/types/user'
-
-//just for testing------- will be deleted later-----
 
 const props = defineProps < {
     userAvatar :string,
@@ -16,29 +12,6 @@ const positions:string[] = [
     "/images/trophies/silverTrophy.png",
     "/images/trophies/bronzeTrophy.png",
 ]
-
-const users = ref<User[]>([]);
-const fill = () => {
-    for (let a = 0; a < 3; a++)
-{
-    const tmpUser:User = {
-        id: "" + Math.random(),
-        isOnline: true,
-        _count: {
-            blockedBy: 3,
-            friendOf: 2,
-            friendWith: 1},
-        username: "username" +a.toString(),
-        avatar: "sdfa",
-        email:"email",
-    }
-    users.value.push(tmpUser);
-}
-}
-const userName = "testUsername";
-
-fill()
-// ------------------------------------------------------------
 
 </script>
 
@@ -57,7 +30,6 @@ fill()
 </template>
 
 <style lang="scss">
-
 .cube {
     margin: 0;
     position: relative;
@@ -66,7 +38,10 @@ fill()
     perspective: 100em;
     display: flex;
     justify-content: center;
-    
+
+    &:hover {
+    cursor: pointer;
+    }
 
     .rankedPic {
         width: 100px;
@@ -83,7 +58,7 @@ fill()
         height: 50%;
         rotate: x 80deg;
     }
-    
+
     .frontFace {
         position: absolute;
         top: 49.4%;
@@ -101,7 +76,7 @@ fill()
         top: 110px;
         width: 90%;
         align-items: center;
-        
+
         .lign {
             position: absolute;
             top:65%;

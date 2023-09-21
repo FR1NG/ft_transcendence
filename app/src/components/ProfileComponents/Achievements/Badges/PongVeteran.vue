@@ -15,7 +15,7 @@ const props = defineProps<{
   <Badge :achieved="props.achieved">
     <template v-slot:front>
       <div class="contain">
-          <locked v-if="props.achieved === true" />
+          <locked v-if="props.achieved" />
           <h1 class="pongFont">PONG</h1>
           <div class="number">{{ props.num }}</div>
       </div>

@@ -244,7 +244,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       this.sockets.set(user.sub, client);
     const game = await this.invitationService.getGameByInvit(payload.invitationId);
     client.join(game.id);
-    console.log(this.server.sockets.adapter.rooms.get(game.id))
+    // console.log(this.server.sockets.adapter.rooms.get(game.id).length)
     // const host = this.sockets.get(game.hostId);
     // const guest = this.sockets.get(game.guestId);
     // if(host)

@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store/user'
-import { useRoute, useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { reactive, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { reactive } from 'vue'
 import { useSnackBarStore } from '@/store/snackbar'
 import { useInvitationStore } from '@/store/invitation'
-import { Invitation } from '@/types/invitation'
+import { User } from '@/types/user'
 
+const props = defineProps<{ user: User }>()
 const userStore = useUserStore();
-const route = useRoute()
 const data = reactive({
   sending: false
 });
 
-const { user } = storeToRefs(userStore);
 const router = useRouter();
 
 // notification store
@@ -42,8 +40,8 @@ const cancelFriendRequest = async (requestId: string) => {
 const confirmFriendInvitaion = async (invitationId: string) => {
   try {
     const result = await useInvitationStore().acceptInvitation(invitationId);
-    user.value.friendshipStatus = 'FRIENDS';
-    user.value.invitationId = '';
+    props.user.friendshipStatus = 'FRIENDS';
+    props.user.invitationId = '';
   } catch (error) {
   }
 }
@@ -51,8 +49,8 @@ const confirmFriendInvitaion = async (invitationId: string) => {
 // test blocking user
 const blockUser = async () => {
   try {
-    userStore.blockUser(user.value.id);
-    snackBarStore.notify(`${user.value.username} has been blocked`);
+    userStore.blockUser(props.user.id);
+    snackBarStore.notify(`${props.user.username} has been blocked`);
   } catch (error: any) {
     snackBarStore.notify(error.response.status === 409 ? `user is aleady blocked` : `some error occured when blocking the ${user.value.username}`);
   }
@@ -61,10 +59,10 @@ const blockUser = async () => {
 // unblock user
 const unblockUser = async () => {
   try {
-    const result = await userStore.unblockUser(user.value.id);
-    snackBarStore.notify(`${user.value.username} has been unblocked`);
+    const result = await userStore.unblockUser(props.user.id);
+    snackBarStore.notify(`${props.user.username} has been unblocked`);
     console.log(result);
-  } catch(error) {
+  } catch (error) {
     console.log(error)
   }
 }
@@ -79,9 +77,9 @@ const unfriend = (userId: string) => {
 const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
     console.log('trying to change the route')
-    router.push({ name: 'GameWaiting', params: { invitationId: result.id}});
+    router.push({ name: 'GameWaiting', params: { invitationId: result.id } });
   }).catch((error: any) => {
-      useSnackBarStore().notify(error.data.message);
+    useSnackBarStore().notify(error.data.message);
   });
 }
 
@@ -90,54 +88,56 @@ const inviteGame = (userId: string) => {
 </script>
 
 <template>
-  <div class="interactWrapper">
-    <div class="message" v-if="user.id">
-      <v-btn :to="{name: 'Dm', params: { id: user.id }}"  class="btn text-none" variant="outlined" rounded="lg" prepend-icon="mdi-message-text-outline">
+  <div class="ma-8">
+  <v-row>
+    <v-col lg="6" cols="12">
+      <v-btn :to="{ name: 'Dm', params: { id: user.id } }" block variant="outlined" rounded="lg"
+        prepend-icon="mdi-message-text-outline">
         message
       </v-btn>
-    </div>
-    <div class="gameInvite">
-      <v-btn class="btn text-none" rounded="lg" variant="outlined" prepend-icon="mdi-gamepad-variant-outline" @click="inviteGame(user.id)">
+    </v-col>
+    <v-col lg="6" cols="12">
+      <v-btn class="btn text-none" rounded="lg" block variant="outlined" prepend-icon="mdi-gamepad-variant-outline"
+        @click="inviteGame(user.id)">
         Game invite
       </v-btn>
-    </div>
-    <div class="request">
-      <div class="addFriend">
-        <v-btn v-if="user.friendshipStatus === 'INVITATION_SENT'" class="btn text-none"  rounded="lg" :loading="data.sending"
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col lg="6" cols="12">
+      <v-btn v-if="user.friendshipStatus === 'INVITATION_SENT'" block rounded="lg" :loading="data.sending"
         @click="cancelFriendRequest(user.invitationId)" color="colorThree" variant="flat">
         cancel request
       </v-btn>
-      <v-btn v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" class="btn text-none" rounded="lg" :loading="data.sending"
-      @click="confirmFriendInvitaion(user.invitationId)" color="secondary" variant="flat">
-      confirm
-    </v-btn>
-
-    <v-btn v-else-if="user.friendshipStatus === 'FRIENDS'" class="btn  text-none" variant="outlined" rounded="lg" prepend-icon="mdi-minus"
-    :loading="data.sending" @click="unfriend(user.id)" >
-          unfriend
-  </v-btn>
-    <v-btn v-else="user.friendshipStatus === 'NONE'" class="btn  text-none" variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
-    :loading="data.sending" @click="sendFrienRequest(user.id)">
-    add friend
-  </v-btn>
-    </div>
-  </div>
-      <div class="block">
-        <v-btn v-if="user.blocked" @click="unblockUser" class="btn text-none" rounded="lg" prepend-icon="mdi-lock-open-variant-outline"
-         variant="outlined">
+      <v-btn v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" block rounded="lg" :loading="data.sending"
+        @click="confirmFriendInvitaion(user.invitationId)" color="secondary" variant="flat">
+        confirm
+      </v-btn>
+      <v-btn v-else-if="user.friendshipStatus === 'FRIENDS'" block variant="outlined" rounded="lg" prepend-icon="mdi-minus"
+        :loading="data.sending" @click="unfriend(user.id)">
+        unfriend
+      </v-btn>
+      <v-btn v-else="user.friendshipStatus === 'NONE'" block variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
+        :loading="data.sending" @click="sendFrienRequest(user.id)">
+        add friend
+      </v-btn>
+    </v-col>
+    <v-col lg="6" cols="12">
+      <v-btn v-if="user.blocked" @click="unblockUser" block rounded="lg" prepend-icon="mdi-lock-open-variant-outline"
+        variant="outlined">
         unblock
       </v-btn>
-    <v-btn v-else class="btn  text-none" variant="outlined" rounded="lg"
-    @click="blockUser" color="pri" prepend-icon="mdi-account-cancel-outline">
-    block
-  </v-btn>
-    </div>
+      <v-btn v-else variant="outlined" block rounded="lg" @click="blockUser" color="colorThree"
+        prepend-icon="mdi-account-cancel-outline">
+        block
+      </v-btn>
+    </v-col>
+  </v-row>
   </div>
 </template>
 
 <style lang="scss">
-
-.interactWrapper{
+.interactWrapper {
   position: absolute;
   right: 0px;
   width: 100%;
@@ -159,30 +159,34 @@ const inviteGame = (userId: string) => {
     background-color: rgb(var(--v-theme-colorTwo));
     border: 2px solid rgb(var(--v-theme-colorTwo));
   }
-    grid-template-rows: repeat(10, 1fr);
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    .request {
-      grid-row: 5;
-      grid-column: 7;
-      transition: grid-column 0.5s;
-    }
-    .message {
-      grid-row: 5;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-    .gameInvite {
-      grid-row: 6;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-    .block {
-      grid-row: 6;
-      grid-column: 7;
-      transition: grid-column 0.5s;
-    }
-}
 
+  grid-template-rows: repeat(10, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  .request {
+    grid-row: 5;
+    grid-column: 7;
+    transition: grid-column 0.5s;
+  }
+
+  .message {
+    grid-row: 5;
+    grid-column: 8;
+    transition: grid-column 0.5s;
+  }
+
+  .gameInvite {
+    grid-row: 6;
+    grid-column: 8;
+    transition: grid-column 0.5s;
+  }
+
+  .block {
+    grid-row: 6;
+    grid-column: 7;
+    transition: grid-column 0.5s;
+  }
+}
 @media (width < 1160px) {
   .interactWrapper {
     .btn {
@@ -191,6 +195,20 @@ const inviteGame = (userId: string) => {
     }
   }
 }
+
+@media (width < 1280px) {
+  .v-col-12 {
+    padding: 3px !important;
+  }
+  .v-col-lg-6 {
+
+    padding: 10px;
+  }
+.v-btn--size-default {
+  height: 30px !important;
+}
+}
+
 @media (width < 600px) {
   .interactWrapper {
     .btn {
@@ -200,36 +218,41 @@ const inviteGame = (userId: string) => {
     }
   }
 }
+
 @media (width < 480px) {
   .interactWrapper {
     grid-template-rows: repeat(10, 1fr);
     grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: .2rem;
     padding-bottom: 0.1rem;
+
     .request {
       grid-row: 7;
       grid-column: 8;
       transition: grid-column 0.5s;
     }
+
     .message {
       grid-row: 8;
       grid-column: 8;
       transition: grid-column 0.5s;
     }
+
     .gameInvite {
       grid-row: 9;
       grid-column: 8;
       transition: grid-column 0.5s;
     }
+
     .block {
       grid-row: 10;
       grid-column: 8;
       transition: grid-column 0.5s;
     }
-    .btn{
+
+    .btn {
       height: 20px;
     }
   }
 }
-
 </style>
