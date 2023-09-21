@@ -33,10 +33,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
     // adding user to the list of connected users
     this.logger.log(`Client ${client.id} connected at ${Date.now()}`);
     const mode = client.handshake.query.mode as GameMode;
+    console.log('mode:', mode);
     if (!mode) {
       console.error("Mode not provided in initial connection");
       return;
     }
+    console.log('tesssssssst');
     this.handlePlayerConnection(client, mode);
     const gameId = this.matchPlayers(mode);
     if (gameId) {
@@ -162,11 +164,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       this.gameService.removeFromQueue(clientId, mode);
       return;
     }
+    const currentState = this.gameService.getCurrentState(gameId);
+    if (currentState.gameOver) {
+      clearInterval(this.gameLoopIntervalIds[gameId]);
+      delete this.clients[clientId];
+      return;
+    }
     // If the client was in an active game
     let winnerRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
     this.server.to(gameId).emit('announceWinner', winnerRole);
     this.server.to(gameId).emit('hideStartButton');
-    const currentState = this.gameService.getCurrentState(gameId);
     currentState.gameOver = true;
     clearInterval(this.gameLoopIntervalIds[gameId]);
     delete this.clients[clientId];
