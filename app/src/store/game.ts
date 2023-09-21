@@ -17,8 +17,8 @@ export const useGameStore = defineStore('game', {
       ballColor: '#0C134F',
       lineColor: '#FFFFFF',
       scoreColor: '#FFFFFF',
-      backgroundImage: '/../public/images/plain-black-background.jpg',
-      ballImage: "../../public/images/pngegg.png",
+      backgroundImage: '../../public/images/game/plain-black-background.jpg',
+      ballImage: '../../public/images/game/pngegg.png',
     },
     themes: {
       classic: {
@@ -27,8 +27,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#0C134F',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '/../public/images/plain-black-background.jpg',
-        ballImage: "../../public/images/pngegg.png",
+        backgroundImage: '../../public/images/game/plain-black-background.jpg',
+        ballImage: '../../public/images/game/pngegg.png',
       },
       Retro: {
         backgroundColor: '#1E1E1E',
@@ -36,8 +36,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#E94560',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '/../public/images/plain-black-background.jpg',
-        ballImage: '/../public/images/pngegg.png',
+        backgroundImage: '../../public/images/game/plain-black-background.jpg',
+        ballImage: '../../public/images/game/pngegg.png',
       },
       PacMan: {
         backgroundColor: '#F5DEB3',
@@ -45,8 +45,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#FF4500',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '/../public/images/PacMan.jpg',
-        ballImage: "../../public/images/Original_PacMan.png",
+        backgroundImage: '../../public/images/game/PacMan.jpg',
+        ballImage: "../../public/images/game/Original_PacMan.png",
       }
     },
   }),
