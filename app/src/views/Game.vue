@@ -23,7 +23,7 @@ export default {
   setup() {
     const gameStore = useGameStore();
     const socket = io('http://localhost:4443', {query: {
-    mode: gameStore.selectedMode // Assuming `selectedMode` is your mode in the store
+    mode: gameStore.selectedMode
   }});
     const ASPECT_RATIO = 16 / 9;
     const canvasWidth = ref(window.innerWidth);
@@ -43,9 +43,8 @@ export default {
     let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     const restartGame = () => {
-      gameStore.selectedMode = 'NORMAL';
-      gameStore.modeSelected = false;
       socket.emit('joinQueueAgain');
+      console.log('restarting');
       cleanupGameListeners();
       gameOver.value = false;
       winner.value = null;

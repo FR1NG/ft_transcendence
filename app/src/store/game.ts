@@ -36,7 +36,7 @@ export const useGameStore = defineStore('game', {
         ballColor: '#E94560',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '/../public/images/test.jpeg',
+        backgroundImage: '/../public/images/plain-black-background.jpg',
         ballImage: '/../public/images/pngegg.png',
       },
       PacMan: {

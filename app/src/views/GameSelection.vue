@@ -12,9 +12,6 @@
       <button @click="setMode('NORMAL')" class="mode-button">Normal</button>
       <button @click="setMode('HARD')" class="mode-button">Hard</button>
     </div>
-    <button v-if="themeSelected && modeSelected" @click="startGame" class="theme-selector">
-        redirect
-      </button>
     </div>
   </template>
   
@@ -39,13 +36,8 @@
       const setTheme = (theme: keyof typeof themes) => {
         gameStore.setTheme(theme); 
       };
-
       const setMode = (mode: GameMode) => {
         gameStore.setMode(mode);
-      };
-
-      const startGame = () => {
-        console.log("Game started with theme:", gameStore.selectedTheme, "and mode:", gameStore.selectedMode);
         try {
           router.push({ name: 'Game' });
         } catch (error) {
@@ -62,7 +54,6 @@
       gameModes,
       setTheme,
       setMode,
-      startGame
     };
   }
 });
