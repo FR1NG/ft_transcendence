@@ -1,22 +1,10 @@
 <template>
   <div class="container">
-    <!-- <div class="theme-selector" v-if="!themeSelected.value">
-      <h2>Select a Theme:</h2>
-      <button @click="setTheme('classic')" class="mode-button">Classic</button>
-      <button @click="setTheme('Retro')" class="mode-button">Retro</button>
-      <button @click="setTheme('PacMan')" class="mode-button">PacMan</button>
-    </div>
-    <div class="mode-selector" v-if="themeSelected.value && !modeSelected.value">
-      <h2>Select a Mode:</h2>
-      <button @click="setMode('EASY')" class="mode-button">Easy</button>
-      <button @click="setMode('NORMAL')" class="mode-button">Normal</button>
-      <button @click="setMode('HARD')" class="mode-button">Hard</button>
-    </div> -->
-    <div v-if="themeSelected && waitingForOpponent && modeSelected" class="waiting">Waiting for another player...</div>
-    <button v-if="themeSelected && showStartButton" id="startButton" @click="startGame">Start</button>
-    <p v-if="themeSelected && showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
-    <canvas v-if="themeSelected && showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
-    <div v-if="themeSelected && gameOver" class="game-over-container">
+    <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div>
+    <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
+    <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
+    <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
+    <div v-if="gameOver" class="game-over-container">
       <h1>{{ winner }} is the winner!</h1>
       <button @click="restartGame" id="restartButton">Restart Game</button>
     </div>
@@ -28,12 +16,15 @@ import { ref, onMounted, watch, onUnmounted, toRefs, reactive} from 'vue';
 import { io } from 'socket.io-client';
 import { GameState } from '@/types/game';
 import { useGameStore } from '@/store/game';
+import { computed } from 'vue';
 
 export default {
-  name: 'PongGame',
+  name: 'Game',
   setup() {
     const gameStore = useGameStore();
-    const socket = io('http://localhost:4443', {});
+    const socket = io('http://localhost:4443', {query: {
+    mode: gameStore.selectedMode // Assuming `selectedMode` is your mode in the store
+  }});
     const ASPECT_RATIO = 16 / 9;
     const canvasWidth = ref(window.innerWidth);
     const canvasHeight = ref(window.innerWidth / ASPECT_RATIO);
@@ -47,63 +38,13 @@ export default {
     const winner = ref<null | "Host" | "Guest">(null);
     const waitingForOpponent = ref(true);
     const gameId = ref(null);
-    const { themeSelected, modeSelected, selectedMode, currentTheme } = toRefs(gameStore);//TO DO: make them work together using pinia
-    // const themeSelected = ref(false);
-    // type ThemeName = 'classic' | 'Retro' | 'PacMan';
-    // const themes = {
-    //   classic: {
-    //     backgroundColor: '#FFFFFF',
-    //     paddleColor: '#FFFFFF',
-    //     ballColor: '#0C134F',
-    //     lineColor: '#FFFFFF',
-    //     scoreColor: '#FFFFFF',
-    //     backgroundImage: '/../public/images/plain-black-background.jpg',
-    //     ballImage: "../../public/images/pngegg.png",
-    //   },
-    //   Retro: {
-    //     backgroundColor: '#1E1E1E',
-    //     paddleColor: '#000000',
-    //     ballColor: '#E94560',
-    //     lineColor: '#FFFFFF',
-    //     scoreColor: '#FFFFFF',
-    //     backgroundImage: '/../public/images/test.jpeg',
-    //     ballImage: '/../public/images/pngegg.png',
-    //   },
-    //   PacMan: {
-    //     backgroundColor: '#F5DEB3',
-    //     paddleColor: '#172652',
-    //     ballColor: '#FF4500',
-    //     lineColor: '#FFFFFF',
-    //     scoreColor: '#FFFFFF',
-    //     backgroundImage: '/../public/images/PacMan.jpg',
-    //     ballImage: "../../public/images/Original_PacMan.png",
-    //   }
-    // };
-    // const currentTheme = ref(themes.classic);
-    // const modeSelected = ref(false);
-    // type GameMode = 'EASY' | 'NORMAL' | 'HARD';
-    // const selectedMode = ref<GameMode>('NORMAL');
-
-    // const setMode = (mode: GameMode) => {
-    //   console.log('Setting mode:', mode);
-    //   selectedMode.value = mode;
-    //   modeSelected.value = true;
-    //   socket.emit('setSelectedMode', mode);
-    //   waitingForOpponent.value = true;
-    // };
-
-    // const setTheme = (themeName: ThemeName) => {
-    //   currentTheme.value = themes[themeName];
-    //   themeSelected.value = true;
-    //   modeSelected.value = false;
-    //   selectedMode.value = 'NORMAL';
-    // };
+    const currentTheme = computed(() => gameStore.currentTheme);
 
     let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     const restartGame = () => {
-      selectedMode.value = 'NORMAL';
-      modeSelected.value = false;
+      gameStore.selectedMode = 'NORMAL';
+      gameStore.modeSelected = false;
       socket.emit('joinQueueAgain');
       cleanupGameListeners();
       gameOver.value = false;
@@ -366,7 +307,7 @@ export default {
 
     socket.on('connect', () => {
       console.log('Connected to the server');
-      console.log(gameStore);
+      console.log('where u at', gameStore);
       socket.emit('joinGame');
     });
 
@@ -398,11 +339,11 @@ export default {
       winner,
       waitingForOpponent,
       restartGame,
-      themeSelected,
-      modeSelected,
+      gameStore,
+      // themeSelected,
+      // modeSelected,
       // setMode,
       // setTheme,
-      gameStore
     };
   }
 }

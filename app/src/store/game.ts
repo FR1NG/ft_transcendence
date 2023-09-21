@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import axios from '@/plugins/axios'
-// import { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { useInvitationStore } from "./invitation";
 
 type ThemeKey = 'classic' | 'Retro' | 'PacMan';
@@ -13,12 +13,12 @@ export const useGameStore = defineStore('game', {
     modeSelected: false,
     currentTheme: {
       backgroundColor: '#FFFFFF',
-        paddleColor: '#FFFFFF',
-        ballColor: '#0C134F',
-        lineColor: '#FFFFFF',
-        scoreColor: '#FFFFFF',
-        backgroundImage: '/../public/images/plain-black-background.jpg',
-        ballImage: "../../public/images/pngegg.png",
+      paddleColor: '#FFFFFF',
+      ballColor: '#0C134F',
+      lineColor: '#FFFFFF',
+      scoreColor: '#FFFFFF',
+      backgroundImage: '/../public/images/plain-black-background.jpg',
+      ballImage: "../../public/images/pngegg.png",
     },
     themes: {
       classic: {
