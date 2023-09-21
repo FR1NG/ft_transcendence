@@ -25,7 +25,7 @@ const handleFocus = (value: boolean) => {
 </script>
 
 <template>
-    <v-footer app height="72">
+    <v-footer color="colorOne" app height="72">
       <v-text-field :disabled="disabled" bg-color="colorThree" class="overflow-hidden"
         density="compact" hide-details variant="solo" v-model="value"
          @keyup.enter="handleSend"

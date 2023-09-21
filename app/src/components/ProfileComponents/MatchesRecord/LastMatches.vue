@@ -25,14 +25,14 @@ defineProps<{user: User, loading: Boolean}>()
       <tbody>
         <tr v-for="game in user.games" :key="game.id">
           <td>
-            <v-list-item :to="{name: 'UserProfile', params: {username: game.host.username}}" :active="false" :prepend-avatar="game.host.avatar">
+            <v-list-item lines="one" :to="{name: 'UserProfile', params: {username: game.host.username}}" :active="false" :prepend-avatar="game.host.avatar">
               {{ game.host.username }}
             </v-list-item>
           </td>
 
           <td class="text-center">{{ game.winnerId === game.host.id ? `${game.winnerScore} - ${game.loserScore}` : `${game.loserScore} - ${game.winnerScore}`}}</td>
           <td>
-            <v-list-item :to="{name: 'UserProfile', params: {username: game.guest.username}}" :active="false" :prepend-avatar="game.guest.avatar">
+            <v-list-item lines="one" :to="{name: 'UserProfile', params: {username: game.guest.username}}" :active="false" :prepend-avatar="game.guest.avatar">
               {{ game.guest.username }}
             </v-list-item>
           </td>

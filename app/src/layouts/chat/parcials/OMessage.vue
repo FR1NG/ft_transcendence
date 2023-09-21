@@ -22,7 +22,7 @@ onMounted(() => {
   <v-row>
     <v-row>
       <v-col class="message-container"  no-gutters>
-        <v-list-item color="primary">
+        <v-list-item class="message">
           <template v-slot:prepend class="prepend" v-if="printDetails">
             <v-btn v-if="loading" :loading="true" icon flat>mdi-circle</v-btn>
             <v-avatar v-else>
@@ -32,7 +32,7 @@ onMounted(() => {
           <v-list-item-title v-if="printDetails">
             {{ message?.sender?.username}}
           </v-list-item-title>
-          <v-list-item-subtitle color="colorOne">
+          <v-list-item-subtitle class="content left bubble">
             {{ message.content}}
           </v-list-item-subtitle>
           <template v-slot:append>
@@ -44,20 +44,10 @@ onMounted(() => {
 </template>
 
 <style lang="scss">
-.message-container {
-  display: flex;
+.message {
+  color: rgb(var(--v-theme-colorFoure));
 }
 
-.message {
-box-shadow: 2px 1px 8px -4px #d7c5c5;
-padding: 5px;
-margin-top: 30px;
-background: rgb(var(--v-theme-colorThree));
-margin: 20px;
-flex: 1;
-font-size: 12px;
-color: rgb(var(--v-theme-test))
-}
 .message-loader {
   margin: auto;
 }
@@ -66,6 +56,8 @@ color: rgb(var(--v-theme-test))
   width: 20px;
 }
 .message-container {
+  display: flex;
+  padding: 8px !important;
   .v-list-item__prepend {
     position: absolute !important;
     top: 5px;
@@ -73,5 +65,12 @@ color: rgb(var(--v-theme-test))
   .v-list-item__content {
     margin-left: 50px;
   }
+}
+
+
+.content {
+    background-color: #5f4c4c;
+    padding: 4px 8px;
+    border-radius: 0px 8px 8px 8px;
 }
 </style>
