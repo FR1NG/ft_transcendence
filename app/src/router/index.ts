@@ -18,6 +18,11 @@ const routes = [
         }
       },
       {
+        path: 'landing',
+        name: 'Landing',
+        component: () => import('@/views/Landing.vue'),
+      },
+      {
         path: '/game/waiting/:invitationId',
         name: 'GameWaiting',
         component: () => import('@/views/GameWaiting.vue'),

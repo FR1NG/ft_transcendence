@@ -21,11 +21,9 @@ const isLocked = (name: string) => {
 
 <template>
     <CustomCard :loading="loading" class="achievementsWrapper">
-        <div class="sliderTrack d-flex justify-center">
-            <PongWin class="slide" :achieved="isLocked('pong win')" content="PONG" name="Pong win" description="win a game" />
-            <Streak class="slide" :achieved="isLocked('hot streak')" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
-            <PongVeteran class="slide" :achieved="isLocked('hotter streak')" num="10" name="Pong veteran" description="win 10 games"/>
-        </div>
+      <PongWin class="slide" :achieved="isLocked('pong win')" content="PONG" name="Pong win" description="win a game" />
+      <Streak class="slide" :achieved="isLocked('hot streak')" num="5" colr="rgba(218, 165, 32, 0.5)" fire="/images/fires/yellowFire.png" name="Hot streak" description="win 5 games in a row"/>
+      <PongVeteran class="slide" :achieved="isLocked('hotter streak')" num="10" name="Pong veteran" description="win 10 games"/>
     </CustomCard>
 </template>
 
@@ -36,31 +34,12 @@ const isLocked = (name: string) => {
     position: relative;
     overflow: hidden;
     display: flex;
-}
-
-.sliderTrack {
-    display: flex;
     align-items: center;
-    width: 3850px;
-    animation: slide 25s linear infinite
+    justify-content: center;
+    gap: 2rem 5rem;
+    flex-wrap: wrap;
+    padding: 2rem;
 }
-.achievementsWrapper:hover .sliderTrack{
-    animation-play-state: paused;
-}
-
-.slide {
-    margin: 0 3rem;
-}
-
-// @keyframes slide {
-//     0% {
-//         transform: translateX(0);
-//     }
-//     100% {
-//         transform: translateX(-100%);
-//     }
-// }
-
 
 
 .contain {
