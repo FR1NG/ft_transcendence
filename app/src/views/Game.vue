@@ -24,8 +24,9 @@ export default {
     const gameStore = useGameStore();
     const socket = io('http://localhost:4443', {query: { mode: gameStore.selectedMode }});
     const ASPECT_RATIO = 16 / 9;
-    const canvasWidth = ref(window.innerWidth);
-    const canvasHeight = ref(window.innerWidth / ASPECT_RATIO);
+    const canvasWidthPercentage = 0.8;  // 80% of window's width
+    const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
+    const canvasHeight = ref(canvasWidth.value / ASPECT_RATIO);
     const gameCanvas = ref(null);
     const playerId = ref(null);
     const scaleFactor = ref(1);
