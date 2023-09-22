@@ -22,9 +22,7 @@ export default {
   name: 'Game',
   setup() {
     const gameStore = useGameStore();
-    const socket = io('http://localhost:4443', {query: {
-    mode: gameStore.selectedMode
-  }});
+    const socket = io('http://localhost:4443', {query: { mode: gameStore.selectedMode }});
     const ASPECT_RATIO = 16 / 9;
     const canvasWidth = ref(window.innerWidth);
     const canvasHeight = ref(window.innerWidth / ASPECT_RATIO);
@@ -43,8 +41,7 @@ export default {
     let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     const restartGame = () => {
-      socket.emit('joinQueueAgain');
-      console.log('restarting');
+      socket.emit('joinQueueAgain', gameStore.selectedMode);
       cleanupGameListeners();
       gameOver.value = false;
       winner.value = null;
@@ -285,7 +282,6 @@ export default {
     // Initialization: set up listeners and join the game
     const initializeGameListeners = () => {
       socket.on('state', renderGameState);
-      socket.emit('joinGame');
       window.addEventListener('resize', debouncedResizeHandler);
       window.addEventListener('keydown', handleKeyDownEvent);
       window.addEventListener('keyup', handleKeyUpEvent);
@@ -304,20 +300,19 @@ export default {
     onMounted(initializeGameListeners);
     onUnmounted(cleanupGameListeners);
 
+    let connectionAttempts = 0;
     socket.on('connect', () => {
       console.log('Connected to the server');
-      console.log('where u at', gameStore);
-      socket.emit('joinGame');
+      connectionAttempts++;
+      console.log(`Connection attempt number: ${connectionAttempts}`);
     });
 
     socket.on('disconnect', () => {
       console.log('disconnected from the server');
-      // Check if the game had actually started
       if(showGameElements.value && !gameOver.value) {
         gameOver.value = true;
         winner.value = playerId.value === 'Host' ? 'Guest' : 'Host';
       } else {
-        // If game hadn't started, just reset state
         showStartButton.value = true;
         showGameElements.value = false;
         gameOver.value = false;
@@ -339,10 +334,6 @@ export default {
       waitingForOpponent,
       restartGame,
       gameStore,
-      // themeSelected,
-      // modeSelected,
-      // setMode,
-      // setTheme,
     };
   }
 }
@@ -355,6 +346,15 @@ export default {
   padding: 0;
   display: block;
   color: rgb(var(--v-theme-colorTwo));
+  border: 3px solid rgb(var(--v-theme-colorTwo));
+  box-sizing: border-box;
+  box-shadow: 
+    0 0 5px rgb(var(--v-theme-colorTwo)),
+    0 0 10px rgb(var(--v-theme-colorTwo)),
+    0 0 15px rgb(var(--v-theme-colorThree)),
+    0 0 20px rgb(var(--v-theme-colorThree)),
+    0 0 25px rgb(var(--v-theme-colorThree)),
+    0 0 30px rgb(var(--v-theme-colorThree));
 }
 
 .container {
@@ -368,7 +368,7 @@ export default {
   overflow: hidden !important;          
 }
 
-.waiting, .theme-selector, .mode-selector {
+.waiting{
   position: absolute;
   z-index: 1;
   display: flex;           
@@ -381,13 +381,12 @@ export default {
   color: rgb(var(--v-theme-colorFoure));
 }
 
-
 body, html {
   overflow: hidden !important;
   color: rgb(var(--v-theme-colorOne));
 }
 
-.mode-button, #startButton, #restartButton {
+#startButton, #restartButton {
   margin-top: 20px;
   font-size: 24px;
   font-family: 'Public Pixel', sans-serif;
@@ -400,7 +399,6 @@ body, html {
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
 
-  /* Neon effect */
   box-shadow: 
     0 0 5px rgb(var(--v-theme-colorTwo)),
     0 0 10px rgb(var(--v-theme-colorTwo)),
@@ -410,26 +408,9 @@ body, html {
     0 0 30px rgb(var(--v-theme-colorThree));
 }
 
-.mode-button:active, #startButton:active {
+#startButton:active {
   transform: scale(0.9);
   box-shadow: 0 2px 5px rgb(var(--v-theme-colorThree));
-}
-
-/* Animation on modes buttons */
-.mode-button {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-      transform: scale(1);
-  }
-  50% {
-      transform: scale(1.1);
-  }
-  100% {
-      transform: scale(1);
-  }
 }
 
 #startButton {
@@ -438,7 +419,6 @@ body, html {
   justify-content: center;
   font-size: 16px;
 
-  /* Hover State */
   &:hover {
     transform: scale(1.1);
     box-shadow: 
@@ -449,13 +429,9 @@ body, html {
       0 0 50px rgb(var(--v-theme-colorThree)),
       0 0 60px rgb(var(--v-theme-colorThree));
   }
-
-  /* Active State (when button is clicked) */
   &:active {
     box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
   }
-
-  /* Disabled State */
   &:disabled {
     box-shadow: 
       0 0 5px rgb(var(--v-theme-colorFoure)),
@@ -481,6 +457,7 @@ body, html {
     to { opacity: 1; }
   }
 }
+
 .game-over-container {
   display: flex;
   flex-direction: column;
@@ -519,8 +496,6 @@ h1:hover {
   display: inline-block;
   justify-content: center;
   font-size: 16px;
-
-  /* Hover State */
   &:hover {
     transform: scale(1.1);
     box-shadow: 
@@ -531,13 +506,9 @@ h1:hover {
       0 0 50px rgb(var(--v-theme-colorThree)),
       0 0 60px rgb(var(--v-theme-colorThree));
   }
-
-  /* Active State (when button is clicked) */
   &:active {
     box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
     }
-
-  /* Disabled State */
   &:disabled {
     box-shadow: 
       0 0 5px rgb(var(--v-theme-colorFoure)),
@@ -546,5 +517,4 @@ h1:hover {
     color: rgb(var(--v-theme-colorFoure));
   }
 }
-
 </style>

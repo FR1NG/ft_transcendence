@@ -3,7 +3,7 @@ import axios from '@/plugins/axios'
 import { AxiosResponse } from "axios";
 import { useInvitationStore } from "./invitation";
 
-type ThemeKey = 'classic' | 'Retro' | 'PacMan';
+type ThemeKey = 'classic' | 'AmongUs' | 'PacMan';
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -30,14 +30,14 @@ export const useGameStore = defineStore('game', {
         backgroundImage: '../../public/images/game/plain-black-background.jpg',
         ballImage: '../../public/images/game/pngegg.png',
       },
-      Retro: {
+      AmongUs: {
         backgroundColor: '#1E1E1E',
         paddleColor: '#000000',
         ballColor: '#E94560',
-        lineColor: '#FFFFFF',
+        lineColor: '#DB022B',
         scoreColor: '#FFFFFF',
-        backgroundImage: '../../public/images/game/plain-black-background.jpg',
-        ballImage: '../../public/images/game/pngegg.png',
+        backgroundImage: '../../public/images/game/amon.jpg',
+        ballImage: '../../public/images/game/amongus.png',
       },
       PacMan: {
         backgroundColor: '#F5DEB3',

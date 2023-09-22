@@ -42,7 +42,7 @@ export class GameService {
       {
         id: 'Host',
         paddleYRatio: 0.5,
-        paddleWidthRatio: 0.020,
+        paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.25,
         score: 0,
         xRatio: 0
@@ -50,7 +50,7 @@ export class GameService {
       {
         id: 'Guest',
         paddleYRatio: 0.5,
-        paddleWidthRatio: 0.020,
+        paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.25,
         score: 0,
         xRatio: 0.98
@@ -95,7 +95,7 @@ export class GameService {
   public updateBallPosition(gameId: string): void {
     const gameState = this.gameStates[gameId];
     if (!gameState || gameState.gameOver) return;
-    const modeConfig = GAME_MODE_CONFIGS[gameState.mode];
+    const modeConfig = GAME_MODE_CONFIGS[gameState.mode] || GAME_MODE_CONFIGS[GameMode.NORMAL];
     const ball = gameState.ball;
     const players = gameState.players;
     const newXRatio = ball.xRatio + ball.velocityXRatio;
@@ -221,6 +221,7 @@ export class GameService {
 
   joinQueue(playerId: string, mode: GameMode): void {
     if (!this.isPlayerInQueue(playerId)) {
+      mode = mode || GameMode.NORMAL;
       if (this.isValidMode(mode)) {
         console.log(`joined queue in: ${mode}`);
         this.playerQueues[mode].push(playerId);

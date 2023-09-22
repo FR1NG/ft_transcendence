@@ -3,7 +3,7 @@
     <div class="theme-selector" v-if="!themeSelected">
       <h2>Select a Theme:</h2>
       <button @click="setTheme('classic')" class="mode-button">Classic</button>
-      <button @click="setTheme('Retro')" class="mode-button">Retro</button>
+      <button @click="setTheme('AmongUs')" class="mode-button">AmongUs</button>
       <button @click="setTheme('PacMan')" class="mode-button">PacMan</button>
     </div>
     <div class="mode-selector" v-if="themeSelected && !modeSelected">

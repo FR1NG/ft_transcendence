@@ -30,25 +30,25 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
   private sockets: Map<string, Socket> = new Map();
 
   handleConnection(client: Socket, ...args: any[]): void {
-    // adding user to the list of connected users
     this.logger.log(`Client ${client.id} connected at ${Date.now()}`);
     const mode = client.handshake.query.mode as GameMode;
-    console.log('mode:', mode);
     if (!mode) {
       console.error("Mode not provided in initial connection");
       return;
     }
-    console.log('tesssssssst');
+    this.processPlayer(client, mode);
+  }
+  
+  processPlayer(client: Socket, mode: GameMode): void {
     this.handlePlayerConnection(client, mode);
     const gameId = this.matchPlayers(mode);
     if (gameId) {
-      console.log("Game ID:", gameId);
-      const currentState = this.gameService.getCurrentState(gameId);
-      this.broadcastGameState(gameId);
+        console.log("Game ID:", gameId);
+        this.broadcastGameState(gameId);
     } else {
-      client.emit('waitingForMatch');
+        client.emit('waitingForMatch');
     }
-  }
+  }  
 
   @SubscribeMessage('setSelectedMode')
   setSelectedMode(client: Socket, mode: GameMode): void {
@@ -64,18 +64,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
 
   handlePlayerConnection(client: Socket, mode: GameMode): void {
     console.log(`Client connected: ${client.id}`);
-    this.gameService.joinQueue(client.id, mode);
-    client.emit('showStartButton');
+    if (!this.gameService.isPlayerInQueue(client.id)) {
+      this.gameService.joinQueue(client.id, mode);
+    }
   }
-
+  
   matchPlayers(mode: GameMode): string | null {
     console.log("Attempting to match players...");
-    let players: [string, string] | null = null;
-    while (!players) {
-      players = this.gameService.getPlayersForMatch(mode);
-      if (!players) return null;
-      const [player1, player2] = players;
-      if (!(this.server.sockets.sockets.get(player1) && this.server.sockets.sockets.get(player2))) {
+    const players = this.gameService.getPlayersForMatch(mode);
+    if (!players) return null;
+    const [player1, player2] = players;
+    if (!(this.server.sockets.sockets.get(player1) && this.server.sockets.sockets.get(player2))) {
         // Remove disconnected players from the queue
         if (!this.server.sockets.sockets.get(player1)) {
             this.gameService.removeFromQueue(player1, mode);
@@ -83,25 +82,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
         if (!this.server.sockets.sockets.get(player2)) {
             this.gameService.removeFromQueue(player2, mode);
         }
-        players = null;
-        continue;
-      }
-      const gameId = this.generateUniqueGameId();
-      this.gameService.initializeGameState(gameId, mode);
-      this.clients[player1] = { gameId, role: 'Host' };
-      this.clients[player2] = { gameId, role: 'Guest' };
-      this.server.sockets.sockets.get(player1)?.join(gameId);
-      this.server.sockets.sockets.get(player2)?.join(gameId);
-      this.server.to(player1).emit('matchFound', { role: 'Host', gameId });
-      this.server.to(player2).emit('matchFound', { role: 'Guest', gameId });        
-      return gameId;
+        return null;
     }
-    return null;
-  }
+    const gameId = this.generateUniqueGameId();
+    this.gameService.initializeGameState(gameId, mode);
+    this.clients[player1] = { gameId, role: 'Host' };
+    this.clients[player2] = { gameId, role: 'Guest' };
+    this.server.sockets.sockets.get(player1)?.join(gameId);
+    this.server.sockets.sockets.get(player2)?.join(gameId);
+    this.server.to(player1).emit('matchFound', { role: 'Host', gameId });
+    this.server.to(player2).emit('matchFound', { role: 'Guest', gameId });
+    return gameId;
+}
 
   @SubscribeMessage('joinQueueAgain')
-  handleRestartRequest(client: Socket, mode: GameMode) {
+  handleRestartRequest(client: Socket, data: any): void {
+    const mode: GameMode = data;
     const clientId = client.id;
+    console.log(`Received joinQueueAgain from ${client.id}`);
     const clientData = this.clients[clientId];
     if (clientData) {
       const { gameId } = clientData;
@@ -112,12 +110,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
         this.broadcastGameState(gameId);
       }
     }
-    this.handlePlayerConnection(client, mode);
-  }
-
-  @SubscribeMessage('disconnect')
-  handleDisconnectEvent(client: Socket, mode: GameMode) {
-    this.handleDisconnect(client, mode);
+    this.processPlayer(client, mode);
   }
 
   startGameLoop(gameId: string) {
@@ -138,45 +131,38 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection {
       }, 16);
   }
 
-  handleDisconnect(client: Socket, mode: GameMode) {
+  @SubscribeMessage('disconnect')
+  handleDisconnect(client: Socket, mode: GameMode): void {
     const clientId = client.id;
     console.log(`Client disconnected: ${client.id}`);
-    // Remove player from all queues regardless of the game mode
-    Object.values(GameMode).forEach(mode => {
-      this.gameService.removeFromQueue(clientId, mode);
-    });
-  
-    if (!this.clients[clientId]) {
-      console.log(`Client with ID ${clientId} was not found in the clients list. Possibly disconnected before a match.`);
-      return;
+    
+    // Remove player from all queues 
+    for (const mode of Object.values(GameMode)) {
+        this.gameService.removeFromQueue(clientId, mode);
     }
-    const { gameId, role } = this.clients[clientId];
-    // Remove player from readyPlayers list (if they're in there)
-    if (this.readyPlayers[gameId]) {
-      const index = this.readyPlayers[gameId].indexOf(role);
+    const clientData = this.clients[clientId];
+    if (!clientData) {
+        console.log(`Client with ID ${clientId} was not in an active game.`);
+        return;
+    }
+    const { gameId, role } = clientData;
+    const gameReadyPlayers = this.readyPlayers[gameId];
+    if (gameReadyPlayers) {
+      const index = gameReadyPlayers.indexOf(role);
       if (index > -1) {
-          this.readyPlayers[gameId].splice(index, 1);
+          gameReadyPlayers.splice(index, 1);
       }
     }
-    // If the client was unmatched
-    if (typeof role === 'undefined') {
-      console.log(`Unmatched client with ID ${clientId} disconnected.`);
-      this.gameService.removeFromQueue(clientId, mode);
-      return;
-    }
+    let oppositeRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
+    this.server.to(gameId).emit('opponentDisconnected', oppositeRole);
     const currentState = this.gameService.getCurrentState(gameId);
-    if (currentState.gameOver) {
+    if (!currentState.gameOver) {
+      currentState.gameOver = true;
+      this.gameService.resetGameState(gameId, mode);
       clearInterval(this.gameLoopIntervalIds[gameId]);
-      delete this.clients[clientId];
-      return;
     }
-    // If the client was in an active game
-    let winnerRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
-    this.server.to(gameId).emit('announceWinner', winnerRole);
-    this.server.to(gameId).emit('hideStartButton');
-    currentState.gameOver = true;
-    clearInterval(this.gameLoopIntervalIds[gameId]);
     delete this.clients[clientId];
+    delete this.readyPlayers[gameId];
     this.broadcastGameState(gameId);
   }
 
