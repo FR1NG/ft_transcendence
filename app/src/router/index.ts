@@ -36,9 +36,9 @@ const routes = [
         component: () => import('@/views/Login.vue')
       },
       {
-        path: '/test',
-        name: 'Test',
-        component: () => import('@/components/TestComponent.vue'),
+        path: '/otp/virify',
+        name: 'OtpVirify',
+        component: () => import('@/views/OtpVirify.vue'),
         meta: {
           auth: true
         }

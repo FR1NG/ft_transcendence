@@ -53,9 +53,15 @@ const tab = ref(type.value);
         </v-window-item>
       </v-window>
     </v-navigation-drawer>
-    <v-main>
+    <v-main class="the-main">
       <router-view></router-view>
       <info-bar @click:menu="drawer = !drawer" :user="selectedUser" :room="selectedRoom" :type="type"></info-bar>
     </v-main>
   </v-app>
 </template>
+
+<style lang="scss">
+.the-main {
+  background-color: rgb(var(--v-theme-colorOne));
+}
+</style>

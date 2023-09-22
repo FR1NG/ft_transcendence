@@ -5,4 +5,6 @@ export type StringPair = {
 export type AuthenticatedUser = {
   sub: string,
   username: string,
+  isOtpActivated: boolean
+  isOtpVirified: boolean
 }

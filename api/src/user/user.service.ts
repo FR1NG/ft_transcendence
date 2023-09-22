@@ -139,12 +139,11 @@ export class UserService {
         username: true,
         email: true,
         avatar: true,
+        isOtpActivated: true
       },
     });
-    if (!profile) {
-      // not sure about this
+    if (!profile)
       throw new NotFoundException();
-    }
 
     return profile;
   }

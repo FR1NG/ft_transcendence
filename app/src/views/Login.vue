@@ -7,15 +7,15 @@
   import { useAuthStore } from '@/store/auth'
   import { useUserStore } from '@/store/user'
 
-  
+
   const route = useRoute();
-  
+
   const attemptinLoginWithIntra = ref(false)
   const dialog = ref(false)
   const loading = ref(false)
   const wrongCode = ref(false);// for the error notification
   const faCode = ref('');
-  
+
   const initialState = {
     username: '',
     email: '',
@@ -24,7 +24,7 @@
   const state = reactive({
     ...initialState,
   })
-  
+
   const intra_url = import.meta.env.VITE_INTRA_LOGIN_URL;
   const authStore = useAuthStore();
   const code = route.query.code;
@@ -67,7 +67,7 @@ const callback = async (response: any) => {
 
 <template>
   <div class="loginWrapper">
-    <CustomCard class="card">
+    <CustomCard class="card" :loading="false">
       <v-container>
         <form v-if="!attemptinLoginWithIntra">
           <v-text-field variant="outlined" v-model="state.name" label="username" required></v-text-field>
@@ -81,29 +81,6 @@ const callback = async (response: any) => {
           :disabled="attemptinLoginWithIntra" :href="intra_url">
           login with intra
         </v-btn>
-
-      <v-form @submit.prevent="check2fa" :disabled="loading">
-        <v-dialog overlay-color="red" overlay-opacity="1" v-model="dialog" persistent width="400" backgound="red">
-          <v-card color="rgb(var(--v-theme-colorTwo))">
-            <v-card-title class="text-center" > Authenticate </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-text-field v-model="faCode" label="one-time code" @keyup.enter="check2fa"></v-text-field>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn type="submit" @click="check2fa" :loading="loading">
-                login
-              </v-btn>
-              <v-snackbar class="snack" v-model="wrongCode" location="top" timeout="4000" color="colorOne" width="100%"> invalid authenticator code</v-snackbar>
-              <v-spacer></v-spacer>
-              <v-btn type="submit" @click="dialog=false">
-                cancel
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-form>
       </v-container>
     </CustomCard>
   </div >

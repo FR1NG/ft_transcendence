@@ -6,6 +6,7 @@ import { AuthGuard } from './jwt.guard';
 import { AuthenticatedUser } from 'src/types';
 import { User } from 'src/common/decorators'
 import { Response } from 'express';
+import { otpDto } from './dto/otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -26,6 +27,29 @@ export class AuthController {
     return await this.authService.getMe(user);
   }
 
+  @Get('otp/qrcode')
+  @UseGuards(AuthGuard)
+  async getQrCode(@User() user: AuthenticatedUser) {
+    return await this.authService.getQrCode(user);
+  }
+
+  @Post('otp/enable')
+  @UseGuards(AuthGuard)
+  async activateOtp(@User() user: AuthenticatedUser, @Body() data: otpDto ) {
+    return await this.authService.activateTwoFacotr(user, data.code)
+  }
+
+  @Post('otp/disable')
+  @UseGuards(AuthGuard)
+  async disactivateOtp(@User() user: AuthenticatedUser, @Body() data: otpDto ) {
+    return await this.authService.disactivateTwoFactor(user, data.code)
+  }
+
+  @Post('otp/virify')
+  @UseGuards(AuthGuard)
+  async virifyOtp(@User() user: AuthenticatedUser, @Body() data: otpDto ) {
+    return await this.authService.verifyOtp(user, data.code)
+  }
 
   // for test only need to be removed
   @Get('/faketoken')
@@ -34,4 +58,5 @@ export class AuthController {
       return await this.authService.getFakeToken(username);
     throw new UnauthorizedException();
   }
+
 }

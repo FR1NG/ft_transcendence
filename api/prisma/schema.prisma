@@ -35,7 +35,9 @@ model Users {
   blocked                Block[]             @relation("blocked")
   invitations            Invitation[]
   points                 Int                 @default(0)
-  achievments Achievments[]
+  achievments            Achievments[]
+  otpSecret              String?
+  isOtpActivated         Boolean             @default(false)
   created_at             DateTime            @default(now())
   updated_at             DateTime            @updatedAt
 }
@@ -174,11 +176,12 @@ model Invitation {
 }
 
 model Achievments {
-  id String @id @default(uuid())
-  name String
+  id          String  @id @default(uuid())
+  name        String
   description String
-  users Users[]
+  users       Users[]
 }
+
 // enums 
 enum RoomType {
   PRIVATE
