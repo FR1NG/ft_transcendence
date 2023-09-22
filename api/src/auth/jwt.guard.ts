@@ -7,6 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { AuthenticatedUser } from 'src/types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -15,18 +16,19 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    if (!token) {
+    if (!token)
       throw new UnauthorizedException();
-    }
     try {
-      const payload = await this.jwtService.verifyAsync(
+      const payload: AuthenticatedUser = await this.jwtService.verifyAsync(
         token,
         {
           secret: this.config.get('APP_KEY')
         }
       );
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
+      const isValidating = request.originalUrl === '/auth/otp/virify';
+      if(!isValidating && (payload.isOtpActivated && !payload.isOtpVirified)) {
+        throw new UnauthorizedException();
+      }
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException();

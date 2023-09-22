@@ -18,10 +18,11 @@ const profile = reactive({
   avatar: "/images/defaultUserAvatar1.jpg",
   username: "",
   email: "",
-  fa: false,
+  isOtpActivated: true,
 });
 
 const showPassword = ref(false)
+const tfa = ref(false)
 
 const errors = reactive({
   username: '',
@@ -36,6 +37,7 @@ const getProfile = async () => {
   try {
     const data = await userStore.getProfile();
     assignObject(data, profile);
+    tfa.value = true
   } catch (error) {
     console.log(error)
   }
@@ -64,7 +66,7 @@ const update = async () => {
 </script>
 
 <template>
-    <CustomCard class="settingsWrapper">
+    <CustomCard :loading="false" class="settingsWrapper">
       <v-card-title class="pageHeader">Settings</v-card-title>
       <v-form class="pa-4">
         <ProfileAvatar :link="profile.avatar" :update="getProfile" />
@@ -74,7 +76,7 @@ const update = async () => {
         <v-text-field prepend-inner-icon="mdi-email" class="ma-2" label="Email" variant="outlined" v-model="profile.email"
           :error="errors.email.length !== 0" :messages="errors.email" @keyup.enter="update"></v-text-field>
         <CustomDivider title="2 Factor authentication"/>
-        <TwoFa :user="profile"/>
+        <TwoFa v-if="tfa" :user="profile"/>
         <v-card-actions>
           <v-btn class="update" :disabled="updating" :loading="updating" color="rgb(var(--v-theme-colorTwo)" variant="outlined" @click="update">Update</v-btn>
         </v-card-actions>

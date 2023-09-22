@@ -25,6 +25,7 @@ export const useUserStore = defineStore('user', {
           const { data } = response;
           this.profile = data;
           this.loading = false;
+          console.log(data)
           resolve(data)
         }).catch(error => {
           // do some loginc here to handle errors

@@ -24,8 +24,7 @@ onMounted(() => {
       <v-col class="message-container"  no-gutters>
         <v-list-item class="message">
           <template v-slot:prepend class="prepend" v-if="printDetails">
-            <v-btn v-if="loading" :loading="true" icon flat>mdi-circle</v-btn>
-            <v-avatar v-else>
+            <v-avatar>
               <v-img :src="message?.sender?.avatar"></v-img>
             </v-avatar>
           </template>
