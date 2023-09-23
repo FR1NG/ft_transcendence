@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types"
-import { IsEnum, IsString, IsStrongPassword, IsUUID, Length, Matches, Min, ValidateIf, ValidationArguments } from "class-validator"
+import { IsEnum, IsNumber, IsString, IsStrongPassword, IsUUID, Length, Matches, Min, Validate, ValidateIf, ValidationArguments } from "class-validator"
 enum Types {
   'PUBLIC',
   'PROTECTED',
@@ -32,7 +32,29 @@ export class UpdateRoomDto extends PartialType(CreateRoomDto) {
   password: string
 }
 
-export type InviteUserDto = {
+export class InviteUserDto  {
+  @IsUUID()
   roomId: string
+
+  @IsUUID()
   userId: string
+}
+
+const allowedTimeOuts = [
+  5,
+  10,
+  15,
+  30
+]
+
+export class MuteUserDto {
+  @IsUUID()
+  roomId: string
+
+  @IsUUID()
+  userId: string
+
+  @IsNumber()
+  @Validate((value: number) => allowedTimeOuts.includes(value))
+  time: number
 }

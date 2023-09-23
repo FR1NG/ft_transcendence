@@ -192,6 +192,7 @@ export class ChatService {
         id: true,
         content: true,
         seen: true,
+        created_at: true,
         sender: {
           select: {
             id: true,
@@ -202,7 +203,7 @@ export class ChatService {
       }
     });
 
-    const test = await this.prisma.conversations.update({
+    await this.prisma.conversations.update({
       where: {
         id: conversationId
       },
@@ -237,6 +238,7 @@ export class ChatService {
               select: {
                 id: true,
                 content: true,
+                created_at: true,
                 sender: {
                   select: {
                     id: true,
@@ -452,6 +454,7 @@ export class ChatService {
       return {message: 'messages read successfully'};
     throw new InternalServerErrorException();
   }
+
 
   //class:END
 }

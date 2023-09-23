@@ -3,6 +3,7 @@ import { CreateRoomDto } from '@/types/room'
 import axios from '@/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useChatStore } from './chat'
+import { useSnackBarStore } from './snackbar'
 
 type UserRoom = {
   role: String
@@ -282,7 +283,26 @@ export const useRoomStore = defineStore('room', {
           reject(error.response);
         }
       });
+    },
+
+    // mute a user
+    async muteUser(roomId: string, userId: string, time: string) {
+      return new Promise(async (resolve, reject) => {
+          try {
+          const response: AxiosResponse = await axios.post('/room/mute',{
+            roomId,
+            userId,
+            time
+          });
+          const { data } = response;
+          useSnackBarStore().notify(data.message)
+          resolve(data);
+        } catch(error: any){
+          reject(error.response);
+        }
+      })
     }
+
    }, // INFO end of actions
 }); // INFO end of defineStore
 

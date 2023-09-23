@@ -39,9 +39,9 @@ onBeforeRouteLeave(() => {
       @update:model-value="markRead"
     >
       <template v-slot:activator="{ props }">
-        <v-card class="ma-2">
+        <v-card class="ma-2 pa-1" variant="outlined" color="colorTwo" rounded="lg">
         <v-btn v-bind="props" icon>
-            <v-badge :dot="!unseenIds.length"  :color="unseenIds.length > 0 ? `red` : `blue-lighten-4`" :content="unseenIds.length || ''">
+            <v-badge :dot="!unseenIds.length"  :color="unseenIds.length > 0 ? `red` : `colorTwo`" :content="unseenIds.length || ''">
               <v-icon class="notification-icon" color="colorThree">mdi-bell-outline</v-icon>
             </v-badge>
         </v-btn>
