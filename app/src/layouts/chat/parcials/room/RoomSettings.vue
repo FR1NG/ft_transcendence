@@ -12,6 +12,7 @@ import EditRoom from './EditRoom.vue'
 import router from '@/router';
 import { useSnackBarStore } from '@/store/snackbar';
 import InviteUser from './InviteUser.vue'
+import MuteUser from './MuteUser.vue'
 
 
 const dialog = true;
@@ -22,6 +23,11 @@ const { me } = storeToRefs(authStore);
 const route = useRoute();
 const usersId = ref<Array<String>>();
 const invitedsId = ref<Array<String>>();
+
+// mute user data
+const muteUserId = ref('');
+const muteValue = ref(false);
+const muteUsername = ref('');
 
 const roomId: string = route.params.id as string;
 const data = reactive({
@@ -117,11 +123,23 @@ const onRoomUpdated = () => {
   getData();
 }
 
+const mute = (id: string, username: string) => {
+  muteUserId.value = id
+  muteUsername.value = username
+  muteValue.value = true;
+}
+
+const closeMute = () => {
+  muteUserId.value = '';
+  muteUsername.value = '';
+  muteValue.value = false;
+}
+
 </script>
 
 <template>
-  <v-dialog width="800" v-model="dialog" persistent>
-    <v-card :loading="data.loading">
+  <v-dialog width="800" v-model="dialog" persistent class="ovelay">
+    <v-card rounded="xl" color="colorOne" :loading="data.loading">
       <v-toolbar color="colorOne">
         <v-toolbar-title>
           {{ details?.room.name }}
@@ -146,7 +164,7 @@ const onRoomUpdated = () => {
       </v-expand-transition>
       <v-card-text>
         <costum-divider title="Room users"> </costum-divider>
-        <v-list max-height="300">
+        <v-list max-height="300" bg-color="colorOne" >
           <v-list-item v-for="user in details?.room.users" :key="user.user.id">
             <v-list-item-title>{{ user.user.id === me.id ? `${user.user.username} (you)` : user.user.username
             }}</v-list-item-title>
@@ -170,6 +188,7 @@ const onRoomUpdated = () => {
                   <v-list-item v-else @click="removeAdmin(user.user.id)">Remove Admine</v-list-item>
                   <v-list-item @click="ban(user.user.id)">Ban</v-list-item>
                   <v-list-item @click="kick(user.user.id)">Kick</v-list-item>
+                  <v-list-item @click="mute(user.user.id, user.user.username)">Mute</v-list-item>
                 </v-list>
               </v-menu>
             </template>
@@ -184,6 +203,7 @@ const onRoomUpdated = () => {
         <v-btn @click="roomSettings = false">close</v-btn>
       </v-card-actions>
     </v-card>
+    <mute-user @close="closeMute" v-if="muteValue" :user-id="muteUserId" :room-id="roomId" :username="muteUsername"></mute-user>
   </v-dialog>
 </template>
 
@@ -198,4 +218,5 @@ const onRoomUpdated = () => {
   background: rgb(var(--v-theme-colorOne));
   border-radius: 50%;
 }
+
 </style>
