@@ -118,6 +118,7 @@ model UsersRooms {
   userId     String
   role       RoomRoles @default(USER)
   baned      Boolean   @default(false)
+  muted      Boolean   @default(false)
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 }
