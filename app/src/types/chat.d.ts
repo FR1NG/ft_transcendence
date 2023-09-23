@@ -7,6 +7,7 @@ export type Message = {
   loading: boolean
   sender: Sender
   seen: boolean
+  create_at: string
 }
 
 type Sender = {

@@ -38,9 +38,9 @@ const leagues = [
   { name: "bronze", points: 10 },
   { name: "silver", points: 50 },
   { name: "gold", points: 100 },
-  { name: "platinum", points: 500 },
-  { name: "diamond", points: 1800 },
-  { name: "heroic", points: 5000 },
+  { name: "sapphire", points: 500 },
+  { name: "platinum", points: 1800 },
+  { name: "diamond", points: 5000 },
   { name: "Master", points: 10000 },
 ];
 

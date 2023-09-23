@@ -100,10 +100,10 @@ const callback = async (response: any) => {
     width: 80%;
     max-height: 350px;
   }
-}
 .v-overlay--active {
     backdrop-filter: blur(2px);
     background: rgba(var(--v-theme-colorTwo),0.3);
+}
 }
 .snack {
   animation: fade-at-leave 0.8s linear forwards 3200ms;
