@@ -23,6 +23,7 @@ const listen = () => {
   const authStore = useAuthStore();
   const socketStore = useSocketStore();
   const chatStore = useChatStore();
+  const snackBarStore = useSnackBarStore();
   const { me } = storeToRefs(authStore);
   authStore.getMe();
 
@@ -43,9 +44,8 @@ const listen = () => {
       showNotification(data.content, data.content);
     }
 
-  }, error => {
-    console.log('you got new error on the socket')
-    console.log(error);
+  }, (error: any) => {
+      snackBarStore.notify(error.toString());
   });
 }
 
