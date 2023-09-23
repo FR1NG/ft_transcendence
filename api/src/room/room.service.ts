@@ -612,10 +612,22 @@ async banUser(roomId: string, userId: string) {
 
   // timeout to unmute room user
   async mute(data: MuteUserDto) {
+    const allowedTime = [
+      5,
+      10,
+      15,
+      30
+    ];
+
+    if(!allowedTime.includes(data.time))
+      throw new BadRequestException(['time is invalid'])
     const userRoom = await this.prisma.usersRooms.findFirst({
       where: {
         roomId: data.roomId,
         userId: data.userId
+      },
+      include: {
+        user: true
       }
     });
     if(!userRoom)
@@ -631,11 +643,17 @@ async banUser(roomId: string, userId: string) {
       }
     });
     
-    this.logger.verbose('user has been muted')
 
     // setting the timeout
     const timeout = setTimeout(async () =>  this.unmute(room), data.time * 60000);
-    this.scheduleRegestry.addTimeout(`unmute${room.id}`, timeout);
+    try {
+      this.scheduleRegestry.addTimeout(`unmute${room.id}`, timeout);
+      this.logger.verbose(`user '${userRoom.user.username}' has been muted`);
+    } catch(error) {
+      clearTimeout(timeout);
+      throw new ConflictException('user is already muted');
+    }
+    return { message: `${userRoom.user.username} has been muted successfully for ${data.time} minutes`};
   }
 
   // check if user able to send message to room
