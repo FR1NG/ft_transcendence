@@ -22,4 +22,9 @@ onMounted(() => {
 body {
   font-family: 'Gugi', cursive;
 }
+
+.v-overlay--active.ovelay {
+    backdrop-filter: blur(2px);
+    background: rgba(var(--v-theme-colorTwo),0.3);
+}
 </style>
