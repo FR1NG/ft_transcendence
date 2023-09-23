@@ -16,6 +16,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { InvitationController } from './invitation/invitation.controller';
 import { InvitationModule } from './invitation/invitation.module';
 import { GameModule } from './game/game.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { GameModule } from './game/game.module';
     CaslModule,
     EventEmitterModule.forRoot(),
     InvitationModule,
-    GameModule
+    GameModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, AuthGuard, WsAuthGuard],

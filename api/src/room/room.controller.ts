@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Get, Query, Param, Delete, Patch } from '@nestjs/common';
-import { CreateRoomDto, InviteUserDto, JoinRoomDto, UpdateRoomDto } from './dto/room.dto';
+import { CreateRoomDto, InviteUserDto, JoinRoomDto, UpdateRoomDto, MuteUserDto } from './dto/room.dto';
 import { AuthGuard } from 'src/auth/jwt.guard';
 import { RoomService } from './room.service'
 import type { AuthenticatedUser } from 'src/types'
@@ -127,4 +127,11 @@ export class RoomController {
     return await this.roomService.deleteInvitation(roomId, userId);
   }
 
+  @Post('mute')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('update')
+  @UseGuards(AuthGuard)
+  async muteUser(@Body() data: MuteUserDto) {
+    return await this.roomService.mute(data);
+  }
 }

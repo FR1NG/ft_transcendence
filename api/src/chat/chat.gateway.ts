@@ -10,6 +10,7 @@ import { WebSocketExceptionFilter } from 'src/exception-filters/websocket.filter
 import { RoomService } from 'src/room/room.service';
 import { Server, Socket } from 'socket.io'
 import { OnEvent } from '@nestjs/event-emitter';
+import { AuthenticatedUser } from 'src/types';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -71,12 +72,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
       return feed;
     } else if (payload.type === 'room') {
+      await this.checkRoomAbility(user, payload);
       const message: any = await this.chatService.createRoomMessage(user, payload);
       this.server.to(payload.recieverId).emit('room-message', message);
       const feed = { status: 'success', tmpId: payload.id, message, recieverId: payload.recieverId };
       return feed;
     }
     throw new WsException('invalid message payload');
+  }
+
+  private async checkRoomAbility(user: AuthenticatedUser, payload: MessagePaylod) {
+    const isAble = await this.roomService.isUserAbleToSend(user, payload);
+    if(!isAble)
+      throw new WsException('you can not send message to this room');
   }
 
   private async getUser(client: any) {
