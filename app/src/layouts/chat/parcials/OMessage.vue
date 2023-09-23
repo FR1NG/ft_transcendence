@@ -3,17 +3,22 @@ import { Message } from '@/types/chat'
 import { onMounted, ref } from 'vue'
 import { useChatStore } from '@/store/chat';
 import { User } from '@/types/user';
-
-defineProps<{
+import moment from 'moment';
+const props = defineProps<{
   message: Message,
   printDetails: boolean
   loading: boolean | undefined
 }>()
 
 const chatStore = useChatStore();
+const time = ref(moment(props.message.created_at).fromNow())
 onMounted(() => {
   chatStore.scrollDown();
 });
+
+setInterval(() => {
+time.value = moment(props.message.created_at).fromNow()
+}, 60000);
 
 </script>
 
@@ -30,6 +35,9 @@ onMounted(() => {
           </template>
           <v-list-item-title v-if="printDetails">
             {{ message?.sender?.username}}
+            <div class="time">
+             {{ time }}
+            </div>
           </v-list-item-title>
           <v-list-item-subtitle class="content left bubble">
             {{ message.content}}
@@ -71,5 +79,10 @@ onMounted(() => {
     background-color: #5f4c4c;
     padding: 4px 8px;
     border-radius: 0px 8px 8px 8px;
+}
+.time {
+    font-size: 10px;
+    padding: 0;
+    margin-top: -8px;
 }
 </style>
