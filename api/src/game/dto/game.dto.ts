@@ -1,3 +1,5 @@
+import { GameMode } from "@prisma/client";
+
 export interface Player {
   id: string;
   paddleYRatio: number;
@@ -15,12 +17,6 @@ export interface Ball {
   velocityYRatio: number;
 }
 
-export enum GameMode {
-  EASY = 'EASY',
-  NORMAL = 'NORMAL',
-  HARD = 'HARD'
-}
-
 export interface GameState {
   gameStarted: boolean;
   gameOver: boolean;
@@ -31,6 +27,8 @@ export interface GameState {
   canvasWidth?: number;     // Current width of the canvas
   canvasHeight?: number;    // Current height of the canvas
 }
+
+
 
 export interface Game {
   gameId: string

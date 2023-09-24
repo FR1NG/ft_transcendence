@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Player, Ball, GameState, GameMode} from './dto/game.dto';
+import { Player, Ball, GameState } from './dto/game.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
-import { GameStatus } from '@prisma/client';
+import { GameStatus, GameMode } from '@prisma/client';
 
 const BASE_MOVE_DISTANCE = 0.02;
 const GAME_MODE_CONFIGS = {
@@ -56,6 +56,14 @@ export class GameService {
         xRatio: 0.98
       }
     ];    
+  }
+
+  public setPlayersId(gameId: string, hostId: string, guestId: string) {
+    const state = this.gameStates[gameId];
+    if(!state)
+      return;
+    state.players[0].id = hostId;
+    state.players[1].id = guestId;
   }
 
   public resetGameState(gameId: string, mode: GameMode): void {
@@ -184,7 +192,9 @@ export class GameService {
         } else {
           player.paddleYRatio = newY;
         }
-        console.log(`Updated Y position for ${playerId}: ${player.paddleYRatio}`);
+        // console.log(`Updated Y position for ${playerId}: ${player.paddleYRatio}`);
+        console.log(this.gameStates[gameId].players.find(el => el.id === playerId).paddleYRatio)
+        console.log(player.paddleYRatio);
       }
     }
 
@@ -202,6 +212,19 @@ export class GameService {
   }
 
   private declareWinner(gameId: string, playerId: string): void {
+    const state = this.gameStates[gameId];
+    this.prisma.games.update({
+      where: {
+        id: gameId
+      },
+      data: {
+        status: 'FINISHED',
+        loserScore: Math.min(state.players[0].score, state.players[1].score),
+        winnerScore: Math.max(state.players[0].score, state.players[1].score),
+      }
+    }).then(() => {
+        console.log('game status changed');
+      })
     console.log(`Player ${playerId} is the winner!`);
     this.gameStates[gameId].gameOver = true;
     // Stop the ball and paddles from moving
@@ -270,11 +293,12 @@ export class GameService {
   }
 
   // db logic
-  async createGame(hostId: string, guestId: string) {
+  async createGame(hostId: string, guestId: string, mode: GameMode) {
     const game = this.prisma.games.create({
       data: {
         hostId: hostId,
         guestId: guestId,
+        mode,
       }
     });
     return game;
@@ -287,6 +311,23 @@ export class GameService {
         hostId,
         guestId,
         status
+      }
+    });
+    return game;
+  }
+
+  async getMyGame(user: AuthenticatedUser, type: GameStatus) {
+    const game = await this.prisma.games.findFirst({
+      where: {
+        OR: [
+          {guestId: user.sub},
+          {hostId: user.sub}
+        ],
+        status: type
+      },
+      include: {
+        host: true,
+        guest: true
       }
     });
     return game;
