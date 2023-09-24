@@ -134,6 +134,7 @@ model Games {
   winner      Users?     @relation("gameWinner", fields: [winnerId], references: [id])
   winnerScore Int?
   loserScore  Int?
+  mode        GameMode   @default(EASY)
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
 }
@@ -212,4 +213,10 @@ enum InvitationType {
   FRIEND
   GAME
   ROOM
+}
+
+enum GameMode {
+  EASY
+  NORMAL
+  HARD
 }
