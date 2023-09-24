@@ -167,26 +167,26 @@ export class GameService {
     }
   }
 
-  movePlayer(playerId: string, direction: number, gameId: string): void {
-    const gameState = this.gameStates[gameId];
-    if (!gameState || gameState.gameOver) return;
-    const MOVE_DISTANCES = {
-      1: -BASE_MOVE_DISTANCE,
-      2: BASE_MOVE_DISTANCE,
-    };
-    const player = gameState.players.find(p => p.id === playerId);
-    if (player) {
-      const newY = player.paddleYRatio + MOVE_DISTANCES[direction];
-      // The conditions are based on the ratios, so 0 and 1 are the top and bottom of the canvas, respectively.
-      if (newY - player.paddleHeightRatio / 2 < 0) {
-        player.paddleYRatio = player.paddleHeightRatio / 2;
-      } else if (newY + player.paddleHeightRatio / 2 > 1) {
-        player.paddleYRatio = 1 - player.paddleHeightRatio / 2;
-      } else {
-        player.paddleYRatio = newY;
+    movePlayer(playerId: string, direction: number, gameId: string): void {
+      const gameState = this.gameStates[gameId];
+      if (!gameState || gameState.gameOver) return;
+      const MOVE_DISTANCES = {
+        1: -BASE_MOVE_DISTANCE,
+        2: BASE_MOVE_DISTANCE,
+      };
+      const player = gameState.players.find(p => p.id === playerId);
+      if (player) {
+        const newY = Number((player.paddleYRatio + MOVE_DISTANCES[direction]).toFixed(4));
+        if (newY - player.paddleHeightRatio / 2 < 0) {
+          player.paddleYRatio = player.paddleHeightRatio / 2;
+        } else if (newY + player.paddleHeightRatio / 2 > 1.01) {
+          player.paddleYRatio = 1 - player.paddleHeightRatio / 2;
+        } else {
+          player.paddleYRatio = newY;
+        }
+        console.log(`Updated Y position for ${playerId}: ${player.paddleYRatio}`);
       }
     }
-  }  
 
   private resetBall(gameId: string): void {
     const gameState = this.gameStates[gameId];

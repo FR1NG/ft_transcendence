@@ -26,7 +26,7 @@ export default {
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
-    const canvasHeight = ref(canvasWidth.value / ASPECT_RATIO);
+    const canvasHeight = ref((canvasWidth.value / ASPECT_RATIO)* canvasWidthPercentage);
     const gameCanvas = ref(null);
     const playerId = ref(null);
     const scaleFactor = ref(1);
@@ -102,20 +102,24 @@ export default {
 
     // Listen for player assignments from the server
     const handleKeyDownEvent = (event: KeyboardEvent) => {
+      event.preventDefault();
       if (event.code === 'KeyW') {
         keyStates.w = true;
       } else if (event.code === 'KeyS') {
           keyStates.s = true;
       }
+      console.log('KeyDown', keyStates);
     };
 
     // Handle the "KeyW" and "KeyS" key-up events
     const handleKeyUpEvent = (event: KeyboardEvent) => {
+      event.preventDefault();
       if (event.code === 'KeyW') {
         keyStates.w = false;
       } else if (event.code === 'KeyS') {
         keyStates.s = false;
       }
+      console.log('KeyUp', keyStates);
     };
     
     const gameLoop = () => {
@@ -134,8 +138,8 @@ export default {
 
     // Adjust canvas dimensions on window resize
     const resizeHandler = () => {
-      canvasWidth.value = window.innerWidth;
-      canvasHeight.value = window.innerWidth / ASPECT_RATIO;
+      canvasWidth.value = window.innerWidth * canvasWidthPercentage;
+      canvasHeight.value = (window.innerWidth / ASPECT_RATIO)* canvasWidthPercentage;
       socket.emit('canvasDimensions', {
         width: canvasWidth.value,
         height: canvasHeight.value,
