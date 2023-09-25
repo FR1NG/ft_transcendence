@@ -18,13 +18,16 @@ import { GameState } from '@/types/game';
 import { useGameStore } from '@/store/game';
 import { computed } from 'vue';
 import { useAuthStore } from '@/store/auth';
+import { storeToRefs } from 'pinia';
 
 export default {
   name: 'Game',
   setup() {
     const gameStore = useGameStore();
     const authStore = useAuthStore();
-    const socket = io('http://localhost:4443/game', {
+    const { selectedMode } = storeToRefs(gameStore);
+    const url = `http://10.14.6.6:4443/game`;
+    const socket = io(url, {
     query: {
         mode: gameStore.selectedMode
     },
@@ -334,7 +337,7 @@ export default {
       }
     });
 
-    socket.emit('joinQueue', 'NORMAL');
+    socket.emit('joinQueue', selectedMode.value);
 
     return {
       ...toRefs(keyStates),
