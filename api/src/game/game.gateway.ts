@@ -17,6 +17,7 @@ import { AuthenticatedUser } from 'src/types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { GameMode, Games } from '@prisma/client';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @WebSocketGateway({namespace: '/game'})
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -104,6 +105,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client2.socket.join(game.id);
     client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
     client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+    this.logger.verbose(`game created with id ${game.id}`)
     return game;
 }
 
@@ -149,6 +151,16 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     }
   }
 
+  @OnEvent('game.clear')
+  clearGame(game: Games) {
+    this.logger.log('cleaning event triggred');
+    delete this.readyPlayers[game.id];
+    clearInterval(this.gameLoopIntervalIds[game.id]);
+    delete this.gameLoopIntervalIds[game.id];
+    delete this.clients.get(game.hostId)?.game;
+    delete this.clients.get(game.guestId)?.game;
+  }
+
   async handleDisconnect(client: Socket) {
 
     const user = await this.getUser(client)
@@ -173,23 +185,24 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       // }
     // }
     // let oppositeRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
-    // this.server.to(gameId).emit('opponentDisconnected', oppositeRole);
-    // const currentState = this.gameService.getCurrentState(gameId);
     // if (!currentState.gameOver) {
     //   currentState.gameOver = true;
     const game = await this.gameService.getMyGame(user, 'STARTED');
     if(!game)
       return;
-    this.gameService.resetGameState(game.id, game.mode);
-    clearInterval(this.gameLoopIntervalIds[game.id]);
-    // }
-    // delete this.clients[clientId];
-    // delete this.readyPlayers[gameId];
+    this.gameService.getCurrentState(game.id).gameOver = true;
+    this.server.to(game.id).emit('opponentDisconnected');
     this.broadcastGameState(game.id);
+    const opponentId = game.guestId === user.sub ? game.guestId : game.hostId;
+    this.gameService.finishGame(game.id, opponentId);
   }
 
   // to be optimized
   joinRoon(game: Games) {
+    const hostSocket = this.clients.get(game.hostId)?.socket;
+    const guestSocket = this.clients.get(game.guestId)?.socket;
+    if(!hostSocket || !guestSocket)
+      this.logger.error('some of the clients is not there')
     this.clients.get(game.guestId).socket.join(game.id);
     this.clients.get(game.hostId).socket.join(game.id);
   }
@@ -200,22 +213,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     // console.log(client)
     const user = client.user;
     const socket = this.clients.get(user.sub)
+    const game = socket.game;
     if (!socket) {
       console.log(`Client with ID ${client.id} was not found in the clients list.`);
       return;
     }
-    const game = await this.gameService.getMyGame(user, 'CREATED');
     if(!game) throw new WsException('game not found');
     if (!this.readyPlayers[game.id]) this.readyPlayers[game.id] = [];
     this.readyPlayers[game.id].push(user.sub);
     if (this.readyPlayers[game.id].length === 2) {
       this.logger.verbose('players are ready');
-      this.joinRoon(game);
+      // this.joinRoon(game);
       this.server.to(game.id).emit('gameStarted');
-      this.gameService.initializeGameState(game.id, game.mode);
-      this.gameService.setPlayersId(game.id, game.hostId, game.guestId);
-      const currentState = this.gameService.getCurrentState(game.id);
-      currentState.gameStarted = true;
+      await this.gameService.startGame(game.id);
       this.startGameLoop(game.id);
       this.broadcastGameState(game.id);
     } else {

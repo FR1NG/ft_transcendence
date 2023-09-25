@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Player, Ball, GameState } from './dto/game.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
-import { GameStatus, GameMode } from '@prisma/client';
+import { GameStatus, GameMode, Users } from '@prisma/client';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const BASE_MOVE_DISTANCE = 0.02;
 const GAME_MODE_CONFIGS = {
@@ -28,13 +29,18 @@ const BALL_SPEEDS = {
 @Injectable()
 export class GameService {
   private gameStates: { [gameId: string]: GameState } = {};
+  private logger = new Logger(GameService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private eventEmiter: EventEmitter2) {}
 
   public initializeGameState(gameId: string, mode: GameMode): void {
     if (!this.gameStates[gameId]) {
         this.resetGameState(gameId, mode);
     }
+  }
+
+  public cleanGameState(gameId: string) {
+    delete this.gameStates[gameId];
   }
 
   private initializePlayers(): Player[] {
@@ -207,11 +213,66 @@ export class GameService {
     ball.velocityYRatio = 0; // The ball starts with no vertical movement
   }
 
-  getCurrentState(gameId: string): GameState {
+  public getCurrentState(gameId: string): GameState {
     return this.gameStates[gameId];
   }
 
-  private declareWinner(gameId: string, playerId: string): void {
+  private addPoint(userId: string, points: number) {
+        this.prisma.users.update({
+          where: {
+            id: userId
+          },
+          data: {
+            points: {
+              increment: points
+            }
+          },
+          select: {
+        id: true,
+        _count: {
+          select: {
+            winnedGames: true
+          }
+        }
+      }
+        }).then((user) => {
+            this.logger.verbose('winnier points updated')
+            this.checkAchievments(user);
+          })
+  }
+
+  private unlockAchievment(userId, achId: string) {
+    this.prisma.users.update({
+      where: {
+        id: userId
+      },
+      data: {
+        achievments: {
+          connect: {
+            id: achId
+          }
+        }
+      }
+    }).then(() => {
+        this.logger.verbose('achievment unlocked');
+      });
+  }
+
+  private checkAchievments(user) {
+    if(user._count.winnedGames > 10) return;
+    switch(user._count.winnedGames) {
+      case 1: return this.unlockAchievment(user.id, "1");
+      case 5: return this.unlockAchievment(user.id, "2");
+      case 10: return this.unlockAchievment(user.id, "3");
+    }
+  }
+
+  public finishGame(gameId: string, winnerId: string) {
+    const getPoint = (mode: GameMode) => {
+        if(mode === 'EASY') return 1
+        if(mode === 'NORMAL') return 2;
+        else return 5;
+    }
     const state = this.gameStates[gameId];
     this.prisma.games.update({
       where: {
@@ -219,13 +280,38 @@ export class GameService {
       },
       data: {
         status: 'FINISHED',
+        winnerId: winnerId,
         loserScore: Math.min(state.players[0].score, state.players[1].score),
-        winnerScore: Math.max(state.players[0].score, state.players[1].score),
+        winnerScore: 10,
       }
-    }).then(() => {
-        console.log('game status changed');
-      })
+    }).then((game) => {
+        this.logger.log(`game over`);
+        // adding points to user;
+        this.addPoint(game.winnerId, getPoint(game.mode));
+        // deleting the game state
+        this.cleanGameState(gameId);
+        // emitting event to the gateway
+        this.eventEmiter.emit('game.clear', game);
+      });
+  }
+
+  public async startGame(gameId: string) {
+    const game = await this.prisma.games.update({
+      where: {
+      id: gameId
+      },
+      data: {
+        status: 'STARTED',
+      }
+    });
+    this.initializeGameState(game.id, game.mode);
+    this.setPlayersId(game.id, game.hostId, game.guestId);
+    this.gameStates[game.id].gameStarted = true;
+  }
+
+  private declareWinner(gameId: string, playerId: string): void {
     console.log(`Player ${playerId} is the winner!`);
+    this.finishGame(gameId, playerId);
     this.gameStates[gameId].gameOver = true;
     // Stop the ball and paddles from moving
     this.gameStates[gameId].ball.velocityXRatio = 0;

@@ -50,9 +50,9 @@ const hchakoub = async () => {
 
 const seedAchevments = async () => {
   const ach = [
-    {name: 'pong win', description: 'win a game'},
-    {name: 'hot streak', description: 'win 5 games in a row'},
-    {name: 'hotter streak', description: 'win 10 games in a row'},
+    {id: "1", name: 'pong win', description: 'win a game'},
+    {id: "2", name: 'hot streak', description: 'win 5 games in a row'},
+    {id: "3", name: 'hotter streak', description: 'win 10 games in a row'},
   ];
 
   await prisma.achievments.createMany({
@@ -105,7 +105,7 @@ async function main() {
   await seedAchevments();
   await hchakoub();
   const users = await seedUsers();
-  const games = await seedGames(users);
+  // const games = await seedGames(users);
 }
 
 main()
