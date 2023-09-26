@@ -2,11 +2,14 @@ import { defineStore } from "pinia";
 import axios from '@/plugins/axios'
 import { AxiosResponse } from "axios";
 import { useInvitationStore } from "./invitation";
+import { useSocketStore } from "./socket";
 
 type ThemeKey = 'classic' | 'AmongUs' | 'PacMan';
 
 export const useGameStore = defineStore('game', {
   state: () => ({
+    gameResult: '',
+    restartId: '',
     selectedTheme: 'classic',
     selectedMode: 'NORMAL',
     themeSelected: false,
@@ -63,5 +66,19 @@ export const useGameStore = defineStore('game', {
       this.selectedMode = mode;
       this.modeSelected = true;
     },
+    setResult(value: string) {
+      this.gameResult = value;
+    },
+    setRestartId(value: string) {
+      this.restartId = value;
+    },
+    restartGame() {
+      console.log('restart game called from store');
+      const socketStore = useSocketStore();
+      console.log(this.restartId);
+      socketStore.gameSocket?.emit('restart', this.restartId)
+      this.restartId = '';
+      this.gameResult = '';
+    }
   }// end of actions
 })// end of store

@@ -12,12 +12,14 @@ import { GameService } from './game.service';
 import { Logger, UseGuards } from '@nestjs/common';
 import { WsAuthGuard } from 'src/auth/ws.guard';
 import { InvitationService } from 'src/invitation/invitation.service';
-import { WsUser } from 'src/common/decorators/ws-user.decorator';
 import { AuthenticatedUser } from 'src/types';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { GameMode, Games } from '@prisma/client';
 import { OnEvent } from '@nestjs/event-emitter';
+import { randomUUID } from 'crypto';
+
+type AuthSocket = Socket & { user: AuthenticatedUser};
 
 @WebSocketGateway({namespace: '/game'})
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -35,6 +37,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   private readonly logger = new Logger(GameGateway.name);
   private clients: Map<string, {socket: Socket, game?: Games}> = new Map();
   private ids: Map<string, string> = new Map();
+  private invitatios: Map<string, string[]> = new Map();
 
   async handleConnection(client: Socket, ...args: any[]): Promise<void> {
     const user = await this.getUser(client);
@@ -47,18 +50,19 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('joinQueue')
   @UseGuards(WsAuthGuard)
   joinQueue(client: any, mode: GameMode = 'NORMAL') {
+    console.log('event emmited')
     const user = client.user
     this.logger.verbose(`${user.username} joined ${mode} queue`);
     this.gameService.joinQueue(user.sub, mode);
     this.processPlayer(client, mode)
+    return true;
   }
   
   async processPlayer(client: Socket, mode: GameMode): Promise<void> {
     this.handlePlayerConnection(client, mode);
     const game = await this.matchPlayers(mode);
     if (game) {
-      this.logger.verbose(`playes matched ${game.hostId} and ${game.guestId}`);
-        this.gameService.initializeGameState(game.id, mode);
+        this.logger.verbose(`playes matched ${game.hostId} and ${game.guestId}`);
         this.broadcastGameState(game.id);
     } else {
         client.emit('waitingForMatch');
@@ -166,34 +170,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     if(!user)
       throw new WsException('unauthorized');
     const userId = user.sub;
-    // console.log(`Client disconnected: ${user.sub}`);
-    
-    // Remove player from all queues 
     this.removeUserFromQueues(userId);
-    // const clientData = this.clients[userId];
-    // if (!clientData) {
-    //     console.log(`Client with ID ${userId} was not in an active game.`);
-    //     return;
-    // }
-    // const { gameId, role } = clientData;
-    // const gameReadyPlayers = this.readyPlayers[gameId];
-    // if (gameReadyPlayers) {
-      // const index = gameReadyPlayers.indexOf(role);
-      // if (index > -1) {
-          // gameReadyPlayers.splice(index, 1);
-      // }
-    // }
-    // let oppositeRole: 'Host' | 'Guest' = role === 'Host' ? 'Guest' : 'Host';
-    // if (!currentState.gameOver) {
-    //   currentState.gameOver = true;
     const game = await this.gameService.getMyGame(user, 'STARTED');
     if(!game)
       return;
-    this.gameService.getCurrentState(game.id).gameOver = true;
+    const state = this.gameService.getCurrentState(game.id);
+    if(state)
+      state.gameOver = true
     this.server.to(game.id).emit('opponentDisconnected');
     this.broadcastGameState(game.id);
     const opponentId = game.guestId === user.sub ? game.guestId : game.hostId;
-    this.gameService.finishGame(game.id, opponentId);
+    if(state)
+      this.gameService.finishGame(game.id, opponentId);
   }
 
   // to be optimized
@@ -239,6 +227,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     else {
       const userId = this.ids.get(client.id);
       const game = this.clients.get(userId).game;
+      if(!game)
+        return;
       this.gameService.movePlayer(userId, payload.direction, game.id);
       client.emit('moveReceived', `Move received for ${payload.player} with direction ${payload.direction}`);
       this.broadcastGameState(game.id);
@@ -248,6 +238,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('canvasDimensions')
   handleCanvasDimensions(client: Socket, dimensions: { width: number, height: number }): void {
     const game = this.clients.get(this.ids.get(client.id))?.game;
+
     if (game) {
       this.gameService.updateCanvasDimensions(dimensions.width, dimensions.height, game?.id);
     } else {
@@ -277,24 +268,13 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   // requesting game infos
   @SubscribeMessage('request-info')
   @UseGuards(WsAuthGuard)
-  async requestInfo(client: any, payload: any) {
-    // const { user } = client;
-    // if(!this.sockets.has(user.sub))
-    //   this.sockets.set(user.sub, client);
-    // const game = await this.invitationService.getGameByInvit(payload.invitationId);
-    // client.join(game.id);
-    // console.log(this.server.sockets.adapter.rooms.get(game.id).length)
-    // const host = this.sockets.get(game.hostId);
-    // const guest = this.sockets.get(game.guestId);
-    // if(host)
-    //   host.emit('user-joined', game)
-    // if(guest)
-    //   host.emit('user-joined', game)
+  async requestInfo(client: AuthSocket) {
+    const game = this.clients.get(client.user.sub).game;
+    if(game) {
+      const role = game.hostId === client.user.sub ? 'Host' : 'Guest';
+      client.emit('matchFound', { role, gameId:game.id });
+    }
   }
-  // listning for events
-  // @OnEvent('game.created')
-  // handleGameCreate(payload) {
-  // }
 
   // getting user from the handshake
   private async getUser(client: Socket): Promise<AuthenticatedUser> {
@@ -312,5 +292,55 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     } catch (error) {
       return null
     }
+  }
+
+  @SubscribeMessage('restart')
+  @UseGuards(WsAuthGuard)
+  async restartGame(client: AuthSocket, restartId: string) {
+    const user = client.user;
+    const invit = this.invitatios.get(restartId);
+    if(invit) {
+      invit.push(user.sub);
+      if(invit.length !== 2)
+        this.logger.verbose('both want to restart game');
+        const game = await this.gameService.createGame(invit[0], invit[1], 'NORMAL');
+        const client1 = this.clients.get(invit[0]);
+        const client2 = this.clients.get(invit[1]);
+        client1.game = game;
+        client2.game = game;
+        client1.socket.join(game.id);
+        client2.socket.join(game.id);
+        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
+        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+        this.broadcastGameState(game.id);
+        this.logger.verbose(`game created with id ${game.id}`)
+        return game;
+    } else {
+      this.invitatios.set(restartId, [user.sub]);
+      this.logger.verbose('one wants to restart');
+    }
+  }
+
+  @OnEvent('send.result')
+  sendResult(game: Games) {
+    const guest = this.clients.get(game.guestId);
+    const host = this.clients.get(game.hostId);
+
+    let guestResult = '';
+    let hostResult = '';
+    if(game.guestId === game.winnerId) {
+      guestResult = 'winner'
+      hostResult = 'loser';
+    } else {
+      guestResult = 'loser'
+      hostResult = 'winner';
+    }
+    
+    const restartId = randomUUID();
+    if(guest)
+      guest.socket.emit('game-result', {result: guestResult , restartId});
+    if(host)
+      host.socket.emit('game-result', {result: hostResult , restartId});
+
   }
 }

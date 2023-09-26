@@ -290,6 +290,8 @@ export class GameService {
         this.cleanGameState(gameId);
         // emitting event to the gateway
         this.eventEmiter.emit('game.clear', game);
+        // send resutls to users
+        this.eventEmiter.emit('send.result', game);
       });
   }
 

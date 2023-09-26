@@ -15,6 +15,7 @@ export const useSocketStore = defineStore('socket', {
   // state
   state: () => ({
     socket: null as MySocket | null,
+    gameSocket: null as MySocket | null,
   }),
   // getters
   getters: {
@@ -30,6 +31,13 @@ export const useSocketStore = defineStore('socket', {
       return false;
     },
 
+    initGameSocket(domain: string, config: {}) {
+      if(!this.gameSocket) {
+        this.gameSocket = io(domain, config);
+        return true;
+      }
+      return false;
+    },
     listen(eventCallback: (type: string, {}) => void | null, errorCallback: ({}) => void | null) {
       if(!this.socket)
         return this.throwError();

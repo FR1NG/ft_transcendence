@@ -14,12 +14,15 @@
     </div>
     </div>
   </template>
-  
+
   <script lang="ts">
   import { defineComponent } from 'vue';
   import { useGameStore } from '@/store/game';
   import { useRouter } from 'vue-router';
   import { computed } from 'vue';
+  import { useSocketStore } from '@/store/socket';
+import { storeToRefs } from 'pinia';
+import { bootstrapGameSocket } from '@/composables/game.socket';
 
   export default defineComponent({
     name: 'GameSelection',
@@ -33,12 +36,17 @@
       const themeNames = Object.keys(themes) as Array<keyof typeof themes>;
       const gameModes: GameMode[] = ['EASY', 'NORMAL', 'HARD'];
       const router = useRouter();
+      const socketStore = useSocketStore();
+      const { gameSocket } = storeToRefs(socketStore);
+
+      bootstrapGameSocket();
       const setTheme = (theme: keyof typeof themes) => {
-        gameStore.setTheme(theme); 
+        gameStore.setTheme(theme);
       };
       const setMode = (mode: GameMode) => {
         gameStore.setMode(mode);
         try {
+          gameSocket.value?.emit('joinQueue', mode)
           router.push({ name: 'Game' });
         } catch (error) {
         }
@@ -70,20 +78,20 @@ body, html {
   background-color: rgb(var(--v-theme-colorOne));
   display: flex;
   flex-direction: column;
-  justify-content: center; 
-  align-items: center;     
+  justify-content: center;
+  align-items: center;
   height: 100vh;
-  width: 100vw; 
-  overflow: hidden !important;          
+  width: 100vw;
+  overflow: hidden !important;
 }
 .theme-selector, .mode-selector {
   position: absolute;
   z-index: 1;
-  display: flex;           
-  flex-direction: column;  
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;    
-  width: 100%;            
+  align-items: center;
+  width: 100%;
   font-family: 'Public Pixel';
   font-size: 20px;
   color: rgb(var(--v-theme-colorFoure));
@@ -95,14 +103,14 @@ body, html {
   padding: 16px 32px;
   margin: 12px;
   border: none;
-  background-color: transparent; 
+  background-color: transparent;
   color: rgb(var(--v-theme-colorTwo));
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
 
   /* Neon effect */
-  box-shadow: 
+  box-shadow:
     0 0 5px rgb(var(--v-theme-colorTwo)),
     0 0 10px rgb(var(--v-theme-colorTwo)),
     0 0 15px rgb(var(--v-theme-colorThree)),
