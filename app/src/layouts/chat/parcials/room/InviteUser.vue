@@ -5,7 +5,6 @@ import { useRoomStore } from '@/store/room'
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue';
 import { User } from '@/types/user';
-import { useSearchStore } from '@/store/search'
 
 
 const roomId = useRoute().params.id as string;
@@ -36,7 +35,6 @@ const invite = (userId: string) => {
     removeLoading(userId);
   }).catch(error => {
       removeLoading(userId);
-      console.log(error);
     });
 }
 
@@ -47,7 +45,7 @@ const cancel = (userId: string) => {
       console.log(result);
     refetch();
     removeLoading(userId);
-  }).catch(() => {
+  }).catch((error: any) => {
       removeLoading(userId);
     });
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRoomStore } from '@/store/room';
+import { pushNotify } from '@/composables/simpleNotify';
 
 const props = defineProps<{
   roomId: String,
@@ -20,7 +21,6 @@ const mute = async () => {
   try {
     await roomStore.muteUser(props.roomId, props.userId, time.value);
   } catch (error: any) {
-    console.log(error.data.message)
   }
   loading.value = false;
   emit('close')

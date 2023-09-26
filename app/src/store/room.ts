@@ -3,7 +3,7 @@ import { CreateRoomDto } from '@/types/room'
 import axios from '@/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useChatStore } from './chat'
-import { useSnackBarStore } from './snackbar'
+import { pushNotify } from '@/composables/simpleNotify'
 
 type UserRoom = {
   role: String
@@ -39,6 +39,7 @@ export const useRoomStore = defineStore('room', {
           this.getRooms();
          resolve(response.data)
         } catch (error: any ) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })
@@ -48,8 +49,8 @@ export const useRoomStore = defineStore('room', {
         const response = await axios.get('/room');
         const { data } = response;
         this.rooms = data;
-      } catch (error) {
-        console.log(error)
+      } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
       }
     },
 
@@ -64,8 +65,8 @@ export const useRoomStore = defineStore('room', {
         const response: AxiosResponse = await axios.get(`/room/users?id=${roomId}`);
           const { data } = response;
           resolve(data);
-        } catch(error) {
-          console.log(error)
+        } catch(error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error)
         }
       });
@@ -83,8 +84,8 @@ export const useRoomStore = defineStore('room', {
           this.searching = false;
           console.log(data);
           resolve(data);
-        } catch (error) {
-          console.log(error)
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           this.searching = false
           reject(error)
         }
@@ -102,7 +103,7 @@ export const useRoomStore = defineStore('room', {
           this.getRooms();
           resolve(data);
         } catch(error: any) {
-          console.log(error.response);
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })
@@ -114,6 +115,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: AxiosError | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error?.response);
         }
       })
@@ -129,6 +131,7 @@ export const useRoomStore = defineStore('room', {
         const { data } = response;
         resolve(data)
       } catch(error: AxiosError | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
         reject(error.response)
       }
 
@@ -147,6 +150,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data)
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response)
         }
       });
@@ -162,6 +166,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: AxiosResponse | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response)
         }
       });
@@ -178,6 +183,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: AxiosResponse | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response)
         }
       });
@@ -194,6 +200,7 @@ export const useRoomStore = defineStore('room', {
           useChatStore().deleteConversation(roomId);
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -207,6 +214,7 @@ export const useRoomStore = defineStore('room', {
             const { data } = response;
             resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -223,6 +231,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -242,6 +251,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch(error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -255,6 +265,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })
@@ -267,6 +278,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status: 'error', title: 'error', text: error.response.data.message})
           reject(error.response);
         }
       });
@@ -280,6 +292,7 @@ export const useRoomStore = defineStore('room', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -295,9 +308,10 @@ export const useRoomStore = defineStore('room', {
             time
           });
           const { data } = response;
-          useSnackBarStore().notify(data.message)
+          pushNotify({status:'success', title:'Action completed', text:data.message})
           resolve(data);
         } catch(error: any){
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })

@@ -3,6 +3,7 @@ import axios from '@/plugins/axios'
 import type { User } from '@/types/user'
 import { useChatStore } from './chat';
 import { AxiosResponse } from 'axios';
+import { pushNotify } from '@/composables/simpleNotify';
 
 
 export const useUserStore = defineStore('user', {
@@ -49,7 +50,8 @@ export const useUserStore = defineStore('user', {
         const { data } = await axios.get(`/user/filter/?username=${username}`);
         this.user = data;
         console.log(data)
-      } catch (error) {
+      } catch (error: any) {
+        pushNotify({status:'error', title:'error', text:error.response.data.message})
         console.log(error)
       }
     },
@@ -65,7 +67,8 @@ export const useUserStore = defineStore('user', {
           this.user.invitationId = data.id;
           this.user.friendshipStatus = 'INVITATION_SENT';
           resolve(data);
-        } catch (error) {
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error);
         }
       })
@@ -78,8 +81,8 @@ export const useUserStore = defineStore('user', {
           this.user.invitationId = '';
           this.user.friendshipStatus = 'NONE';
           resolve(result)
-        } catch (error) {
-          console.log(error);
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error)
         }
       })
@@ -98,6 +101,7 @@ export const useUserStore = defineStore('user', {
           this.user.friendshipStatus = 'NONE';
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -114,7 +118,8 @@ export const useUserStore = defineStore('user', {
           chatStore.deleteConversation(id);
           this.user.blocked = true;
           resolve(response);
-        } catch (error) {
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error);
         }
       });
@@ -129,8 +134,8 @@ export const useUserStore = defineStore('user', {
           });
           resolve(response);
           this.user.blocked = false;
-        } catch (error) {
-          console.log('erro when unblocking user')
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error)
         }
       })

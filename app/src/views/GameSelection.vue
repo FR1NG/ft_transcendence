@@ -41,7 +41,6 @@
         try {
           router.push({ name: 'Game' });
         } catch (error) {
-          console.error("Routing error:", error);
         }
       };
 

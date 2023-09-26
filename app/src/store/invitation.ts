@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import axios from '@/plugins/axios';
 import { Invitation, InvitationType } from '@/types/invitation';
 import { AxiosResponse } from 'axios';
+import { pushNotify } from '@/composables/simpleNotify';
 
 export const useInvitationStore = defineStore('invitation', {
   state: () => ({
@@ -22,6 +23,7 @@ export const useInvitationStore = defineStore('invitation', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -36,6 +38,7 @@ export const useInvitationStore = defineStore('invitation', {
           this.invitation = data;
           resolve(data);
         } catch(error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error?.response)
         }
       })
@@ -50,6 +53,7 @@ export const useInvitationStore = defineStore('invitation', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -63,6 +67,7 @@ export const useInvitationStore = defineStore('invitation', {
           const { data } = response;
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });

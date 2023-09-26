@@ -1,0 +1,50 @@
+{
+  "name": "simple-notify",
+  "email": "dgknca@gmail.com",
+  "description": "Simple Notify is a pure Javascript library to show nice and customizable alert notifications.",
+  "keywords": [
+    "notification",
+    "toast",
+    "alert",
+    "notify"
+  ],
+  "version": "0.5.5",
+  "homepage": "https://dgknca.github.io/simple-notify/",
+  "repository": "https://github.com/dgknca/simple-notify.git",
+  "author": "Doğukan Çavuş",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/simple-notify.es.js",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -cw",
+    "deploy": "gh-pages -d demo",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ./src"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format && git add ."
+    }
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "eslint": "^7.32.0",
+    "gh-pages": "^3.2.3",
+    "husky": "^7.0.2",
+    "node-sass": "^6.0.1",
+    "prettier": "^2.4.1",
+    "rollup": "^2.58.0",
+    "rollup-plugin-scss": "^3.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "stylelint": "^13.13.1",
+    "stylelint-config-sass-guidelines": "^8.0.0",
+    "typescript": "^4.4.3"
+  }
+}

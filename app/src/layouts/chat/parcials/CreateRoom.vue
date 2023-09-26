@@ -3,6 +3,7 @@ import { ref, watch, reactive } from 'vue'
 import { useRoomStore } from '@/store/room'
 import { CreateRoomDto } from '@/types/room';
 import { assignObject, resetObject } from '@/composables/helpers';
+import { pushNotify } from '@/composables/simpleNotify';
 
 const roomStore = useRoomStore()
 
@@ -49,12 +50,9 @@ const reset = () => {
 const handleSubmit = async () => {
   resetObject(errors);
   roomStore.createRoom(form).then(result => {
-    console.log(result)
     dialog.value = false;
     reset();
   }).catch(error => {
-    console.log(error)
-    console.log(error.data.errors)
     assignObject(error.data.errors, errors);
   })
 }

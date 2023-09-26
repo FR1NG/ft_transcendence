@@ -10,9 +10,9 @@ import Confirm from '@/components/Confirm.vue'
 import CostumDivider from '@/components/CustomDivider.vue'
 import EditRoom from './EditRoom.vue'
 import router from '@/router';
-import { useSnackBarStore } from '@/store/snackbar';
 import InviteUser from './InviteUser.vue'
 import MuteUser from './MuteUser.vue'
+import { pushNotify } from '@/composables/simpleNotify';
 
 
 const dialog = true;
@@ -52,7 +52,6 @@ const getData = async () => {
     data.loading = false;
   } catch (error: any) {
     data.loading = false;
-    console.log(error);
   }
 }
 
@@ -64,7 +63,6 @@ const makeAdmin = async (id: string) => {
     const result = await roomStore.addAdmin(roomId, id);
     getData();
   } catch (error: any) {
-    alert(error.data.message);
   }
 }
 
@@ -73,8 +71,7 @@ const removeAdmin = async (id: string) => {
     const result = await roomStore.removeAdmin(roomId, id);
     getData();
     console.log(result);
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
   }
 }
 
@@ -83,8 +80,7 @@ const kick = async (id: string) => {
     const result = await roomStore.kickUser(roomId, id);
     getData();
     console.log(result);
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
   }
 }
 
@@ -93,8 +89,7 @@ const ban = async (id: string) => {
     const result = await roomStore.banUser(roomId, id);
     getData();
     console.log(result);
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
   }
 
 }
@@ -110,8 +105,7 @@ const leave = async (callback: () => void, handleError: () => void) => {
     callback();
     emit('leave');
     router.push({ name: 'Chat' })
-  } catch (error) {
-    console.log(error)
+  } catch (error: any) {
     handleError();
   }
 }
@@ -119,7 +113,7 @@ const leave = async (callback: () => void, handleError: () => void) => {
 // handle on room updated
 const onRoomUpdated = () => {
   showEdit.value = false;
-  useSnackBarStore().notify('room updated successfully');
+  pushNotify({status:'success', title:'Action completed', text:'room updated successfully'})
   getData();
 }
 

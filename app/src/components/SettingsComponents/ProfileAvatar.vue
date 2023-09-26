@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import axios from '@/plugins/axios'
-import { useSnackBarStore } from '@/store/snackbar';
 import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
+import { pushNotify } from '@/composables/simpleNotify';
 
-const snackBarStore = useSnackBarStore();
 const dialog = ref(false);
 const loading = ref(false);
 const avatar = ref();
@@ -76,8 +75,7 @@ const handleSubmit = async () => {
     const result = await axios.post('/user/avatar', data);
     callback(result);
   } catch (error) {
-    console.log(error)
-    loading.value = false;
+      loading.value = false;
   }
 }
 
@@ -87,7 +85,7 @@ const callback = async (response: any) => {
   await props.update();
   avatar.value = null;
   if(response.data.message) {
-    snackBarStore.notify(response.data.message);
+    pushNotify({status:'info', title:'Action status', text:response.data.message})
   }
 }
 

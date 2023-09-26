@@ -3,14 +3,13 @@ import { useUserStore } from '@/store/user'
 import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { resetObject, assignObject } from '@/composables/helpers'
-import { useSnackBarStore } from '@/store/snackbar'
+import { pushNotify } from '@/composables/simpleNotify'
 import CustomCard from '@/components/CustomCard.vue'
 import ProfileAvatar from './ProfileAvatar.vue'
 import CustomDivider from '@/components/CustomDivider.vue'
 import TwoFa from './TwoFa.vue'
 
 const userStore = useUserStore();
-const snackBarStore = useSnackBarStore();
 const { loading } = storeToRefs(userStore);
 const updating = ref(false);
 
@@ -39,7 +38,6 @@ const getProfile = async () => {
     assignObject(data, profile);
     tfa.value = true
   } catch (error) {
-    console.log(error)
   }
 }
 
@@ -55,10 +53,10 @@ const update = async () => {
   try {
     const response = await userStore.updateProfile({ username, email })
     updating.value = false;
-    snackBarStore.notify(response.message || 'Updated')
+    pushNotify({status:'error', title:'error', text:response.message || 'updated'})
   } catch (error: any) {
     // assignin valiation errors to errors object
-    snackBarStore.notify(error.message || 'Error')
+    pushNotify({status:'error', title:'error', text:error.data.message})
     assignObject(error.errors, errors);
     updating.value = false;
   }

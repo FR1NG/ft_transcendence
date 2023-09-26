@@ -2,10 +2,9 @@
 import { SearchedRoom } from '@/types/room';
 import { ref } from 'vue';
 import { useRoomStore } from '@/store/room'
-import { useSnackBarStore } from '@/store/snackbar';
+import { pushNotify } from '@/composables/simpleNotify';
 
 const roomStore = useRoomStore();
-const snackBarStore = useSnackBarStore();
 const appearance = ref(true);
 const password = ref('');
 const loading = ref(false);
@@ -34,13 +33,12 @@ const confirm = async () => {
     roomStore.getRooms()
     // showing the snackbar notification
     const message: string = data.message;
-    snackBarStore.notify(message);
+    pushNotify({status:'success', title:'Action completed', text:message})
     // emiting the close event
     emit('close');
   } catch (error: any) {
     loading.value = false;
     passwordError.value = error.data?.message;
-    console.log(error)
   }
 
 }
