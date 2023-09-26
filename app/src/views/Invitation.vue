@@ -22,7 +22,7 @@ const handleAccept = () => {
   loading.value = true;
   invitationStore.acceptInvitation(invitation.value.id).then((result: any) => {
     if (invitation.value.type === 'GAME')
-    router.push({name: 'GameWaiting', params: { invitationId: invitation.value.id}});
+    router.push({name: 'Game'});
   }).catch((error: any) => {
 
     });

@@ -20,6 +20,10 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
 
 type AuthSocket = Socket & { user: AuthenticatedUser};
+type InvitationPayload = {
+  user: AuthenticatedUser
+  invitationId: string
+}
 
 @WebSocketGateway({namespace: '/game'})
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -298,10 +302,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @UseGuards(WsAuthGuard)
   async restartGame(client: AuthSocket, restartId: string) {
     const user = client.user;
-    const invit = this.invitatios.get(restartId);
+    await this.handleInvitation({user, invitationId: restartId});
+  }
+
+  @OnEvent('game.invite')
+  async handleInvitation(payload: InvitationPayload) {
+    this.logger.verbose(`${payload.user.username} joined`);
+    const invit = this.invitatios.get(payload.invitationId);
     if(invit) {
-      invit.push(user.sub);
-      if(invit.length !== 2)
+        if(!invit.includes(payload.user.sub))
+          invit.push(payload.user.sub);
+        if(invit.length !== 2)
+          return;
         this.logger.verbose('both want to restart game');
         const game = await this.gameService.createGame(invit[0], invit[1], 'NORMAL');
         const client1 = this.clients.get(invit[0]);
@@ -314,9 +326,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
         this.broadcastGameState(game.id);
         this.logger.verbose(`game created with id ${game.id}`)
-        return game;
     } else {
-      this.invitatios.set(restartId, [user.sub]);
+      this.invitatios.set(payload.invitationId, [payload.user.sub]);
       this.logger.verbose('one wants to restart');
     }
   }

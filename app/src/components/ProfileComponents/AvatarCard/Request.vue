@@ -79,8 +79,9 @@ const unfriend = (userId: string) => {
 const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
     console.log('trying to change the route')
-    router.push({ name: 'GameWaiting', params: { invitationId: result.id } });
-  }).catch((error) => {
+    router.push({ name: 'Game'});
+  }).catch((error: any) => {
+    useSnackBarStore().notify(error.data.message);
   });
 }
 

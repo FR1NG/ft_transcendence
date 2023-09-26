@@ -130,18 +130,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       client.emit('notification', payload.data);
   }
 
-  // TODO to be moved to game gateway
-  @OnEvent('game.created')
-  handleGameCreate(payload) {
-    console.log('emiting event');
-    const to = this.clients.get(payload.toId);
-    const by = this.clients.get(payload.byId);
-    if(to)
-      to.emit('user-joined', payload);
-    if(by)
-      by.emit('user-joined', payload);
-  }
-
   //client getters
   getClient(id: string): Socket {
     return this.clients.get(id);
