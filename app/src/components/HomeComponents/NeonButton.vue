@@ -4,7 +4,9 @@
 <template>
 
 
-<button class="neonButton"> Play now </button>
+  <router-link :to="{name: 'Game'}">
+    <button class="neonButton"> Play now </button>
+  </router-link>
 
 </template>
 

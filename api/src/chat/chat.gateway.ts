@@ -29,6 +29,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   async handleConnection(client: Socket, ...args: any[]) {
     const payload = await this.getUser(client);
+
     if (payload) {
       client['user'] = payload;
       if (payload?.sub) {

@@ -78,6 +78,10 @@ export const useAuthStore = defineStore('auth', {
       }
       return false;
     },
+    getToken() {
+      const token = sessionStorage.getItem('access_token');
+      return token;
+    },
     async getQr() {
         return new Promise(async (resolve, reject) => {
           try {

@@ -17,12 +17,24 @@ import { io } from 'socket.io-client';
 import { GameState } from '@/types/game';
 import { useGameStore } from '@/store/game';
 import { computed } from 'vue';
+import { useAuthStore } from '@/store/auth';
+import { storeToRefs } from 'pinia';
 
 export default {
   name: 'Game',
   setup() {
     const gameStore = useGameStore();
-    const socket = io('http://localhost:4443', {query: { mode: gameStore.selectedMode }});
+    const authStore = useAuthStore();
+    const { selectedMode } = storeToRefs(gameStore);
+    const url = `http://10.14.6.6:4443/game`;
+    const socket = io(url, {
+    query: {
+        mode: gameStore.selectedMode
+    },
+    auth: {
+      token: authStore.getToken(),
+    }
+});
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
@@ -42,15 +54,15 @@ export default {
     let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     const restartGame = () => {
-      socket.emit('joinQueueAgain', gameStore.selectedMode);
-      cleanupGameListeners();
-      gameOver.value = false;
-      winner.value = null;
-      waitingForOpponent.value = true;
-      showGameElements.value = false;
-      playerId.value = null;
-      gameId.value = null;
-      initializeGameListeners();
+      // socket.emit('joinQueueAgain', gameStore.selectedMode);
+      // cleanupGameListeners();
+      // gameOver.value = false;
+      // winner.value = null;
+      // waitingForOpponent.value = true;
+      // showGameElements.value = false;
+      // playerId.value = null;
+      // gameId.value = null;
+      // initializeGameListeners();
     };
 
     socket.on('matchFound', (data: any) => {
@@ -72,7 +84,6 @@ export default {
     socket.on('announceWinner', function(winnerId) {
       gameOver.value = true;
       winner.value = winnerId;
-      alert(`${winnerId} is the winner!`);
     });
 
     socket.on('hideStartButton', () => {
@@ -121,7 +132,7 @@ export default {
       }
       console.log('KeyUp', keyStates);
     };
-    
+
     const gameLoop = () => {
       if (gameOver.value) return;
       const currentTime = Date.now();
@@ -219,7 +230,7 @@ export default {
 
     // Display the score on the canvas
     const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number) => {
-      ctx.font = '35px Arial'; 
+      ctx.font = '35px Arial';
       ctx.fillStyle = currentTheme.value.scoreColor;
       ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
       ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
@@ -250,10 +261,10 @@ export default {
 
       drawCenterLine(ctx, canvasWidth.value, canvasHeight.value);
       drawPaddle(
-        ctx, 
-        leftPlayer.xRatio, 
-        leftPlayer.paddleYRatio, 
-        leftPlayer.paddleWidthRatio, 
+        ctx,
+        leftPlayer.xRatio,
+        leftPlayer.paddleYRatio,
+        leftPlayer.paddleWidthRatio,
         leftPlayer.paddleHeightRatio
       );
       drawPaddle(
@@ -264,9 +275,9 @@ export default {
         rightPlayer.paddleHeightRatio
       );
       drawBall(
-        ctx, 
-        gameState.ball.xRatio, 
-        gameState.ball.yRatio, 
+        ctx,
+        gameState.ball.xRatio,
+        gameState.ball.yRatio,
         gameState.ball.radiusRatio
       );
       drawScore(ctx, leftPlayer.score, rightPlayer.score, canvasWidth.value);
@@ -326,6 +337,8 @@ export default {
       }
     });
 
+    socket.emit('joinQueue', selectedMode.value);
+
     return {
       ...toRefs(keyStates),
       canvasWidth,
@@ -344,7 +357,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import url('https://fonts.cdnfonts.com/css/public-pixel');
 // Game Elements
 .gameCanvas {
@@ -353,7 +366,7 @@ export default {
   color: rgb(var(--v-theme-colorTwo));
   border: 3px solid rgb(var(--v-theme-colorTwo));
   box-sizing: border-box;
-  box-shadow: 
+  box-shadow:
     0 0 5px rgb(var(--v-theme-colorTwo)),
     0 0 10px rgb(var(--v-theme-colorTwo)),
     0 0 15px rgb(var(--v-theme-colorThree)),
@@ -366,21 +379,21 @@ export default {
   background-color: rgb(var(--v-theme-colorOne));
   display: flex;
   flex-direction: column;
-  justify-content: center; 
-  align-items: center;     
+  justify-content: center;
+  align-items: center;
   height: 100vh;
-  width: 100vw; 
-  overflow: hidden !important;          
+  width: 100vw;
+  overflow: hidden !important;
 }
 
 .waiting{
   position: absolute;
   z-index: 1;
-  display: flex;           
-  flex-direction: column;  
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: center;    
-  width: 100%;            
+  align-items: center;
+  width: 100%;
   font-family: 'Public Pixel';
   font-size: 20px;
   color: rgb(var(--v-theme-colorFoure));
@@ -398,13 +411,13 @@ body, html {
   padding: 16px 32px;
   margin: 12px;
   border: none;
-  background-color: transparent; 
+  background-color: transparent;
   color: rgb(var(--v-theme-colorTwo));
   border-radius: 8px;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
 
-  box-shadow: 
+  box-shadow:
     0 0 5px rgb(var(--v-theme-colorTwo)),
     0 0 10px rgb(var(--v-theme-colorTwo)),
     0 0 15px rgb(var(--v-theme-colorThree)),
@@ -426,7 +439,7 @@ body, html {
 
   &:hover {
     transform: scale(1.1);
-    box-shadow: 
+    box-shadow:
       0 0 10px rgb(var(--v-theme-colorTwo)),
       0 0 20px rgb(var(--v-theme-colorTwo)),
       0 0 30px rgb(var(--v-theme-colorThree)),
@@ -438,7 +451,7 @@ body, html {
     box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
   }
   &:disabled {
-    box-shadow: 
+    box-shadow:
       0 0 5px rgb(var(--v-theme-colorFoure)),
       0 0 10px rgb(var(--v-theme-colorFoure));
     cursor: not-allowed;
@@ -449,10 +462,10 @@ body, html {
 .game-guide {
   font-family: 'Public Pixel', sans-serif;
   font-size: 15px;
-  color: rgb(var(--v-theme-colorFoure)); 
+  color: rgb(var(--v-theme-colorFoure));
   text-align: center;
   position: absolute;
-  bottom: 70px; 
+  bottom: 70px;
   left: 50%;
   transform: translateX(-50%);
   animation: fadeIn 1s forwards;
@@ -503,7 +516,7 @@ h1:hover {
   font-size: 16px;
   &:hover {
     transform: scale(1.1);
-    box-shadow: 
+    box-shadow:
       0 0 10px rgb(var(--v-theme-colorTwo)),
       0 0 20px rgb(var(--v-theme-colorTwo)),
       0 0 30px rgb(var(--v-theme-colorThree)),
@@ -515,7 +528,7 @@ h1:hover {
     box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
     }
   &:disabled {
-    box-shadow: 
+    box-shadow:
       0 0 5px rgb(var(--v-theme-colorFoure)),
       0 0 10px rgb(var(--v-theme-colorFoure));
     cursor: not-allowed;
