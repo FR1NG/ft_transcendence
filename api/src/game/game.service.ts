@@ -199,8 +199,6 @@ export class GameService {
           player.paddleYRatio = newY;
         }
         // console.log(`Updated Y position for ${playerId}: ${player.paddleYRatio}`);
-        console.log(this.gameStates[gameId].players.find(el => el.id === playerId).paddleYRatio)
-        console.log(player.paddleYRatio);
       }
     }
 

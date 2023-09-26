@@ -30,7 +30,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     private config: ConfigService
   ) {};
 
-  // private clients: { [clientId: string]: { gameId: string, role: 'Host' | 'Guest' } } = {};
   private gameLoopIntervalIds: { [gameId: string]: NodeJS.Timeout } = {};
   private readyPlayers: { [gameId: string]: ('Host' | 'Guest')[] } = {};
   private readonly logger = new Logger(GameGateway.name);
