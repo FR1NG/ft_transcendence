@@ -102,8 +102,8 @@ export class InvitationService {
 
   private async acceptGameInvit(user: AuthenticatedUser, invit: Invitation) {
     const game = await this.gameService.createGame(invit.byId, invit.toId, 'NORMAL');
-    this.emiter.emit('game.created', invit);
-    // this.deleteInvitation(invit.byId, invit.id);
+    this.emiter.emit('game.invite', {user, invitationId: invit.id});
+    this.deleteInvitation(invit.byId, invit.id);
     return game;
   }
 
@@ -161,7 +161,6 @@ export class InvitationService {
   }
 
   //  create invitation 
-
   private async createGameInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
     const guest = await this.prisma.users.findUnique({
       where: {
@@ -202,6 +201,9 @@ export class InvitationService {
         }
       }
     });
+    // emitting event to join the game
+    console.log(`${user.username} created invitation`)
+    this.emiter.emit('game.invite', {user, invitationId: result.id});
     return  result;
   }
 

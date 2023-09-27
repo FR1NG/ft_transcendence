@@ -1,13 +1,10 @@
 <template>
-  <div class="container">
+  <game-result v-if="gameResult.length !== 0"></game-result>
+  <div  v-else class="container">
     <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
     <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
-    <div v-if="gameOver" class="game-over-container">
-      <h1>{{ winner }} is the winner!</h1>
-      <button @click="restartGame" id="restartButton">Restart Game</button>
-    </div>
   </div>
 </template>
 
@@ -19,22 +16,33 @@ import { useGameStore } from '@/store/game';
 import { computed } from 'vue';
 import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
+import { bootstrapGameSocket } from '@/composables/game.socket';
+import { useSocketStore } from '@/store/socket';
+import GameResult from './GameResult.vue'
 
 export default {
   name: 'Game',
+  components: {GameResult},
   setup() {
     const gameStore = useGameStore();
     const authStore = useAuthStore();
-    const { selectedMode } = storeToRefs(gameStore);
-    const url = `http://10.14.6.6:4443/game`;
-    const socket = io(url, {
-    query: {
-        mode: gameStore.selectedMode
-    },
-    auth: {
-      token: authStore.getToken(),
-    }
-});
+    const socketStore = useSocketStore();
+    const { gameSocket } = storeToRefs(socketStore);
+    const { selectedMode, gameResult } = storeToRefs(gameStore);
+
+//     const { selectedMode } = storeToRefs(gameStore);
+//     const url = `http://10.14.6.6:4443/game`;
+//     const socket = io(url, {
+//     query: {
+//         mode: gameStore.selectedMode
+//     },
+//     auth: {
+//       token: authStore.getToken(),
+//     }
+// });
+    // initializing the socket
+    bootstrapGameSocket();
+
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
@@ -53,19 +61,9 @@ export default {
 
     let loadedImages: { [key: string]: HTMLImageElement } = {};
 
-    const restartGame = () => {
-      // socket.emit('joinQueueAgain', gameStore.selectedMode);
-      // cleanupGameListeners();
-      // gameOver.value = false;
-      // winner.value = null;
-      // waitingForOpponent.value = true;
-      // showGameElements.value = false;
-      // playerId.value = null;
-      // gameId.value = null;
-      // initializeGameListeners();
-    };
+    gameSocket.value?.emit('request-info');
 
-    socket.on('matchFound', (data: any) => {
+    gameSocket.value?.on('matchFound', (data: any) => {
       console.log('Received matchFound event with data:', data);
       waitingForOpponent.value = false;
       showStartButton.value = true;
@@ -74,23 +72,23 @@ export default {
     });
 
     // Listen for gameStarted event from the server
-    socket.on('gameStarted', () => {
+    gameSocket.value?.on('gameStarted', () => {
       console.log('Received gameStarted event.');
       showGameElements.value = true;
       showStartButton.value = false;
       waitingForOpponent.value = false;
     });
 
-    socket.on('announceWinner', function(winnerId) {
+    gameSocket.value?.on('announceWinner', function(winnerId) {
       gameOver.value = true;
       winner.value = winnerId;
     });
 
-    socket.on('hideStartButton', () => {
+    gameSocket.value?.on('hideStartButton', () => {
       showStartButton.value = false;
     });
 
-    socket.on('waitingForOtherPlayer', () => {
+    gameSocket.value?.on('waitingForOtherPlayer', () => {
       waitingForOpponent.value = true;
       showStartButton.value = false;
     });
@@ -98,7 +96,7 @@ export default {
     // Define the startGame function to emit the startGame event to the server
     const startGame = () => {
       if ( playerId.value) {
-        socket.emit('startGame');
+        gameSocket.value?.emit('startGame');
       }
     };
 
@@ -141,7 +139,7 @@ export default {
         lastFrameTime.value = currentTime;
         const direction = keyStates.w ? 1 : keyStates.s ? 2 : 0;
         if (playerId.value && direction !== 0) {
-          socket.emit('move', { player: playerId.value, direction , scaleFactor: scaleFactor.value, gameId: gameId.value });
+          gameSocket.value?.emit('move', { player: playerId.value, direction , scaleFactor: scaleFactor.value, gameId: gameId.value });
         }
       }
       requestAnimationFrame(gameLoop);
@@ -151,7 +149,7 @@ export default {
     const resizeHandler = () => {
       canvasWidth.value = window.innerWidth * canvasWidthPercentage;
       canvasHeight.value = (window.innerWidth / ASPECT_RATIO)* canvasWidthPercentage;
-      socket.emit('canvasDimensions', {
+      gameSocket.value?.emit('canvasDimensions', {
         width: canvasWidth.value,
         height: canvasHeight.value,
       });
@@ -285,7 +283,7 @@ export default {
 
     // Watch for canvas dimension changes and notify the server
     watch([canvasWidth, canvasHeight], ([width, height]) => {
-      socket.emit('canvasDimensions', { width, height });
+      gameSocket.value?.emit('canvasDimensions', { width, height });
     });
 
     // Debounce the resize handler for performance
@@ -297,7 +295,7 @@ export default {
 
     // Initialization: set up listeners and join the game
     const initializeGameListeners = () => {
-      socket.on('state', renderGameState);
+      gameSocket.value?.on('state', renderGameState);
       window.addEventListener('resize', debouncedResizeHandler);
       window.addEventListener('keydown', handleKeyDownEvent);
       window.addEventListener('keyup', handleKeyUpEvent);
@@ -306,8 +304,8 @@ export default {
 
     // Method to cleanup game listeners
     const cleanupGameListeners = () => {
-      socket.off('showStartButton');
-      socket.off('state', renderGameState);
+      gameSocket.value?.off('showStartButton');
+      gameSocket.value?.off('state', renderGameState);
       window.removeEventListener('resize', debouncedResizeHandler);
       window.removeEventListener('keydown', handleKeyDownEvent);
       window.removeEventListener('keyup', handleKeyUpEvent);
@@ -317,13 +315,13 @@ export default {
     onUnmounted(cleanupGameListeners);
 
     let connectionAttempts = 0;
-    socket.on('connect', () => {
+    gameSocket.value?.on('connect', () => {
       console.log('Connected to the server');
       connectionAttempts++;
       console.log(`Connection attempt number: ${connectionAttempts}`);
     });
 
-    socket.on('disconnect', () => {
+    gameSocket.value?.on('disconnect', () => {
       console.log('disconnected from the server');
       if(showGameElements.value && !gameOver.value) {
         gameOver.value = true;
@@ -337,8 +335,6 @@ export default {
       }
     });
 
-    socket.emit('joinQueue', selectedMode.value);
-
     return {
       ...toRefs(keyStates),
       canvasWidth,
@@ -350,8 +346,8 @@ export default {
       gameOver,
       winner,
       waitingForOpponent,
-      restartGame,
       gameStore,
+      gameResult,
     };
   }
 }
