@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from '@/plugins/axios'
 import { User } from '@/types/user';
+import { pushNotify } from '@/composables/simpleNotify';
 
 
 export const useSearchStore = defineStore('search', {
@@ -24,9 +25,9 @@ export const useSearchStore = defineStore('search', {
           const { data } = await axios.get(`/user/search/${pattern}`);
           this.searchedUsers = data;
           this.searchLoader = false;
-        } catch (error) {
+        } catch (error: any) {
           this.searchLoader = false;
-          console.log(error)
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
         }
     },
 

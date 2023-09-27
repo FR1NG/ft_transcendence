@@ -4,6 +4,7 @@ import axios from '@/plugins/axios'
 import { User } from '@/types/user';
 import { UserRoom } from '@/types/room';
 import { AxiosResponse } from 'axios';
+import { pushNotify } from '@/composables/simpleNotify';
 
 type UserConversation = {
   user: User,
@@ -47,8 +48,8 @@ export const useChatStore = defineStore('chat', {
             this.selectedRoom = room;
           }
         this.scrollDown()
-      } catch (error) {
-        console.log(error)
+      } catch (error: any) {
+        pushNotify({status:'error', title:'error', text:error.response.data.message})
       }
       }
     },
@@ -60,6 +61,7 @@ export const useChatStore = defineStore('chat', {
           this.users = data;
           resolve(data);
         } catch(error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       });
@@ -131,6 +133,7 @@ export const useChatStore = defineStore('chat', {
           this.users[index].unseen = [];
           resolve(data);
         } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response)
         }
       })

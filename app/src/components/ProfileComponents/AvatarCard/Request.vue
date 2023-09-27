@@ -2,9 +2,9 @@
 import { useUserStore } from '@/store/user'
 import { useRouter } from 'vue-router'
 import { reactive } from 'vue'
-import { useSnackBarStore } from '@/store/snackbar'
 import { useInvitationStore } from '@/store/invitation'
 import { User } from '@/types/user'
+import { pushNotify } from '@/composables/simpleNotify'
 
 const props = defineProps<{ user: User }>()
 const userStore = useUserStore();
@@ -15,7 +15,6 @@ const data = reactive({
 const router = useRouter();
 
 // notification store
-const snackBarStore = useSnackBarStore();
 // sending frien request function
 const sendFrienRequest = async (userId: string) => {
   try {
@@ -23,8 +22,8 @@ const sendFrienRequest = async (userId: string) => {
     const result = await userStore.sendFriendRequest(userId);
     data.sending = false;
   } catch (error: any) {
-    data.sending = false;
-    useSnackBarStore().notify(error?.data?.message)
+      data.sending = false;
+      pushNotify({status:'error', title:'error', text:error.data.message})
   }
 }
 
@@ -32,7 +31,8 @@ const sendFrienRequest = async (userId: string) => {
 const cancelFriendRequest = async (requestId: string) => {
   try {
     const result = await userStore.cancelFriendRequest(requestId);
-  } catch (error) {
+  } catch (error: any) {
+      pushNotify({status:'error', title:'error', text:error.data.message})
   }
 }
 
@@ -42,7 +42,7 @@ const confirmFriendInvitaion = async (invitationId: string) => {
     const result = await useInvitationStore().acceptInvitation(invitationId);
     props.user.friendshipStatus = 'FRIENDS';
     props.user.invitationId = '';
-  } catch (error) {
+  } catch (error: any) {
   }
 }
 
@@ -50,9 +50,12 @@ const confirmFriendInvitaion = async (invitationId: string) => {
 const blockUser = async () => {
   try {
     userStore.blockUser(props.user.id);
-    snackBarStore.notify(`${props.user.username} has been blocked`);
+    pushNotify({status:'success', title:'Action completed', text:`${props.user.username} has been blocked`});
   } catch (error: any) {
-    snackBarStore.notify(error.response.status === 409 ? `user is aleady blocked` : `some error occured when blocking the ${user.value.username}`);
+    if(error.response.status === 409)
+      pushNotify({status:'warning', title:'Action stopped', text:`user is aleady blocked`})
+    else
+      pushNotify({status:'error', title:'error', text:`some error occured when blocking ${props.user.username}`});
   }
 }
 
@@ -60,10 +63,9 @@ const blockUser = async () => {
 const unblockUser = async () => {
   try {
     const result = await userStore.unblockUser(props.user.id);
-    snackBarStore.notify(`${props.user.username} has been unblocked`);
+    pushNotify({status:'success', title:'Action completed', text:`${props.user.username} has been unblocked`});
     console.log(result);
   } catch (error) {
-    console.log(error)
   }
 }
 
@@ -78,8 +80,7 @@ const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
     console.log('trying to change the route')
     router.push({ name: 'GameWaiting', params: { invitationId: result.id } });
-  }).catch((error: any) => {
-    useSnackBarStore().notify(error.data.message);
+  }).catch((error) => {
   });
 }
 

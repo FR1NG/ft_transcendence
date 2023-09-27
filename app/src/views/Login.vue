@@ -46,7 +46,6 @@ const check2fa = async () => {
     const result = await axios.post('/user/authenticate', data); // checking if the code is correct
     callback(result);
   } catch (error) {
-    console.log(error)
     loading.value = false;
   }
 }

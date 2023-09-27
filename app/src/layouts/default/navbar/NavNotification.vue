@@ -4,6 +4,7 @@ import { useNotificationStore } from '@/store/notification';
 import { storeToRefs } from 'pinia';
 import type { Notification } from '@/types/notification'
 import { onBeforeRouteLeave } from 'vue-router';
+import { pushNotify } from '@/composables/simpleNotify';
 
 const notificationStore = useNotificationStore();
 
@@ -18,8 +19,7 @@ notificationStore.getNotifications().then(() => {
 const markRead = (value: boolean) => {
   if(!value && unseenIds.value.length !== 0)
   notificationStore.markRead(unseenIds.value).then(() => {
-  }).catch((error) => {
-      console.log(error)
+  }).catch((error: any) => {
     })
 }
 

@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from 'vue-router'
 import { useRoomStore } from '@/store/room'
 import { ref } from 'vue'
-import { useSnackBarStore } from '@/store/snackbar';
+import { pushNotify } from '@/composables/simpleNotify';
 
 const model = true;
 const invitationId = useRoute().params.id as string;
@@ -19,6 +19,7 @@ roomStore.getInvitation(invitationId).then(result => {
   data.value = result
   appearance.value = true;
 }).catch((error: any) => {
+  pushNotify({status:'error', title:'error', text:error.data.message})
   appearance.value = false;
   errorMessage.value = error?.data?.message
 });
@@ -30,9 +31,9 @@ const handleAccept = () => {
     loading.value = false;
     console.log('by id: ',data.value.byId);
     router.push({ name:  'Room', params: { id: data.value.byId }});
-    useSnackBarStore().notify('room joined successfully');
+    pushNotify({status:'success', title:'Action completed', text:'room joined successfully'})
   }).catch(() => {
-      useSnackBarStore().notify('error while accepting the invitation');
+    pushNotify({status:'error', title:'error', text:"error while accepting the invitation"})
     loading.value = false;
   });
 }
@@ -43,7 +44,7 @@ const handleDecline = () => {
     loading.value = false;
     router.go(-1);
   }).catch(() => {
-      useSnackBarStore().notify('error while accepting the invitation');
+    pushNotify({status:'error', title:'error', text:"error while accepting the invitation"})
     loading.value = false;
   });
 }

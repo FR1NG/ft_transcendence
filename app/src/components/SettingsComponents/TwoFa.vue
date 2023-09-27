@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useAuthStore } from '@/store/auth';
-import { onMounted } from 'vue';
-
+import { pushNotify } from '@/composables/simpleNotify';
 
 const props = defineProps<{
   user: {
@@ -36,10 +35,10 @@ const enable = async () => {
   errorMessage.value = '';
   authStore.enableTwoFactor(faCode.value).then((result: any) => {
     hide()
-  }).catch((error: any) => {
-    errorMessage.value = error.data?.errors?.code;
-    loading.value = false;
-    faCode.value = '';
+  }).catch((error) => {
+      errorMessage.value = error.data?.errors?.code;
+      loading.value = false;
+      faCode.value = '';
   })
 }
 
@@ -49,7 +48,7 @@ const disable = async () => {
   errorMessage.value = '';
   authStore.disableTwoFactor(faCode.value).then((result: any) => {
     hide()
-  }).catch((error: any) => {
+  }).catch((error) => {
     errorMessage.value = error.data?.errors?.code;
     loading.value = false;
     faCode.value = '';

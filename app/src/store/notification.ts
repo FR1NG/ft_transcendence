@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { Notification } from '@/types/notification';
 import axios from '@/plugins/axios'
 import { AxiosResponse } from 'axios';
+import { pushNotify } from '@/composables/simpleNotify';
 
 export const useNotificationStore = defineStore('notifications', {
   state: () => ({
@@ -22,7 +23,8 @@ export const useNotificationStore = defineStore('notifications', {
       try {
         const  { data } = await axios.get('/notification');
         this.notifications = data;
-      } catch (error) {
+      } catch (error: any) {
+        pushNotify({status:'error', title:'error', text:error.response.data.message})
         console.log(error)
       }
     },
@@ -36,6 +38,7 @@ export const useNotificationStore = defineStore('notifications', {
           resolve(data);
           this.getNotifications();
         }catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
 

@@ -3,6 +3,7 @@ import axios from '../plugins/axios'
 import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
+import { pushNotify } from "@/composables/simpleNotify";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -24,6 +25,7 @@ export const useAuthStore = defineStore('auth', {
         this.logged = true;
         resolve(data);
       } catch (error: AxiosError | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })
@@ -44,7 +46,8 @@ export const useAuthStore = defineStore('auth', {
             this.getMe();
             this.redirect();
           }
-        } catch (error) {
+        } catch (error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
           console.error(error)
         }
       }
@@ -89,6 +92,7 @@ export const useAuthStore = defineStore('auth', {
           const { data } = response;
           resolve(data);
         } catch(error: any) {
+            pushNotify({status:'error', title:'error', text:error.response.data.message})
             reject(error.response);
         }
       })
@@ -102,6 +106,7 @@ export const useAuthStore = defineStore('auth', {
           });
           resolve(response.data);
         } catch (error: any) {
+            pushNotify({status:'error', title:'error', text:error.response.data.message})
             reject(error.response)
         }
       })
@@ -117,6 +122,7 @@ export const useAuthStore = defineStore('auth', {
           resolve(response.data);
           console.log(response.data)
         } catch (error: any) {
+            pushNotify({status:'error', title:'error', text:error.response.data.message})
             reject(error.response)
         }
       })
@@ -135,7 +141,8 @@ export const useAuthStore = defineStore('auth', {
           this.redirect();
           this.getMe();
         } catch(error: any) {
-          reject(error.response);
+            pushNotify({status:'error', title:'error', text:error.response.data.message})
+            reject(error.response);
         }
       })
     }

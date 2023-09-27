@@ -3,7 +3,7 @@ import { useAppStore } from '@/store/app'
 import { useAuthStore } from '@/store/auth';
 import { useSocketStore } from '@/store/socket';
 import { useChatStore } from '@/store/chat';
-import { useSnackBarStore } from '@/store/snackbar'
+import { pushNotify } from './simpleNotify';
 
 
 const init = (): boolean => {
@@ -23,7 +23,6 @@ const listen = () => {
   const authStore = useAuthStore();
   const socketStore = useSocketStore();
   const chatStore = useChatStore();
-  const snackBarStore = useSnackBarStore();
   const { me } = storeToRefs(authStore);
   authStore.getMe();
 
@@ -45,15 +44,13 @@ const listen = () => {
     }
 
   }, (error: any) => {
-      snackBarStore.notify(error.toString());
+      pushNotify({status:'error', title:'error', text:error.toString()})
   });
 }
 
 const showNotification = (content: string, title: string) => {
-  const snackBarStore = useSnackBarStore();
   const chatStore = useChatStore();
-
-  snackBarStore.notify(content, title);
+  pushNotify({status:'info', title:title, text:content})
   chatStore.playNotificationSound();
 }
 
