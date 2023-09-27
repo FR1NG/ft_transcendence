@@ -1,149 +1,76 @@
-<script setup>
+<script setup lang="ts">
+import Paddles from './Paddles.vue'
 </script>
 
 <template>
-    <div class="bounceWrapper">
+    <div class="ballWrapper">
       <div class="ball"></div>
-      <div class="trail trail-1"></div>
-      <div class="trail trail-2"></div>
-      <div class="trail trail-3"></div>
-      <div class="trail trail-4"></div>
-      <div class="trail trail-5"></div>
-      <div class="trail trail-6"></div>
-      <div class="trail trail-7"></div>
-      <div class="trail trail-8"></div>
-      <div class="trail trail-9"></div>
-      <div class="leftSide"></div>
-      <div class="ltrail ltrail-1"></div>
-      <div class="ltrail ltrail-2"></div>
-      <div class="ltrail ltrail-3"></div>
-      <div class="ltrail ltrail-4"></div>
-      <div class="ltrail ltrail-5"></div>
-      <div class="ltrail ltrail-6"></div>
-      <div class="rightSide"></div>
-      <div class="rtrail rtrail-1"></div>
-      <div class="rtrail rtrail-2"></div>
-      <div class="rtrail rtrail-3"></div>
-      <div class="rtrail rtrail-4"></div>
-      <div class="rtrail rtrail-5"></div>
-      <div class="rtrail rtrail-6"></div>
+      <Paddles/>
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 
-.bounceWrapper {
-  position: absolute;
-  top: 1.2vw;
-  left: -0.3vw;
+.ballWrapper {
+  position: relative;
   width: 100%;
-  height: 25vw;
-  display: flex;
+  height: 100%;
 }
 
 .ball {
-  width: 5vw;
-  height: 5vw;
   position: absolute;
+  top: 8vw;
+  left: 41vw;
+  width: 7vw;
+  height: 7vw;
   border-radius: 50%;
-  background: rgb(var(--v-theme-colorTwo));
-  left: 0px;
-  top: 0;
-  box-shadow: 0 0 1em 0 rgb(var(--v-theme-colorTwo));
-  animation: bouncing 3s linear forwards 500ms, ballStrike1 800ms linear forwards 3500ms,
-  ballStrike2 800ms linear forwards 4300ms, ballStrike3 800ms linear forwards 5100ms,
-  ballStrike4 800ms linear forwards 5900ms, ballStrike5 800ms linear forwards 6700ms,
-  speeding1 2s linear forwards 7500ms, speeding2 0.1s forwards 9500ms 30,
-  fadeOut 4s forwards 8500ms;
+  background-color: rgb(var(--v-theme-colorTwo));
+  animation:group 0.5s linear forwards,
+            bend1 1s linear 1s,
+            flyLeft 1s linear forwards 1s,
+            bouncing 4s linear forwards 2s,
+            squashing 4s linear forwards 2s,
+            bend1 1s linear 6s,
+            strike1 1s linear forwards 6s,
+            bend2 1s linear 7s,
+            strike2 1s linear forwards 7s,
+            bend3 1s linear 8s,
+            strike3 1s linear forwards 8s,
+            bend4 1s linear 9s,
+            strike4 1s linear forwards 9s,
+            strike5 0.5s linear forwards 10s,
+            speeding1 2s linear forwards 10.5s, 
+            speeding2 0.1s forwards 12.5s 30,
+            fadeOut 3s forwards 11.5s;
 }
 
-.trail {
-  width: 5vw;
-  height: 5vw;
-  position: absolute;
-  border-radius: 50%;
-  background: rgb(var(--v-theme-colorTwo));
-  box-shadow: 0 0 1em 0 rgb(var(--v-theme-colorTwo));
-  left: 0px;
-  top: 0;
-}
-
-@for $i from 1 through 9 {
-  .trail-#{$i} {
-    opacity: 1 - calc($i / 10);
-    animation : bouncing 3s linear forwards calc($i * 20) + 500ms, ballStrike1 800ms linear forwards calc($i * 20) + 3500ms,
-    ballStrike2 800ms linear forwards calc($i * 20) + 4300ms, ballStrike3 800ms linear forwards calc($i * 20) + 5100ms,
-    ballStrike4 800ms linear forwards calc($i * 20) + 5900ms, ballStrike5 800ms linear forwards calc($i * 20) + 6700ms,
-    speeding1 2s linear forwards calc($i * 20) + 7500ms, speeding2 0.4s forwards calc($i * 40) + 9500ms 30,
-    fadeOut 4s forwards calc($i * 20) + 8500ms;
+@keyframes group {
+  100% {
+    box-shadow: 0 0 15px 5px rgb(var(--v-theme-colorTwo));
+    left: 51vw;
   }
 }
+@keyframes flyLeft {
+  98% {
+    width: 5vw;
+    height: 5vw;
+    left: 0;
+    top: -2vw;
+    border-radius: 50%;
+  }
+  100%{
+    left: 0;
+    top: -2vw;
+    width: 3vw;
+    border-radius: 25px 50px 50px 25px;
 
-.ltrail {
-  width: 1.8vw;
-  height: 10.12vw;
-  position: absolute;
-  background-color: rgb(var(--v-theme-colorTwo));
-  box-shadow: 0 0 1em 0 rgb(var(--v-theme-colorTwo));
-  left: -5%;
-  top: 10vw;
-}
-@for $i from 1 through 9 {
-  .ltrail-#{$i} {
-    opacity: 1 - calc($i / 6);
-  animation: leftAppear 200ms linear forwards calc($i * 20) +  4100ms, leftMove1 200ms linear forwards calc($i * 20) +  5700ms,
-  leftMove2 200ms linear forwards calc($i * 20) +  7300ms, fadeOut 1s forwards calc($i * 20) +  8000ms;
   }
 }
-
-.rtrail {
-  width: 1.8vw;
-  height: 10.12vw;
-  position: absolute;
-  background-color: rgb(var(--v-theme-colorTwo));
-  box-shadow: 0 0 1em 0 rgb(var(--b-theme-colorTwo));
-  top:30vw;
-  left: 105%;
-}
-@for $i from 1 through 9 {
-  .rtrail-#{$i} {
-    opacity: 1 - calc($i / 6);
-  animation: rightAppear 200ms linear forwards calc($i * 20) + 3300ms, rightMove1 200ms linear forwards calc($i * 20) + 4900ms,
-  rightMove2 200ms linear forwards calc($i * 20) + 6500ms, fadeOut 1s forwards calc($i * 20) + 8000ms;
-  }
-}
-
-
-
-.leftSide {
-  width: 1.8vw;
-  height: 10.12vw;
-  position: absolute;
-  background-color: rgb(var(--v-theme-colorTwo));
-  box-shadow: 0 0 1em 0 rgb(var(--v-theme-colorTwo));
-  left: -5%;
-  top: 10vw;
-  animation: leftAppear 200ms linear forwards 4100ms, leftMove1 200ms linear forwards 5700ms,
-  leftMove2 200ms linear forwards 7300ms, fadeOut 2s forwards 8000ms;
-}
-
-.rightSide {
-  width: 1.8vw;
-  height: 10.12vw;
-  position: absolute;
-  background-color: rgb(var(--v-theme-colorTwo));
-  box-shadow: 0 0 1em 0 rgb(var(--v-theme-colorTwo));
-  top:30vw;
-  left: 105%;
-  animation: rightAppear 200ms linear forwards 3300ms, rightMove1 200ms linear forwards 4900ms,
-  rightMove2 200ms linear forwards 6500ms, fadeOut 2s forwards 8000ms;
-}
-
 @keyframes bouncing {
   16%, 48%, 78% {
     top: 30vw;
-    animation-timing-function: ease-out;
+    animation-timing-function: ease-out;   
   }
   32% {
     top: 8vw;
@@ -160,67 +87,127 @@
   100% {
     top: 25vw;
     left: 80%;
-    transform: rotate(360deg);
+    // transform: rotate(360deg);
   }
-  
 }
 
-@keyframes ballStrike1 {
+@keyframes squashing {
+  2%, 15%, 20%, 47%, 52%, 77%, 82%, 98%{
+    transform: rotate(0);
+    width: 5vw;
+    height: 5vw;
+    border-radius: 50%;
+  }
+  16%, 48%, 78%, 100% {
+    height: 3vw;
+    border-radius: 50px 50px 25px 25px;
+  }
   100% {
-    top: 12.5vw;
-    left: 21%; 
-    animation-timing-function: ease-out;   
+    transform: rotate(-50deg);
+    height: 3vw;
+    width: 5vw;
   }
 }
-@keyframes ballStrike2 {
+
+@keyframes bend1 {
   100% {
-    top: 15;
-    left: 70%;   
-    animation-timing-function: ease-out;
-    transform: rotate(360deg);
+    top: -20vw;
   }
 }
-@keyframes ballStrike3 {
+@keyframes strike1 {
+  5%, 98% {
+    height: 5vw;
+    width: 5vw;
+    border-radius: 50%;
+  }
   100% {
-    top: 19.5vw;
-    left: 30%;   
-    animation-timing-function: ease-in;
-    transform: rotate(360deg);
+    top: 15vw;
+    left: 10vw;
+    transform: rotate(50deg);
+    height: 3vw;
   }
 }
-@keyframes ballStrike4 {
+@keyframes bend2 {
   100% {
-    top: 9.5vw;
-    left: 61.5%;   
-    animation-timing-function: ease-in;
-    transform: rotate(360deg);
+    top: -20vw;
   }
 }
-@keyframes ballStrike5 {
+@keyframes strike2 {
+  5%, 98% {
+    height: 5vw;
+    border-radius: 50%;
+  }
   100% {
-    top: 9.5vw;
-    left: 35.5%; 
-    animation-timing-function: ease-in;
-    transform: rotate(360deg);
+    transform: rotate(-130deg);
+    top: 0vw;
+    left: 85vw;
+    height: 3vw;
+  }
+}
+@keyframes bend3 {
+  100% {
+    top: -20vw;
+  }
+}
+@keyframes strike3 {
+  5%, 98% {
+    width: 5vw; height: 5vw;
+    border-radius: 50%;
+  }
+  100% {
+    top: 30vw;
+    left: 20vw;
+    transform: rotate(50deg);
+    height: 3vw;
+  }
+}
+@keyframes bend4 {
+  100% {
+    top: -20vw;
+  }
+}
+@keyframes strike4 {
+  5%, 98% {
+    width: 5vw; height: 5vw;
+    border-radius: 50%;
+  }
+  100% {
+    transform: rotate(0deg);
+    top: 11vw;
+    left: 63.5vw;
+    width: 3vw; height: 5vw;
+    border-radius: 50px 25px 25px 50px;
+  }
+}
+@keyframes strike5 {
+  5%, 98% {
+    width: 5vw; height: 5vw;
+    border-radius: 50%;
+  }
+  100% {
+    height: 5vw; width: 3vw;
+    left: 32vw;
+    border-radius: 25px 50px 50px 25px;
   }
 }
 @keyframes speeding1 {
+  0%, 100% {
+    border-radius: 50%;
+    width: 5vw; height: 5vw;
+  }
   10%, 30%, 50%, 64%, 78%, 86%, 92%, 96%, 98%, 99% 
   {
-    top: 9.5vw;
-    left: 61%;  
+    left: 60vw;  
     animation-timing-function: ease-in;
   }
   20%, 40%, 57%, 71%, 82%, 90%, 94%, 97%, 98.5% 
   {
-    top: 9.5vw;
-    left: 35.5%;   
+    left: 32vw;   
     animation-timing-function: ease-in;
   }
   100% 
   {
-    top: 9.5vw;
-    left: 35.5%;   
+    left: 32vw;   
     animation-timing-function: ease-in;
     transform: rotate(360deg);
   }
@@ -228,15 +215,13 @@
 @keyframes speeding2 {
   10%, 30%, 50%, 70%, 90% 
   {
-    top: 9vw;
-    left: 61%;  
+    left: 60vw;  
     animation-timing-function: ease-out;
   }
   20%, 40%, 60%, 80%, 100% 
   {
-    box-shadow: 0 0 1em 1em rgb(var(--v-theme-colorTwo));
-    top: 9vw;
-    left: 35.5%;   
+    box-shadow: 0 0 0.3em 0.3em rgb(var(--v-theme-colorTwo));
+    left: 32vw;   
     animation-timing-function: ease-out;
     transform: rotate(360deg);
   }
@@ -262,49 +247,6 @@
   }
   100% {
     opacity: 0;
-  }
-}
-
-@keyframes rightAppear {
-  100% {
-    left: 84%;
-    top: 22vw;
-    animation-timing-function: ease-in;
-  }
-}
-@keyframes leftAppear {
-  100% {
-    left: 19.5%;
-    top: 10vw;
-    animation-timing-function: ease-in;
-  }
-}
-@keyframes rightMove1 {
-  100% {
-    left: 74.7%;
-    top: 13vw;
-    animation-timing-function: ease-in;
-  }
-}
-@keyframes leftMove1 {
-  100% {
-    left: 29%;
-    top: 16.5vw;
-    animation-timing-function: ease-in;
-  }
-}
-@keyframes rightMove2 {
-  100% {
-    left: 65.5%;
-    top: 6.66vw;
-    animation-timing-function: ease-in;
-  }
-}
-@keyframes leftMove2 {
-  100% {
-    left: 33.85%;
-    top: 6.66vw;
-    animation-timing-function: ease-in;
   }
 }
 
