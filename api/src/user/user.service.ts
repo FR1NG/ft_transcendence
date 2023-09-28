@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -162,6 +162,13 @@ export class UserService {
   }
 
   async setOnline(id: string, value: boolean): Promise<any> {
+    const user = this.prisma.users.findUnique({
+      where: {
+        id
+      }
+    });
+    if(!user)
+      return;
     const result = await this.prisma.users.update({
       where: {
         id,
