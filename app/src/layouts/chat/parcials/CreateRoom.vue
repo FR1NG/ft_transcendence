@@ -62,13 +62,11 @@ const handleSubmit = async () => {
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent width="500">
       <template v-slot:activator="{ props }">
-        <v-list-item class="pa-2">
-          <v-icon color="colorOne" v-bind="props" class="ma-2">mdi-plus</v-icon>
-          <!-- <v-btn v-bind="props" class="ma-2" density="compact" icon="mdi-plus"> -->
-          <!-- </v-btn> -->
+        <v-list-item>
+          <v-btn color="colorOne" v-bind="props" class="mx-2 pa-2">new</v-btn>
         </v-list-item>
       </template>
-      <v-card color="colorOne">
+      <v-card rounded="xl" color="colorOne">
         <v-form @submit.prevent="handleSubmit">
           <v-card-title>
             <span class="text-h5">Create Room</span>
@@ -78,14 +76,14 @@ const handleSubmit = async () => {
 
               <v-row>
                 <v-col cols="12">
-                  <v-text-field label="Room name*" color="colorThree" :error="errors.name.length > 0" :error-messages="errors.name" v-model="form.name"></v-text-field>
+                  <v-text-field label="Room name*" color="colorThree" variant="outlined" :error="errors.name.length > 0" :error-messages="errors.name" v-model="form.name"></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-select label="type" v-model="form.type" color="colorThree" :items="types">
+                  <v-select label="type" v-model="form.type" variant="outlined" color="colorThree" :items="types">
                   </v-select>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field v-if="showPassword" label="Password*" color="colorThree" :error="errors.password.length > 0" :error-messages="errors.password" v-model="form.password" type="password"></v-text-field>
+                  <v-text-field v-if="showPassword" label="Password*" variant="outlined" color="colorThree" :error="errors.password.length > 0" :error-messages="errors.password" v-model="form.password" type="password"></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
@@ -93,10 +91,10 @@ const handleSubmit = async () => {
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" variant="text" @click="dialog = false">
+            <v-btn color="colorTwo" variant="text" @click="dialog = false">
               Close
             </v-btn>
-            <v-btn color="primary" variant="text" type="submit">
+            <v-btn color="colorThree" variant="text" type="submit">
               Save
             </v-btn>
           </v-card-actions>

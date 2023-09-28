@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer class='nav' permanent elevation="0" border="0" v-model='drawer' :rail="rail">
+  <v-navigation-drawer rounded="xl" class='nav' permanent elevation="0" border="0" v-model='drawer' :rail="rail">
     <v-list-item prepend-icon="mdi-dotes" title='close' @click="rail = !rail"></v-list-item>
     <v-list v-for='item in items' :key="item.title">
       <v-list-item :prepend-icon='item.icon' :title='item.title' :to="{name: item.link}" :value='item.value'>

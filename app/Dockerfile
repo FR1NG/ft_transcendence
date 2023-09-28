@@ -9,7 +9,7 @@ RUN npm install
 CMD [ "npm", "run", "dev" ]
 
 
-FROM node:20 as production
+FROM node:20 as build
 
 ARG VITE_API_URL
 ARG VITE_INTRA_LOGIN_URL
@@ -22,10 +22,10 @@ RUN npm run build-only
 
 
 #building nginx
-FROM nginx:1.25.1-alpine
+FROM nginx:1.25.1-alpine as production
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
-COPY --from=production /app/dist .
+COPY --from=build /app/dist .
 
 COPY ./build-tools/default.conf /etc/nginx/conf.d/default.conf
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

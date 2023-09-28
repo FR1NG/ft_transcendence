@@ -13,14 +13,18 @@ const route = useRoute();
 </script>
 
 <template>
-  <v-app-bar flat color="colorOne">
+  <v-app-bar color="colorOne">
     <v-app-bar-title>
-
+      home
     </v-app-bar-title>
 
     <v-spacer></v-spacer>
-    <v-spacer></v-spacer>
     <NavNotification v-if="logged"/>
+    <v-menu :close-on-content-click="false" width="200" location="bottom left" offset="5">
+      <template v-slot:activator="{props}">
+          <v-btn v-bind="props" color="colorFour" icon><v-icon>mdi-magnify</v-icon></v-btn>
+      </template>
+      <!-- <v-card width="200" class="pa-4"> -->
       <user-search v-if="logged">
         <template v-slot:items="{users}">
           <v-list-item
@@ -31,15 +35,11 @@ const route = useRoute();
             :subtitle="user.email"
             :to="{name: 'UserProfile', params: {username: user.username}}"
           >
-            <template v-slot:append>
-              <v-btn
-                variant="text"
-                icon="mdi-account-plus-outline"
-              ></v-btn>
-            </template>
           </v-list-item>
         </template>
-    </user-search>
+      </user-search>
+      <!-- </v-card> -->
+    </v-menu>
     <template v-slot:append>
       <NavMenu v-if="logged" />
       <v-btn v-else-if="!logged && route.name !=='Login'" color="colorTwo" outlined :to="{ name: 'Login' }">Login</v-btn>

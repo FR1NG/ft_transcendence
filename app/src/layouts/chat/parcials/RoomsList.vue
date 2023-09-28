@@ -35,6 +35,7 @@ roomStore.getRooms();
     <v-list>
       <v-list-item>
         <room-search :join="joinRoom"> </room-search>
+        <v-divider></v-divider>
         <template v-slot:append>
           <create-room></create-room>
         </template>

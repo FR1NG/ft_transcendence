@@ -1,4 +1,4 @@
-import {  UseFilters, UseGuards } from '@nestjs/common';
+import {  Logger, UseFilters, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
@@ -24,15 +24,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   @WebSocketServer()
   private server: Server;
-
   private clients: Map<string, Socket> = new Map();
+  private logger = new Logger(ChatGateway.name);
 
   async handleConnection(client: Socket, ...args: any[]) {
+    console.log(client.request.headers);
     const payload = await this.getUser(client);
-
+    this.logger.verbose('client connected')
     if (payload) {
       client['user'] = payload;
-      if (payload?.sub) {
+      if (payload.sub) {
         // setting the user status to online
         this.userService.setOnline(payload.sub, true);
         // getting all rooms for the authenticated user
@@ -49,7 +50,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   async handleDisconnect(client: Socket) {
     const payload = await this.getUser(client);
-    if (payload?.sub) {
+    if (payload) {
       await this.userService.setOnline(payload.sub, false);
       this.clients.delete(payload.sub);
     }
@@ -91,7 +92,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   private async getUser(client: any) {
     const token = client.handshake?.auth?.token;
     if (!token)
-      return null
+      return null;
+      // throw new WsException('unauthorized');
     try {
       const payload = await this.jwtService.verifyAsync(
         token,
@@ -99,9 +101,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
           secret: this.config.get('APP_KEY')
         }
       );
+      console.log('from get user')
+      console.log(payload);
       return payload;
     } catch (error) {
-      return null
+      return null;
+      // throw new WsException('invalid token')
     }
   }
 

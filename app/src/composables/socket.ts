@@ -4,14 +4,15 @@ import { useAuthStore } from '@/store/auth';
 import { useSocketStore } from '@/store/socket';
 import { useChatStore } from '@/store/chat';
 import { pushNotify } from './simpleNotify';
+import { useRoute } from 'vue-router';
 
 
 const init = (): boolean => {
   const socketStore = useSocketStore();
-  const appStore = useAppStore();
-  appStore.getInitialData();
-
-  return socketStore.init(import.meta.env.DOMAIN, {
+  const { domain, api_url } = storeToRefs(useAppStore());
+  return socketStore.init(domain.value, {
+    upgrade: true,
+    transport: ['websocket'],
     auth: {
       token: sessionStorage.getItem('access_token'),
     }
@@ -24,7 +25,6 @@ const listen = () => {
   const socketStore = useSocketStore();
   const chatStore = useChatStore();
   const { me } = storeToRefs(authStore);
-  authStore.getMe();
 
   socketStore.listen((event: string, data: any) => {
     if (event === 'message') {
@@ -45,6 +45,7 @@ const listen = () => {
 
   }, (error: any) => {
       pushNotify({status:'error', title:'error', text:error.toString()})
+      console.log(error)
   });
 }
 

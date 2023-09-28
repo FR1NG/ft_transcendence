@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt'
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationService } from 'src/notification/notification.service';
 import { SchedulerRegistry, Timeout } from '@nestjs/schedule';
-import { UsersRooms } from '@prisma/client';
+import { Rooms, UsersRooms } from '@prisma/client';
 import { MessagePaylod } from 'src/chat/dto/chat';
 
 @Injectable()
@@ -62,7 +62,7 @@ export class RoomService {
 
 
   // get rooms that the autenticated user is on
-  async getUserRooms(user: AuthenticatedUser) {
+  async getUserRooms(user: AuthenticatedUser): Promise<any> {
     const { sub: id } = user;
     const userRooms = await this.prisma.users.findUnique({
       where: {
@@ -85,7 +85,7 @@ export class RoomService {
         }
       }
     });
-    return userRooms.rooms;
+    return userRooms?.rooms || [];
   }
 
   // getting all users in a room

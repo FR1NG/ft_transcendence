@@ -8,8 +8,10 @@ import CustomCard from '@/components/CustomCard.vue'
 import ProfileAvatar from './ProfileAvatar.vue'
 import CustomDivider from '@/components/CustomDivider.vue'
 import TwoFa from './TwoFa.vue'
+import { useAuthStore } from '@/store/auth'
 
 const userStore = useUserStore();
+const { me } = storeToRefs(useAuthStore());
 const { loading } = storeToRefs(userStore);
 const updating = ref(false);
 
@@ -34,8 +36,7 @@ const getProfile = async () => {
   // removing old errors
   resetObject(errors);
   try {
-    const data = await userStore.getProfile();
-    assignObject(data, profile);
+    assignObject(me.value, profile);
     tfa.value = true
   } catch (error) {
   }

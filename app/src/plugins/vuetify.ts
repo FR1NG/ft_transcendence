@@ -18,9 +18,9 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          colorOne: '#000000',
-          colorTwo: '#DB022B',
-          colorThree: '#5c0606',
+          colorOne: '#352F44',
+          colorTwo: '#5C5470',
+          colorThree: '#B9B4C7',
           colorFoure: '#FAF0E6',
           sucess: '#008000',
           test: '#6A1B9A',

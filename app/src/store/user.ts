@@ -49,10 +49,8 @@ export const useUserStore = defineStore('user', {
       try {
         const { data } = await axios.get(`/user/filter/?username=${username}`);
         this.user = data;
-        console.log(data)
       } catch (error: any) {
         pushNotify({status:'error', title:'error', text:error.response.data.message})
-        console.log(error)
       }
     },
 

@@ -4,6 +4,7 @@ import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
+import { useRoute, useRouter } from "vue-router";
 import { meTypes } from "@/types/stateTypes/auth";
 
 export const useAuthStore = defineStore('auth', {
@@ -27,15 +28,13 @@ export const useAuthStore = defineStore('auth', {
         this.logged = true;
         resolve(data);
       } catch (error: AxiosError | any) {
-          pushNotify({status:'error', title:'error', text:error.response.data.message})
+          // pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })
     },
     async attemptLogin(code: string) {
-      if (!code)
-        console.log('FORBIDDEN');
-      else {
+      if (code) {
         try {
           const res = await axios.post('/auth/login', {
             code
@@ -72,7 +71,6 @@ export const useAuthStore = defineStore('auth', {
     },
     logout() {
       sessionStorage.removeItem('access_token');
-      this.profile = {}
       this.logged = false;
       this.router.push({name: 'Login'})
     },
@@ -122,7 +120,6 @@ export const useAuthStore = defineStore('auth', {
             code
           });
           resolve(response.data);
-          console.log(response.data)
         } catch (error: any) {
             pushNotify({status:'error', title:'error', text:error.response.data.message})
             reject(error.response)
