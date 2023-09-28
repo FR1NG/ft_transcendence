@@ -71,6 +71,9 @@ export const useInvitationStore = defineStore('invitation', {
           reject(error.response);
         }
       });
+    },
+    reset() {
+      this.invitation =  {} as Invitation;
     }
   }// end of actions
 }); // end of store

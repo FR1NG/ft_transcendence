@@ -139,7 +139,11 @@ export const useUserStore = defineStore('user', {
           reject(error)
         }
       })
+    },
+    reset() {
+      this.profile =  [];
+      this.loading = true;
+      this.user = {} as User;
     }
-
   },
 });

@@ -79,6 +79,10 @@ export const useGameStore = defineStore('game', {
       socketStore.gameSocket?.emit('restart', this.restartId)
       this.restartId = '';
       this.gameResult = '';
+    },
+    reset() {
+      this.gameResult =  '';
+      this.restartId =  '';
     }
   }// end of actions
 })// end of store
