@@ -9,8 +9,10 @@ import { useRoute } from 'vue-router';
 
 const init = (): boolean => {
   const socketStore = useSocketStore();
-
-  return socketStore.init(import.meta.env.DOMAIN, {
+  const { domain, api_url } = storeToRefs(useAppStore());
+  return socketStore.init(domain.value, {
+    upgrade: true,
+    transport: ['websocket'],
     auth: {
       token: sessionStorage.getItem('access_token'),
     }

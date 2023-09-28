@@ -9,7 +9,8 @@ import { useGameStore } from '@/store/game';
 
 const init = (): boolean => {
   const socketStore = useSocketStore();
-  return socketStore.initGameSocket(`http://10.14.6.6:4443/game`, {
+  const { domain, api_url } = storeToRefs(useAppStore());
+  return socketStore.initGameSocket(`${domain.value}/api/game`, {
     auth: {
       token: sessionStorage.getItem('access_token'),
     }
