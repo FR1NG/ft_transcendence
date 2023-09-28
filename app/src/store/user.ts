@@ -46,6 +46,8 @@ export const useUserStore = defineStore('user', {
     },
     // get user by username
     async getUser(username: string): Promise<any> {
+      if(!username)
+        return;
       try {
         const { data } = await axios.get(`/user/filter/?username=${username}`);
         this.user = data;

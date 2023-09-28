@@ -10,38 +10,31 @@
 
 <script lang="ts">
 import { ref, onMounted, watch, onUnmounted, toRefs, reactive} from 'vue';
-import { io } from 'socket.io-client';
 import { GameState } from '@/types/game';
 import { useGameStore } from '@/store/game';
 import { computed } from 'vue';
-import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
 import { bootstrapGameSocket } from '@/composables/game.socket';
 import { useSocketStore } from '@/store/socket';
 import GameResult from './GameResult.vue'
+import { onBeforeRouteLeave } from 'vue-router';
 
 export default {
   name: 'Game',
   components: {GameResult},
   setup() {
     const gameStore = useGameStore();
-    const authStore = useAuthStore();
     const socketStore = useSocketStore();
     const { gameSocket } = storeToRefs(socketStore);
-    const { selectedMode, gameResult } = storeToRefs(gameStore);
+    const { gameResult } = storeToRefs(gameStore);
 
-//     const { selectedMode } = storeToRefs(gameStore);
-//     const url = `http://10.14.6.6:4443/game`;
-//     const socket = io(url, {
-//     query: {
-//         mode: gameStore.selectedMode
-//     },
-//     auth: {
-//       token: authStore.getToken(),
-//     }
-// });
-    // initializing the socket
+    // initializign game socket
     bootstrapGameSocket();
+
+    // clealing store before route leave
+    onBeforeRouteLeave(() => {
+      gameStore.reset();
+    })
 
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width

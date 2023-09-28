@@ -14,9 +14,19 @@ const route = useRoute();
 
 <template>
   <v-app-bar color="colorOne">
-    <v-app-bar-title>
-      home
-    </v-app-bar-title>
+    <!-- <v-app-bar-title> -->
+    <!--   <v-list-item  :to="{name: 'Home'}"> -->
+    <!--      home -->
+    <!--     </v-list-item> -->
+    <!-- </v-app-bar-title> -->
+        <template v-slot:prepend>
+
+      <v-btn flat variant="flat" color="colorThree" class="text-colorOne" :active="false" :to="{name: 'Home'}">
+        Home
+      </v-btn>
+
+          <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
+        </template>
 
     <v-spacer></v-spacer>
     <NavNotification v-if="logged"/>
