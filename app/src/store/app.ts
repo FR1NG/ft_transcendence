@@ -1,7 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia'
-import { useUserStore } from './user.ts'
-import { useAuthStore } from './auth.ts'
+import { useUserStore } from './user'
+import { useAuthStore } from './auth'
 
 export const useAppStore = defineStore('app', {
   state: () => ({

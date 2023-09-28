@@ -4,13 +4,14 @@ import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
+import { meTypes } from "@/types/stateTypes/auth";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     SIntraUrl: import.meta.env.VITE_INTRA_AUTHORIZATION_URL,
     access_token: "",
     logged: false,
-    me: {} as any
+    me: {} as meTypes
   }),
   getters: {
     IntraUrl: (state) => state.SIntraUrl,
@@ -22,6 +23,7 @@ export const useAuthStore = defineStore('auth', {
         const response: AxiosResponse = await axios.get('/auth/me');
         const { data } = response;
         this.me = data;
+        console.log(">>>>>>>>>>  ", data);
         this.logged = true;
         resolve(data);
       } catch (error: AxiosError | any) {
@@ -145,6 +147,11 @@ export const useAuthStore = defineStore('auth', {
             reject(error.response);
         }
       })
+    },
+    reset() {
+      this.access_token = "";
+      this.logged = false;
+      this.me = {} as meTypes;
     }
   }// end of actions
 

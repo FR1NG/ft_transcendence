@@ -34,6 +34,13 @@ export const useSearchStore = defineStore('search', {
     // clear the list of searched users
     clearSearch() {
       this.searchedUsers = []
+    }, 
+    reset() {
+      this.requestStatus = '';
+      this.searchedUsers = [] as User[];
+      this.search = '';
+      this.searchLoader = false;
+      this.searchTyping = false;
     }
   }
 })
