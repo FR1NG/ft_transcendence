@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import { Socket, io } from 'socket.io-client';
 import type { Message } from '@/types/chat';
 import { useNotificationStore } from './notification';
+import { useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from './auth';
 
 type Auth = {
   auth: Token
@@ -24,6 +26,10 @@ export const useSocketStore = defineStore('socket', {
   // actions
   actions: {
     init(domain: string, config: {}) {
+      useRouter().beforeEach((to) => {
+        if(to.meta.auth)
+          useAuthStore().getMe();
+      });
       if(!this.socket) {
         this.socket = io(domain, config);
         return true;
