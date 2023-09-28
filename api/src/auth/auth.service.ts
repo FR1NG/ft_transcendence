@@ -151,7 +151,8 @@ export class AuthService {
         id: user.sub
       }
     });
-    return me;
+    const  { otpSecret, ...filtred} = me;
+    return filtred;
   }
 
   // set otp secret for a user
