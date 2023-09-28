@@ -67,8 +67,9 @@ const props = defineProps<{
       class="overflow-hidden"
       density="compact"
       hide-details
-      variant="solo"
+      variant="outlined"
       prepend-inner-icon="mdi-magnify"
+      placeholder="search for room"
       v-model="search"
       v-bind="props"
       @keyup="handleKeyUp"

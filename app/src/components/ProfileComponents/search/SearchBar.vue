@@ -83,6 +83,8 @@ const handleClick = () => {
     flat
     v-bind="binds"
     v-model="search"
+    color="colorFour"
+    bg-color="white"
     @click:append-inner="handleClick"
     @keyup="handlekeyUp"
     ></v-text-field>

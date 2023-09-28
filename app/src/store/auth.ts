@@ -4,6 +4,7 @@ import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
+import { useRoute, useRouter } from "vue-router";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -25,7 +26,7 @@ export const useAuthStore = defineStore('auth', {
         this.logged = true;
         resolve(data);
       } catch (error: AxiosError | any) {
-          pushNotify({status:'error', title:'error', text:error.response.data.message})
+          // pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })

@@ -60,8 +60,8 @@ getData(route.params.id as string);
 </script>
 
 <template>
-  <v-main>
-      <v-card :loading="loading" class="d-flex justify-center ma-4" rounded="xl" variant="outlined" min-height="200" color="colorTwo">
+  <v-main class="the-main vh-100">
+      <v-card :loading="loading" bg-color="colorOne" class="d-flex justify-center ma-4" rounded="xl" variant="outlined" min-height="200" color="colorTwo">
       <div v-if="invitation.id">
           <v-card-text>
           {{ invitation.notification?.content}}
@@ -90,5 +90,12 @@ getData(route.params.id as string);
 .container {
   height: 100%;
   width: 100%;
+}
+
+.the-main {
+  background-color: rgb(var(--v-theme-colorOne));
+}
+.vh-100 {
+  height: 100vh;
 }
 </style>
