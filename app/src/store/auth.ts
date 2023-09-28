@@ -31,9 +31,7 @@ export const useAuthStore = defineStore('auth', {
       })
     },
     async attemptLogin(code: string) {
-      if (!code)
-        console.log('FORBIDDEN');
-      else {
+      if (code) {
         try {
           const res = await axios.post('/auth/login', {
             code
@@ -70,7 +68,6 @@ export const useAuthStore = defineStore('auth', {
     },
     logout() {
       sessionStorage.removeItem('access_token');
-      this.profile = {}
       this.logged = false;
       this.router.push({name: 'Login'})
     },
@@ -120,7 +117,6 @@ export const useAuthStore = defineStore('auth', {
             code
           });
           resolve(response.data);
-          console.log(response.data)
         } catch (error: any) {
             pushNotify({status:'error', title:'error', text:error.response.data.message})
             reject(error.response)
