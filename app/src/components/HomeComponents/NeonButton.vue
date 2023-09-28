@@ -4,7 +4,7 @@
 <template>
 
 
-  <router-link :to="{name: 'GameSelect'}">
+  <router-link :to="{name: 'GameSelection'}">
     <button class="neonButton"> Play now </button>
   </router-link>
 

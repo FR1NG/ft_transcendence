@@ -83,24 +83,12 @@ const handleClick = () => {
     flat
     v-bind="binds"
     v-model="search"
-    color="colorFour"
-    bg-color="white"
+      bg-color="colorThree"
+      color="colorThree"
     @click:append-inner="handleClick"
     @keyup="handlekeyUp"
     ></v-text-field>
 </template>
 
 <style lang="scss">
-@import 'vuetify/_settings.scss';
-
-/* @media #{map-get($display-breakpoints, 'sm-and-down')} { */
-/*   .search-bar { */
-/*     display: none; */
-/*   } */
-/* } */
-
-/* .search-bar { */
-/*   width: 200px; */
-/*   padding: 2px; */
-/* } */
 </style>

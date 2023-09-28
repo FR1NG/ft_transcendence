@@ -111,12 +111,12 @@ body, html {
 
   /* Neon effect */
   box-shadow:
-    0 0 5px rgb(var(--v-theme-colorTwo)),
-    0 0 10px rgb(var(--v-theme-colorTwo)),
-    0 0 15px rgb(var(--v-theme-colorThree)),
-    0 0 20px rgb(var(--v-theme-colorThree)),
-    0 0 25px rgb(var(--v-theme-colorThree)),
-    0 0 30px rgb(var(--v-theme-colorThree));
+    0 0 1px rgb(var(--v-theme-colorTwo)),
+    0 0 1px rgb(var(--v-theme-colorTwo)),
+    0 0 2px rgb(var(--v-theme-colorThree)),
+    0 0 2px rgb(var(--v-theme-colorThree)),
+    0 0 2px rgb(var(--v-theme-colorThree)),
+    0 0 2px rgb(var(--v-theme-colorThree));
 }
 
 .mode-button:active, #startButton:active {

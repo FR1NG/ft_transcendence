@@ -27,19 +27,19 @@ time.value = moment(props.message.created_at).fromNow()
   <v-row>
     <v-row>
       <v-col class="message-container"  no-gutters>
-        <v-list-item class="message">
+        <v-list-item class="message" color="colorFoure">
           <template v-slot:prepend class="prepend" v-if="printDetails">
             <v-avatar>
               <v-img :src="message?.sender?.avatar"></v-img>
             </v-avatar>
           </template>
-          <v-list-item-title v-if="printDetails">
+          <v-list-item-title color="colorFoure" v-if="printDetails">
             {{ message?.sender?.username}}
             <div class="time">
              {{ time }}
             </div>
           </v-list-item-title>
-          <v-list-item-subtitle class="content left bubble">
+          <v-list-item-subtitle class="content">
             {{ message.content}}
           </v-list-item-subtitle>
           <template v-slot:append>
@@ -53,6 +53,11 @@ time.value = moment(props.message.created_at).fromNow()
 <style lang="scss">
 .message {
   color: rgb(var(--v-theme-colorFoure));
+}
+
+.content {
+  color: rgb(var(--v-theme-colorFoure));
+  padding: 5px !important;
 }
 
 .message-loader {

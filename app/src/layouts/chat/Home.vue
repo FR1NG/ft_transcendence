@@ -53,15 +53,57 @@ const tab = ref(type.value);
         </v-window-item>
       </v-window>
     </v-navigation-drawer>
-    <v-main class="the-main">
+    <v-main :class="drawer ? `the-main` : `the-main-collapsed`">
       <router-view></router-view>
       <info-bar @click:menu="drawer = !drawer" :user="selectedUser" :room="selectedRoom" :type="type"></info-bar>
     </v-main>
   </v-app>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .the-main {
   background-color: rgb(var(--v-theme-colorOne));
+  padding-left: 280px;
+  margin-top: 10px;
+
+  .v-toolbar {
+    top: 70px !important;
+    left: 270px !important;
+    width: calc((100% - 280px) - 0px) !important;
+    border-radius: 10px;
+  }
+
+}
+
+@media (width<1280px) {
+  .the-main {
+    padding-left: 10px;
+    margin-top: 10px;
+
+    .v-toolbar {
+      left: 10px !important;
+      width: calc((100% - 20px) - 0px) !important;
+    }
+  }
+}
+
+.the-main-collapsed {
+  background-color: rgb(var(--v-theme-colorOne));
+  padding-left: 10px;
+  margin-top: 10px;
+
+  .v-toolbar {
+    top: 70px !important;
+    left: 10px !important;
+    width: calc((100% - 20px) - 0px) !important;
+    border-radius: 10px;
+  }
+}
+
+.v-navigation-drawer {
+  top: 70px !important;
+  margin: 0 10px 10px 10px;
+  border-radius: 10px;
+  height: calc((100% - 77px) - 0px) !important;
 }
 </style>

@@ -1,11 +1,12 @@
 // Utilities
 import { defineStore } from 'pinia'
-import { useUserStore } from './user.ts'
-import { useAuthStore } from './auth.ts'
+import { useUserStore } from './user'
+import { useAuthStore } from './auth'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    //
+    domain: import.meta.env.VITE_DOMAIN,
+    api_url: import.meta.env.VITE_API_URL
   }),
   getters: {
 

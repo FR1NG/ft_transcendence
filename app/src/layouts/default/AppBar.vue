@@ -13,12 +13,11 @@ const route = useRoute();
 </script>
 
 <template>
-  <v-app-bar flat color="colorOne">
+  <v-app-bar color="colorOne">
     <v-app-bar-title>
-
+      home
     </v-app-bar-title>
 
-    <v-spacer></v-spacer>
     <v-spacer></v-spacer>
     <NavNotification v-if="logged"/>
     <v-menu :close-on-content-click="false" width="200" location="bottom left" offset="5">

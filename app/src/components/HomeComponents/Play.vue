@@ -10,7 +10,7 @@ import RoomsList from './RoomsList.vue'
 
 <template>
     <div class="playGame">
-        <p>Ready to test your reflexes and paddle your way to victory?</p>
+        <p class="quote">Ready to test your reflexes and paddle your way to victory?</p>
         <div class="play">
             <NeonButton/>
             <img class="pongGif" src="/images/ppong.gif" alt="pong gif">
@@ -19,7 +19,9 @@ import RoomsList from './RoomsList.vue'
 </template>
 
 <style lang="scss">
-
+.quote {
+  color: rgb(var(--v-theme-colorFoure));
+}
     .playGame {
         position: relative;
         display: flex;
