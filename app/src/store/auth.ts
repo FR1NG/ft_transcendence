@@ -4,7 +4,6 @@ import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
-import { useRoute, useRouter } from "vue-router";
 import { meTypes } from "@/types/stateTypes/auth";
 
 export const useAuthStore = defineStore('auth', {
