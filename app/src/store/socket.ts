@@ -123,6 +123,11 @@ export const useSocketStore = defineStore('socket', {
     if(this.socket) {
       this.socket.auth.token = token;
     }
+    },
+    reset() {
+
+    this.socket = null as MySocket | null;
+    this.gameSocket = null as MySocket | null;
     }
   },
 

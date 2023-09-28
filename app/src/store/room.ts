@@ -315,6 +315,14 @@ export const useRoomStore = defineStore('room', {
           reject(error.response);
         }
       })
+    },
+    reset () {
+      this.drawer = true;
+      this.rooms = [] as UserRoom[];
+      this.roomSettings = false;
+      this.selectedRoom = {} as UserRoom;
+      this.searchedRooms = [] as UserRoom[];
+      this.searching = false;
     }
 
    }, // INFO end of actions

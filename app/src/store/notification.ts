@@ -43,6 +43,9 @@ export const useNotificationStore = defineStore('notifications', {
         }
 
       });
+    },
+    reset () {
+      this.notifications = [] as Notification[];
     }
   }// end of actions
 }); // end of define store

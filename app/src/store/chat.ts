@@ -5,11 +5,7 @@ import { User } from '@/types/user';
 import { UserRoom } from '@/types/room';
 import { AxiosResponse } from 'axios';
 import { pushNotify } from '@/composables/simpleNotify';
-
-type UserConversation = {
-  user: User,
-  unseen: Array<string>
-};
+import { UserConversation } from '@/types/stateTypes/userConversation';
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
@@ -151,6 +147,13 @@ export const useChatStore = defineStore('chat', {
         this.users.unshift(newobj)
       }
     },
+    reset() {
+      this.conversations = new Map();
+      this.activeConversation = [];
+      this.selectedUser = {} as User;
+      this.selectedRoom = {} as UserRoom;
+      this.users = [] as UserConversation[];
+    }
   },// end of actions
 
 })// end of define store
