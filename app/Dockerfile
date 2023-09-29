@@ -13,6 +13,7 @@ FROM node:20 as build
 
 ARG VITE_API_URL
 ARG VITE_INTRA_LOGIN_URL
+ARG VITE_DOMAIN
 
 WORKDIR /app
 COPY ./package.json .
