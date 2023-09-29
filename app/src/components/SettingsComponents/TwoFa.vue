@@ -136,8 +136,4 @@ const close = () => {
 /*   width: 300px; */
 /* } */
 
-.v-overlay--active {
-  backdrop-filter: blur(2px);
-  background: rgba(var(--v-theme-colorTwo), 0.3);
-}
 </style>

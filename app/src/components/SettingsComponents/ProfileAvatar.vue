@@ -185,11 +185,6 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
 .changePic:hover {
   opacity: 1;
 }
-.v-overlay--active {
-    backdrop-filter: blur(1px);
-    background: rgb(0 0 0 / 0.5);
-}
-
 .chooseAvatar {
   width: 50px;
   height: 50px;
