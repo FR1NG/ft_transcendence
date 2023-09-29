@@ -3,7 +3,7 @@ import { useTheme } from 'vuetify/lib/framework.mjs';
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    theme: 'themeKhayb',
+    theme: 'light',
   }),
   actions: {
     initTheme() {
