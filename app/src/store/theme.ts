@@ -12,9 +12,15 @@ export const useThemeStore = defineStore('theme', {
         this.theme = theme;
       this.setTheme(this.theme)
     },
+    getTheme() {
+      const vTheme = useTheme();
+      this.theme = vTheme.global.name.value;
+      return this.theme;
+    },
     setTheme(theme: string) {
       const vTheme = useTheme();
       vTheme.global.name.value = theme;
+      localStorage.setItem('theme', this.theme);
     }
   }
 })

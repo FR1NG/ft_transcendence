@@ -4,11 +4,13 @@ import { ref, reactive, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { resetObject, assignObject } from '@/composables/helpers'
 import { pushNotify } from '@/composables/simpleNotify'
+import { useAuthStore } from '@/store/auth'
 import CustomCard from '@/components/CustomCard.vue'
 import ProfileAvatar from './ProfileAvatar.vue'
 import CustomDivider from '@/components/CustomDivider.vue'
 import TwoFa from './TwoFa.vue'
-import { useAuthStore } from '@/store/auth'
+import Theme from './Theme.vue'
+
 
 const userStore = useUserStore();
 const { me } = storeToRefs(useAuthStore());
@@ -76,6 +78,8 @@ const update = async () => {
           :error="errors.email.length !== 0" :messages="errors.email" @keyup.enter="update"></v-text-field>
         <CustomDivider title="2 Factor authentication"/>
         <TwoFa v-if="tfa" :user="profile"/>
+        <CustomDivider title="Theme" top="2"/>
+        <theme/>
         <v-card-actions class="d-flex justify-end">
           <v-btn class="update" :disabled="updating" :loading="updating" color="colorTwo" variant="outlined" @click="update">Update</v-btn>
         </v-card-actions>

@@ -26,7 +26,7 @@ export default createVuetify({
           test: '#6A1B9A',
         },
       },
-      themeKhayb: {
+      dark: {
         colors: {
           colorOne: '#141E46',
           colorTwo: '#FFF5E0',

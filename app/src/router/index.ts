@@ -144,7 +144,7 @@ const hasToken = () => {
 }
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.auth && to.name !== 'Login' && !hasToken()) next({ name: 'Login' })
+  if (to.meta.auth && to.name !== 'Login' && !hasToken()) next({ name: 'Landing' })
   else if (hasToken() && to.name === 'Login') next({name: 'Home'})
   else next()
 })
