@@ -16,6 +16,7 @@ WORKDIR /back/
 COPY ./package.json .
 RUN npm install
 COPY ./ .
+RUN npx prisma generate
 RUN  npm run build
 COPY ./build-tools/entry.sh /usr/bin/entry
 RUN chmod +x /usr/bin/entry
