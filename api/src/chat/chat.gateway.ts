@@ -28,7 +28,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   private logger = new Logger(ChatGateway.name);
 
   async handleConnection(client: Socket, ...args: any[]) {
-    console.log(client.request.headers);
+    try {
+
     const payload = await this.getUser(client);
     this.logger.verbose('client connected')
     if (payload) {
@@ -46,13 +47,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
       // adding the user of the connected user map
       this.clients.set(payload.sub, client);
     }
+    } catch(error) {
+      this.logger.error('exception thrown on handle disconnection')
+    }
   }
 
   async handleDisconnect(client: Socket) {
-    const payload = await this.getUser(client);
-    if (payload) {
-      await this.userService.setOnline(payload.sub, false);
-      this.clients.delete(payload.sub);
+    try {
+      const payload = await this.getUser(client);
+      if (payload) {
+        await this.userService.setOnline(payload.sub, false);
+        this.clients.delete(payload.sub);
+      }
+    } catch(erro) {
+        this.logger.error('exception thrown on handle disconnection')
     }
   }
 
