@@ -23,11 +23,9 @@ export const useAuthStore = defineStore('auth', {
         const response: AxiosResponse = await axios.get('/auth/me');
         const { data } = response;
         this.me = data;
-        console.log(">>>>>>>>>>  ", data);
         this.logged = true;
         resolve(data);
       } catch (error: AxiosError | any) {
-          // pushNotify({status:'error', title:'error', text:error.response.data.message})
           reject(error.response);
         }
       })

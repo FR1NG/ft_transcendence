@@ -27,13 +27,13 @@ const fontCouleur = ref(props.isOnline? "rgb(32, 241, 32)" : "rgb(249, 7, 7)")
     background-color: v-bind(backgroudCouleur);
     width: 80px;
     height: 20px;
-    top: 82%;
-    left: 30%;
     display: flex;
     align-items: center;
     color: v-bind(fontCouleur);
     border-radius: 15px;
     padding: 0rem 0.2rem;
+    z-index: 10;
+    bottom: 10px;
     .dot {
       top:0.6rem;
       background-color: v-bind(fontCouleur);
