@@ -36,8 +36,10 @@ async function seedUsers() {
 }
 
 const hchakoub = async () => {
-  const user = await prisma.users.create({
-    data: {
+  const user = await prisma.users.upsert({
+    where: {username: 'hchakoub'},
+    update: {},
+    create: {
       email: 'hchakoub@student.1337.ma',
       username: 'hchakoub',
       avatar: 'https://cdn.intra.42.fr/users/8274a9f7c70a8331a1b719c1eaf39417/medium_hchakoub.jpg',
@@ -55,9 +57,17 @@ const seedAchevments = async () => {
     {id: "3", name: 'hotter streak', description: 'win 10 games in a row'},
   ];
 
-  await prisma.achievments.createMany({
-    data: ach
+  ach.forEach(async (el )=> {
+  await prisma.achievments.upsert({
+      where: {id: el.name},
+      update: {},
+      create: {
+        id: el.id,
+        name: el.name,
+        description: el.description
+      }
   });
+  })
 }
 
 const seedGames = async (users: Users[]) => {
@@ -103,9 +113,11 @@ const seedGames = async (users: Users[]) => {
 
 async function main() {
   await seedAchevments();
-  await hchakoub();
-  const users = await seedUsers();
-  // const games = await seedGames(users);
+  if(process.env.MODE === 'development') {
+    await hchakoub();
+    await seedUsers();
+    // await seedGames(users);
+  }
 }
 
 main()

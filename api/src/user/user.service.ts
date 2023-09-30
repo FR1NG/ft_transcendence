@@ -148,11 +148,11 @@ export class UserService {
     return profile;
   }
 
-  async updateAvatar(id: string, fileName: string): Promise<any> {
+  async updateAvatar(user: AuthenticatedUser, fileName: string): Promise<any> {
     const path = `${this.config.get('CDN_URL')}/users/${fileName}`;
     const result = await this.prisma.users.update({
       where: {
-        id,
+        id: user.sub,
       },
       data: {
         avatar: path,
@@ -162,19 +162,22 @@ export class UserService {
   }
 
   async setOnline(id: string, value: boolean): Promise<any> {
-    const user = this.prisma.users.findUnique({
+    const user = await this.prisma.users.findFirst({
       where: {
         id
+      },
+      select: {
+        id: true
       }
     });
     if(!user)
-      return;
+      return null;
     const result = await this.prisma.users.update({
       where: {
-        id,
+        id: user.id,
       },
       data: {
-        isOnline: value,
+        isOnline: value || false,
       }
     });
     return result;

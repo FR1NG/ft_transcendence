@@ -19,12 +19,14 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
          const key = e.split(' ')[0];
           costumeMessages[key] = e.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
         });
+      } else {
+        costumeMessages[0] = message;
       }
-
       response.status(400).json({
         message: 'validation faild',
         errors: costumeMessages,
       });
+
     } else {
       response.status(exception.status).json({
         message,
