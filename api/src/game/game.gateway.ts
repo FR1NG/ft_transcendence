@@ -44,11 +44,15 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   private invitatios: Map<string, string[]> = new Map();
 
   async handleConnection(client: Socket, ...args: any[]): Promise<void> {
-    const user = await this.getUser(client);
-    if(!user)
-      throw new WsException('unauthorized user');
-    this.clients.set(user.sub, {socket: client});
-    this.ids.set(client.id, user.sub);
+    try{
+      const user = await this.getUser(client);
+      if(!user)
+        throw new WsException('unauthorized user');
+      this.clients.set(user.sub, {socket: client});
+      this.ids.set(client.id, user.sub);
+    } catch(error) {
+      this.logger.error('exception thrown on handle connection')
+    }
   }
 
   @SubscribeMessage('joinQueue')
@@ -169,23 +173,26 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   async handleDisconnect(client: Socket) {
-
-    const user = await this.getUser(client)
-    if(!user)
-      throw new WsException('unauthorized');
-    const userId = user.sub;
-    this.removeUserFromQueues(userId);
-    const game = await this.gameService.getMyGame(user, 'STARTED');
-    if(!game)
-      return;
-    const state = this.gameService.getCurrentState(game.id);
-    if(state)
-      state.gameOver = true
-    this.server.to(game.id).emit('opponentDisconnected');
-    this.broadcastGameState(game.id);
-    const opponentId = game.guestId === user.sub ? game.guestId : game.hostId;
-    if(state)
-      this.gameService.finishGame(game.id, opponentId);
+    try{
+      const user = await this.getUser(client)
+      if(!user)
+        throw new WsException('unauthorized');
+      const userId = user.sub;
+      this.removeUserFromQueues(userId);
+      const game = await this.gameService.getMyGame(user, 'STARTED');
+      if(!game)
+        return;
+      const state = this.gameService.getCurrentState(game.id);
+      if(state)
+        state.gameOver = true
+      this.server.to(game.id).emit('opponentDisconnected');
+      this.broadcastGameState(game.id);
+      const opponentId = game.guestId === user.sub ? game.guestId : game.hostId;
+      if(state)
+        this.gameService.finishGame(game.id, opponentId);
+    } catch {
+      this.logger.error('exception thrown on handle disconnection')
+    }
   }
 
   // to be optimized

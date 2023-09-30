@@ -20,8 +20,8 @@ export const useGameStore = defineStore('game', {
       ballColor: '#0C134F',
       lineColor: '#FFFFFF',
       scoreColor: '#FFFFFF',
-      backgroundImage: '../../public/images/game/plain-black-background.jpg',
-      ballImage: '../../public/images/game/pngegg.png',
+      backgroundImage: '/images/game/plain-black-background.jpg',
+      ballImage: '/images/game/pngegg.png',
     },
     themes: {
       classic: {
@@ -30,8 +30,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#0C134F',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '../../public/images/game/plain-black-background.jpg',
-        ballImage: '../../public/images/game/pngegg.png',
+        backgroundImage: '/images/game/plain-black-background.jpg',
+        ballImage: '/images/game/pngegg.png',
       },
       AmongUs: {
         backgroundColor: '#1E1E1E',
@@ -39,8 +39,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#E94560',
         lineColor: '#DB022B',
         scoreColor: '#FFFFFF',
-        backgroundImage: '../../public/images/game/amon.jpg',
-        ballImage: '../../public/images/game/amongus.png',
+        backgroundImage: '/images/game/amon.jpg',
+        ballImage: '/images/game/amongus.png',
       },
       PacMan: {
         backgroundColor: '#F5DEB3',
@@ -48,8 +48,8 @@ export const useGameStore = defineStore('game', {
         ballColor: '#FF4500',
         lineColor: '#FFFFFF',
         scoreColor: '#FFFFFF',
-        backgroundImage: '../../public/images/game/PacMan.jpg',
-        ballImage: "../../public/images/game/Original_PacMan.png",
+        backgroundImage: '/images/game/PacMan.jpg',
+        ballImage: "/images/game/Original_PacMan.png",
       }
     },
   }),

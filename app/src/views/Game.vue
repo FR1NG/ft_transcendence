@@ -110,7 +110,6 @@ export default {
       } else if (event.code === 'KeyS') {
           keyStates.s = true;
       }
-      console.log('KeyDown', keyStates);
     };
 
     // Handle the "KeyW" and "KeyS" key-up events
@@ -121,7 +120,6 @@ export default {
       } else if (event.code === 'KeyS') {
         keyStates.s = false;
       }
-      console.log('KeyUp', keyStates);
     };
 
     const gameLoop = () => {
@@ -193,7 +191,8 @@ export default {
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
         }
-      } else {
+      } else 
+      {
         ctx.shadowColor = '#FFFFFF';
         ctx.shadowBlur = 20;
         ctx.beginPath();
@@ -243,7 +242,8 @@ export default {
         } else {
           ctx.drawImage(loadedImages[currentTheme.value.backgroundImage], 0, 0, canvasWidth.value, canvasHeight.value);
         }
-      } else {
+      } else 
+      {
         ctx.fillStyle = currentTheme.value.backgroundColor;
         ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       }
@@ -353,15 +353,15 @@ export default {
   padding: 0;
   display: block;
   color: rgb(var(--v-theme-colorTwo));
-  border: 3px solid rgb(var(--v-theme-colorTwo));
+  border: 1px solid rgb(var(--v-theme-colorTwo));
   box-sizing: border-box;
   box-shadow:
+    0 0 2.5px rgb(var(--v-theme-colorTwo)),
     0 0 5px rgb(var(--v-theme-colorTwo)),
-    0 0 10px rgb(var(--v-theme-colorTwo)),
-    0 0 15px rgb(var(--v-theme-colorThree)),
-    0 0 20px rgb(var(--v-theme-colorThree)),
-    0 0 25px rgb(var(--v-theme-colorThree)),
-    0 0 30px rgb(var(--v-theme-colorThree));
+    0 0 7.5px rgb(var(--v-theme-colorThree)),
+    0 0 10px rgb(var(--v-theme-colorThree)),
+    0 0 12.5px rgb(var(--v-theme-colorThree)),
+    0 0 15px rgb(var(--v-theme-colorThree));
 }
 
 .container {
