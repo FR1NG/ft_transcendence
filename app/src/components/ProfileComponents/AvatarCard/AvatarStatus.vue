@@ -74,10 +74,6 @@ button.v-btn.v-btn--icon.v-theme--light.v-btn--density-comfortable.v-btn--size-d
     .username {
       font-size: 0.8rem;
     }
-
-    .ms-2 {
-      height: 100px;
-    }
   }
 }
 </style>

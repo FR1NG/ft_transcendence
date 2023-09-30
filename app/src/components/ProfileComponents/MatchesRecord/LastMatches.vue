@@ -25,7 +25,7 @@ defineProps<{user: User, loading: Boolean}>()
       <tbody>
         <tr v-for="game in user.games" :key="game.id">
           <td>
-            <v-list-item lines="one" :to="{name: 'UserProfile', params: {username: game.host.username}}" :active="false" :prepend-avatar="game.host.avatar">
+            <v-list-item  class="elip" lines="one" :to="{name: 'UserProfile', params: {username: game.host.username}}" :active="false" :prepend-avatar="game.host.avatar">
               {{ game.host.username }}
             </v-list-item>
           </td>
@@ -50,6 +50,7 @@ defineProps<{user: User, loading: Boolean}>()
   align-items: center;
   max-height: 600px;
   overflow: hidden;
+  min-width: 400px !important;
 
   .matchesHeader {
     padding-top: 0.5rem;
@@ -77,59 +78,18 @@ defineProps<{user: User, loading: Boolean}>()
   }
 
   .matchesTable::-webkit-scrollbar-track {
-    background-color: rgba(250, 0, 0, 0.2);
+    background-color: black;
     border-radius: 25px;
   }
 
   .matchesTable::-webkit-scrollbar-thumb {
-    background-color: red;
+    background-color: rgb(var(--v-theme-colorTwo));
     width: 20px;
     border-radius: 25px;
   }
 }
+.v-list-item__content {
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
 </style>
-
-
-<!-- <script setup lang="ts">
-import { User } from '@/types/user'
-import CustomCard from '@/components/CustomCard.vue';
-
-//just for testing------- will be deleted later-----
-
-
-const props = defineProps<{
-  user: User
-}>();
-// ------------------------------------------------------------
-
-</script>
-
-<template>
-  <CustomCard class="matchesWrapper">
-
-      <h2 class="matchesHeader">Last matches</h2>
-        <v-table class="matchesTable" theme="dark">
-        <thead>
-            <tr>
-            <th class="text-left">
-                Opponent
-            </th>
-            <th class="text-center">
-                result
-            </th>
-            <th class="text-right">
-
-            </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="gam in props.user.games">
-            <td>{{ gam.game.host.username }}</td>
-            <td class="text-center">{{ gam.score }} - {{ gam.opponentScore }}</td>
-            <td class="text-right win" v-if="gam.score > gam.opponentScore"> win </td>
-            <td class="text-right loss" v-else> loss </td>
-            </tr>
-        </tbody>
-        </v-table>
-  </CustomCard>
-</template> -->
