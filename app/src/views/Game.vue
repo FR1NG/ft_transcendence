@@ -221,12 +221,18 @@ export default {
     };
 
     // Display the score on the canvas
-    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number) => {
-      ctx.font = '35px Arial';
-      ctx.fillStyle = currentTheme.value.scoreColor;
-      ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
-      ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
-    };
+    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number, mirrored: boolean) => {
+    ctx.font = '35px Arial';
+    ctx.fillStyle = currentTheme.value.scoreColor;
+
+    if (mirrored) {
+        ctx.fillText(scoreRight.toString(), canvasWidth / 4, 50);
+        ctx.fillText(scoreLeft.toString(), (3 * canvasWidth) / 4, 50);
+    } else {
+        ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
+        ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
+    }
+  };
 
     // Render the current game state onto the canvas
     const renderGameState = (gameState: GameState) => {
@@ -260,16 +266,19 @@ export default {
       }
 
       drawCenterLine(ctx, canvasWidth.value, canvasHeight.value);
+      const LpaddleXRatio = mirrored ? 1 - leftPlayer.xRatio - leftPlayer.paddleWidthRatio : leftPlayer.xRatio;
       drawPaddle(
         ctx,
-        leftPlayer.xRatio,
+        // leftPlayer.xRatio,
+        LpaddleXRatio,
         leftPlayer.paddleYRatio,
         leftPlayer.paddleWidthRatio,
         leftPlayer.paddleHeightRatio
       );
+      const RpaddleXRatio = mirrored ? 1 - rightPlayer.xRatio - rightPlayer.paddleWidthRatio : rightPlayer.xRatio;
       drawPaddle(
         ctx,
-        rightPlayer.xRatio,
+        RpaddleXRatio,
         rightPlayer.paddleYRatio,
         rightPlayer.paddleWidthRatio,
         rightPlayer.paddleHeightRatio
@@ -281,8 +290,7 @@ export default {
         gameState.ball.yRatio,
         gameState.ball.radiusRatio
       );
-      // If mirrored, swap the scores
-      drawScore(ctx, mirrored ? rightPlayer.score : leftPlayer.score, mirrored ? leftPlayer.score : rightPlayer.score, canvasWidth.value);
+      drawScore(ctx, mirrored ? rightPlayer.score : leftPlayer.score, mirrored ? leftPlayer.score : rightPlayer.score, canvasWidth.value, mirrored);
     };
 
     // Watch for canvas dimension changes and notify the server
