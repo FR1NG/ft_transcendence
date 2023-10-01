@@ -29,24 +29,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
   async handleConnection(client: Socket, ...args: any[]) {
     try {
-
-    const payload = await this.getUser(client);
-    this.logger.verbose('client connected')
-    if (payload) {
-      client['user'] = payload;
-      if (payload.sub) {
-        // setting the user status to online
-        this.userService.setOnline(payload.sub, true);
-        // getting all rooms for the authenticated user
-        const rooms = await this.roomService.getUserRooms(payload);
-        // joining the socket of the user rooms
-        rooms.forEach(el => {
-          client.join(el.room.id);
-        });
+      const payload = await this.getUser(client);
+      this.logger.verbose('client connected')
+      if (payload) {
+        client['user'] = payload;
+        if (payload.sub) {
+          // setting the user status to online
+          this.userService.setOnline(payload.sub, true);
+          // getting all rooms for the authenticated user
+          const rooms = await this.roomService.getUserRooms(payload);
+          // joining the socket of the user rooms
+          rooms.forEach(el => {
+            client.join(el.room.id);
+          });
+        }
+        // adding the user of the connected user map
+        this.clients.set(payload.sub, client);
       }
-      // adding the user of the connected user map
-      this.clients.set(payload.sub, client);
-    }
     } catch(error) {
       this.logger.error('exception thrown on handle disconnection')
     }

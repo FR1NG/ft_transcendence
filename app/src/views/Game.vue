@@ -346,7 +346,6 @@
         <div class="dot dot-1">.</div>
         <div class="dot dot-2">.</div>
         <div class="dot dot-3">.</div>
-        <div class="hider"></div>
       </h2>
     </div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
@@ -357,21 +356,20 @@
 
 
 <style lang="scss" scoped>
-@import url('https://fonts.cdnfonts.com/css/public-pixel');
 // Game Elements
 .gameCanvas {
   padding: 0;
   display: block;
   color: rgb(var(--v-theme-colorTwo));
-  border: 3px solid rgb(var(--v-theme-colorTwo));
+  border: 1px solid rgb(var(--v-theme-colorTwo));
   box-sizing: border-box;
   box-shadow:
+    0 0 2.5px rgb(var(--v-theme-colorTwo)),
     0 0 5px rgb(var(--v-theme-colorTwo)),
-    0 0 10px rgb(var(--v-theme-colorTwo)),
-    0 0 15px rgb(var(--v-theme-colorThree)),
-    0 0 20px rgb(var(--v-theme-colorThree)),
-    0 0 25px rgb(var(--v-theme-colorThree)),
-    0 0 30px rgb(var(--v-theme-colorThree));
+    0 0 7.5px rgb(var(--v-theme-colorThree)),
+    0 0 10px rgb(var(--v-theme-colorThree)),
+    0 0 12.5px rgb(var(--v-theme-colorThree)),
+    0 0 15px rgb(var(--v-theme-colorThree));
 }
 
 .container {
@@ -423,7 +421,6 @@ body, html {
 #startButton, #restartButton {
   margin-top: 20px;
   font-size: 24px;
-  font-family: 'Public Pixel', sans-serif;
   padding: 16px 32px;
   margin: 12px;
   border: none;
@@ -476,7 +473,6 @@ body, html {
 }
 
 .game-guide {
-  font-family: 'Public Pixel', sans-serif;
   font-size: 15px;
   color: rgb(var(--v-theme-colorFoure));
   text-align: center;
@@ -501,7 +497,6 @@ body, html {
 }
 
 h1{
-  font-family: 'Public Pixel', sans-serif;
   font-size: 2.5em;
   text-shadow: 2px 2px 4px rgb(var(--v-theme-colorThree));
   text-align: center;

@@ -72,9 +72,11 @@ const handleSubmit = async () => {
     data.append('avatar', avatar.value[0]);
   }
   try {
-    const result = await axios.post('/user/avatar', data);
-    callback(result);
-  } catch (error) {
+    const response = await axios.post('/user/avatar', data);
+    callback(response);
+    useAuthStore().getMe();
+  } catch (error: any) {
+    console.log(error.response);
       loading.value = false;
   }
 }
@@ -85,7 +87,7 @@ const callback = async (response: any) => {
   await props.update();
   avatar.value = null;
   if(response.data.message) {
-    pushNotify({status:'info', title:'Action status', text:response.data.message})
+    pushNotify({status:'success', title:'Action status', text:response.data.message})
   }
 }
 
@@ -138,7 +140,7 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
               <v-container>
                 <v-row>
                   <v-col clos="12">
-                    <v-file-input v-if="showInput" accept="image/png, image/jpeg, image/bmp" placeholder="Pick an avatar"
+                    <v-file-input v-if="showInput" accept="image/png, image/jpeg, image/jpg" placeholder="Pick an avatar"
                       prepend-icon="mdi-camera" label="upload" v-model="avatar"></v-file-input>
                   </v-col>
                 </v-row>

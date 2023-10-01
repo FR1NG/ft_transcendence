@@ -46,7 +46,6 @@ export const useAuthStore = defineStore('auth', {
           }
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
-          console.error(error)
         }
       }
     },

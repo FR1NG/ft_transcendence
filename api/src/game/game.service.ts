@@ -12,8 +12,8 @@ const GAME_MODE_CONFIGS = {
       MIN_X_VELOCITY: 0.006
   },
   [GameMode.NORMAL]: {
-      MAX_Y_VELOCITY: 0.014,
-      MIN_X_VELOCITY: 0.012
+      MAX_Y_VELOCITY: 0.013,
+      MIN_X_VELOCITY: 0.011
   },
   [GameMode.HARD]: {
       MAX_Y_VELOCITY: 0.0021,
@@ -22,7 +22,7 @@ const GAME_MODE_CONFIGS = {
 };
 const BALL_SPEEDS = {
   [GameMode.EASY]: 0.007,
-  [GameMode.NORMAL]: 0.013,
+  [GameMode.NORMAL]: 0.012,
   [GameMode.HARD]: 0.020
 };
 
@@ -49,7 +49,7 @@ export class GameService {
         id: 'Host',
         paddleYRatio: 0.5,
         paddleWidthRatio: 0.017,
-        paddleHeightRatio: 0.25,
+        paddleHeightRatio: 0.28,
         score: 0,
         xRatio: 0
       },
@@ -57,7 +57,7 @@ export class GameService {
         id: 'Guest',
         paddleYRatio: 0.5,
         paddleWidthRatio: 0.017,
-        paddleHeightRatio: 0.25,
+        paddleHeightRatio: 0.28,
         score: 0,
         xRatio: 0.98
       }
@@ -74,16 +74,16 @@ export class GameService {
 
   public resetGameState(gameId: string, mode: GameMode): void {
     const ballSpeeds = {
-      [GameMode.EASY]: 0.001,
-      [GameMode.NORMAL]: 0.009,
-      [GameMode.HARD]: 0.030
+      [GameMode.EASY]: 0.007,
+      [GameMode.NORMAL]: 0.012,
+      [GameMode.HARD]: 0.020
     };
     this.gameStates[gameId] = {
       players: this.initializePlayers(),
       ball: {
         xRatio: 0.5,
         yRatio: 0.5,
-        radiusRatio: 0.030,
+        radiusRatio: 0.0277,
         velocityXRatio: ballSpeeds[mode],
         velocityYRatio: 0,
       },

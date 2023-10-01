@@ -1,6 +1,12 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
 
+const hasToken = () => {
+  if(sessionStorage.getItem('access_token'))
+    return true
+  return false;
+}
+
 const routes = [
   {
     path: '/',
@@ -55,9 +61,6 @@ const routes = [
         path: '/otp/virify',
         name: 'OtpVirify',
         component: () => import('@/views/OtpVirify.vue'),
-        meta: {
-          auth: true
-        }
       },
       {
         path: '/settings',
@@ -140,11 +143,6 @@ const router = createRouter({
   routes,
 })
 
-const hasToken = () => {
-  if(sessionStorage.getItem('access_token'))
-    return true
-  return false;
-}
 
 router.beforeEach((to, from, next) => {
   if (to.meta.auth && to.name !== 'Login' && !hasToken()) next({ name: 'Landing' })

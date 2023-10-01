@@ -10,12 +10,14 @@ services:
     volumes:
       - ./api/:/api/
       - /api/node_modules/
+      - ./api/uploads/:/api/uploads
     ports:
       - "5555:5555"
     env_file: .env
     depends_on:
       - db
     init: true
+    restart: unless-stopped
   application:
     container_name: app
     build:
@@ -39,6 +41,7 @@ services:
     ports: 
       - "3000:3000"
     init: true
+    restart: unless-stopped
   db:
     image: postgres:15.3
     container_name: db
@@ -46,12 +49,11 @@ services:
       - "POSTGRES_DB=${POSTGRES_DB}"
       - "POSTGRES_USER=${POSTGRES_USER}"
       - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" 
-    ports:
-      - "5432:5432"
-    # volumes:
-    #   - ./postgres/data/:/var/lib/postgresql/data/
+    volumes:
+      - /var/lib/postgresql/data/
     networks:
       - ft_network
+    restart: unless-stopped
   server:
     container_name: server
     image: nginx
@@ -62,10 +64,22 @@ services:
       - application
     volumes:
       - ./nginx/config/:/etc/nginx/conf.d/
+      - ./nginx/main/nginx.conf/:/etc/nginx/nginx.conf
       - ./nginx/ssl/:/etc/ssl/
       - ./api/uploads/:/var/www/cdn/
     ports:
-      - "4443:4443"
+      - "${HTTP_PORT}:${HTTP_PORT}"
+      - "${HTTPS_PORT}:${HTTPS_PORT}"
+    restart: unless-stopped
+volumes:
+  cdn_volume:
+    name: cdn_volume
+    driver: local
+    driver_opts:
+      type: 'bind'
+      o: 'bind'
+      device: ${CDN_PATH}
+
 networks:
   ft_network:
     driver: bridge
