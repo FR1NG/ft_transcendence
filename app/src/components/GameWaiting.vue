@@ -35,10 +35,10 @@
     gap: 1vw;
   @for $i from 1 through 3 {
     .dot-#{$i} {
-      animation: bounce 3s linear infinite calc($i * 500) + 1ms;
+      animation: bounceDot 3s linear infinite calc($i * 500) + 1ms;
     }
   }
-    @keyframes bounce {
+    @keyframes bounceDot {
       50%, 100%{
         transform: translateY(0);
       }

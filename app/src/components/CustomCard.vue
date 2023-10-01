@@ -1,10 +1,6 @@
 <script setup lang="ts">
   defineProps<{loading: Boolean}>();
 </script>
-<!-- make a glass card
-use javascript to lighten the hoverd area
-https://www.youtube.com/watch?v=hv0rNxr1XXk
--->
 
 
 <template>
