@@ -198,7 +198,6 @@ export class GameService {
         } else {
           player.paddleYRatio = newY;
         }
-        // console.log(`Updated Y position for ${playerId}: ${player.paddleYRatio}`);
       }
     }
 

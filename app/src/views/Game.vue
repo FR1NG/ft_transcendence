@@ -18,6 +18,7 @@ import { bootstrapGameSocket } from '@/composables/game.socket';
 import { useSocketStore } from '@/store/socket';
 import GameResult from './GameResult.vue'
 import { onBeforeRouteLeave } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
 
 export default {
   name: 'Game',
@@ -27,7 +28,8 @@ export default {
     const socketStore = useSocketStore();
     const { gameSocket } = storeToRefs(socketStore);
     const { gameResult } = storeToRefs(gameStore);
-
+    const authStore = useAuthStore();
+    const { me } = storeToRefs(authStore);
     // initializign game socket
     bootstrapGameSocket();
 
@@ -35,7 +37,7 @@ export default {
     onBeforeRouteLeave(() => {
       gameStore.reset();
     })
-
+    
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
@@ -63,7 +65,7 @@ export default {
       playerId.value = data.role;
       gameId.value = data.gameId;
     });
-
+  
     // Listen for gameStarted event from the server
     gameSocket.value?.on('gameStarted', () => {
       console.log('Received gameStarted event.');
@@ -247,8 +249,15 @@ export default {
         ctx.fillStyle = currentTheme.value.backgroundColor;
         ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       }
-      const leftPlayer = gameState.players[0];
-      const rightPlayer = gameState.players[1];
+      let leftPlayer, rightPlayer;
+      const mirrored = me.value.id === gameState.players[1].id;
+      if (mirrored) {
+        leftPlayer = gameState.players[1];
+        rightPlayer = gameState.players[0];
+      } else {
+        leftPlayer = gameState.players[0];
+        rightPlayer = gameState.players[1];
+      }
 
       drawCenterLine(ctx, canvasWidth.value, canvasHeight.value);
       drawPaddle(
@@ -265,13 +274,15 @@ export default {
         rightPlayer.paddleWidthRatio,
         rightPlayer.paddleHeightRatio
       );
+      const ballXRatio = mirrored ? 1 - gameState.ball.xRatio : gameState.ball.xRatio;
       drawBall(
         ctx,
-        gameState.ball.xRatio,
+        ballXRatio,
         gameState.ball.yRatio,
         gameState.ball.radiusRatio
       );
-      drawScore(ctx, leftPlayer.score, rightPlayer.score, canvasWidth.value);
+      // If mirrored, swap the scores
+      drawScore(ctx, mirrored ? rightPlayer.score : leftPlayer.score, mirrored ? leftPlayer.score : rightPlayer.score, canvasWidth.value);
     };
 
     // Watch for canvas dimension changes and notify the server
