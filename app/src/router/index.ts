@@ -40,6 +40,9 @@ const routes = [
         path: '/game/select',
         name: 'GameSelection',
         component: () => import('@/views/GameSelection.vue'),
+        meta: {
+          auth: true
+        }
       },
       {
         path: '/game/',

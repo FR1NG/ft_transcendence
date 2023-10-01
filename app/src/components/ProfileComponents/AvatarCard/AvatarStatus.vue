@@ -14,9 +14,10 @@ defineProps<{ user: User, loading: Boolean, me: Me }>()
   <CustomCard :loading="loading" class="statusWrapper">
     <v-row>
       <v-col cols="6" sm="3" class="d-flex justify-center">
-        <v-card  width="100%" max-height="150px" class="ma-3" rounded="xl">
-          <v-img height="100%" :src="user.avatar" cover></v-img>
-          <OnOffStatus v-if="user" :isOnline="user.isOnline" :avatar="user.avatar" />
+        <v-card width="100%" max-height="150px" class="ma-3 status-container" rounded="xl">
+          <v-img height="100%" :src="user.avatar" cover>
+          </v-img>
+            <OnOffStatus v-if="user" class="status" :isOnline="user.isOnline" :avatar="user.avatar" />
         </v-card>
       </v-col>
       <v-col cols="6" sm="3">
@@ -47,6 +48,11 @@ button.v-btn.v-btn--icon.v-theme--light.v-btn--density-comfortable.v-btn--size-d
   overflow: hidden;
 }
 
+.status-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-end !important;
+}
 .usrAvatar {
   margin: 10px;
   // width: 200px;
@@ -67,10 +73,6 @@ button.v-btn.v-btn--icon.v-theme--light.v-btn--density-comfortable.v-btn--size-d
   .statusWrapper {
     .username {
       font-size: 0.8rem;
-    }
-
-    .ms-2 {
-      height: 100px;
     }
   }
 }
