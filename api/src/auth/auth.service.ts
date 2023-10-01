@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
@@ -151,6 +151,8 @@ export class AuthService {
         id: user.sub
       }
     });
+    if(!me)
+      throw new UnauthorizedException();
     const  { otpSecret, ...filtred} = me;
     return filtred;
   }

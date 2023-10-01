@@ -17,6 +17,9 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,6 +32,8 @@ import { extname } from 'path';
 import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
 import { AuthPayload } from './dto/auth-payload';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { User } from 'src/common/decorators'
+import { AuthenticatedUser } from 'src/types';
 
 @Controller('user')
 // @UseFilters(ValidationExceptionFilterFilter)
@@ -86,15 +91,20 @@ export class UserController {
     }),
   })
   )
-
   async uploadAvatar(
-    @UploadedFile() file: Express.Multer.File,
-    @Req() request,
+    @UploadedFile(
+    new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({maxSize: 500000, message: 'File is too large'}),
+          new FileTypeValidator({fileType: /(jpg|jpeg|png)$/, })
+        ]
+      })
+    ) file: Express.Multer.File,
+    @User() user: AuthenticatedUser
   ) {
     // to be changed to the right exception
     if (!file) throw new InternalServerErrorException();
-    const { sub } = request.user;
-    return await this.userService.updateAvatar(sub, file.filename);
+    return await this.userService.updateAvatar(user, file.filename);
   }
 
   // search for users
