@@ -5,6 +5,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
 import { meTypes } from "@/types/stateTypes/auth";
+import { useSocketStore } from "./socket";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -43,11 +44,22 @@ export const useAuthStore = defineStore('auth', {
             this.logged = true;
             this.getMe();
             this.redirect();
+            this.setOnline();
           }
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
         }
       }
+    },
+    setOnline() {
+      const socket = useSocketStore().socket;
+      if(socket)
+        socket.emit('login')
+    },
+    setOffline() {
+      const socket = useSocketStore().socket;
+      if(socket)
+        socket.emit('logout')
     },
     setToken(token: string) {
       if (token) {
@@ -68,6 +80,8 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       sessionStorage.removeItem('access_token');
       this.logged = false;
+      this.setOffline();
+      this.reset();
       this.router.push({name: 'Login'})
     },
     checkAuth() {

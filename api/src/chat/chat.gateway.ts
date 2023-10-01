@@ -11,6 +11,9 @@ import { RoomService } from 'src/room/room.service';
 import { Server, Socket } from 'socket.io'
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuthenticatedUser } from 'src/types';
+import { Users } from '@prisma/client';
+
+type AuthSocket = Socket & { user: AuthenticatedUser};
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
@@ -63,10 +66,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
   }
 
-  afterInit(server: any) {
-      
-  }
-
   @SubscribeMessage('message')
   @UseFilters(WebSocketExceptionFilter)
   @UseGuards(WsAuthGuard)
@@ -90,6 +89,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     throw new WsException('invalid message payload');
   }
 
+  @SubscribeMessage('login')
+  @UseGuards(WsAuthGuard)
+  async handleUserLogin(client: AuthSocket) {
+    this.clients.set(client.user.sub, client);
+    await this.userService.setOnline(client.user.sub, true);
+  }
+
+  @SubscribeMessage('logout')
+  @UseGuards(WsAuthGuard)
+  async handleUserLogout(client: AuthSocket) {
+    this.clients.delete(client.user.sub);
+    await this.userService.setOnline(client.user.sub, false);
+  }
+
   private async checkRoomAbility(user: AuthenticatedUser, payload: MessagePaylod) {
     const isAble = await this.roomService.isUserAbleToSend(user, payload);
     if(!isAble)
@@ -108,8 +121,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
           secret: this.config.get('APP_KEY')
         }
       );
-      console.log('from get user')
-      console.log(payload);
       return payload;
     } catch (error) {
       return null;
@@ -119,7 +130,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 
   // listing to event emitter
-
   @OnEvent('room.join')
   hadleRoomJoin(payload) {
     const client = this.clients.get(payload.userId);
