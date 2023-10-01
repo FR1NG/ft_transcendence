@@ -107,6 +107,13 @@ export class UserController {
     return await this.userService.updateAvatar(user, file.filename);
   }
 
+  // choose existing image
+  @Post('avatar/choose')
+  @UseGuards(AuthGuard)
+  async chooseAvatar(@User() user: AuthenticatedUser, @Body('link') link: string) {
+    return await this.userService.updateAvatar(user, link, false);
+  }
+
   // search for users
   @Get('search/:pattern')
   @UseGuards(AuthGuard)

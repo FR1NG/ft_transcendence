@@ -4,9 +4,11 @@ import axios from '@/plugins/axios'
 import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
 import { pushNotify } from '@/composables/simpleNotify';
+import FileInput from '@/components/FileInput.vue'
 
 const dialog = ref(false);
 const loading = ref(false);
+const isSelected = ref(false);
 const avatar = ref();
 const transparent = 'rgba(255, 255, 255, 0)';
 const { me } = storeToRefs(useAuthStore());
@@ -64,15 +66,37 @@ const pics = ref ([
 
 
 const handleSubmit = async () => {
+  if(isSelected.value)
+    submitUpload();
+  else
+    submitChoose(chooseddAvatar.value)
+  isSelected.value = false;
+  avatar.value = null;
+  const index = pics.value.findIndex((el: any) => el.clicked === true);
+  pics.value[index].clicked = false;
+
+}
+
+const submitUpload = async () => {
   const data = new FormData();
   loading.value = true
-  if(chooseddAvatar.value.length > 0) {
-    data.append('pickedAvatar', chooseddAvatar.value);
-  } else {
-    data.append('avatar', avatar.value[0]);
-  }
+  console.log(avatar.value)
+  data.append('avatar', avatar.value);
   try {
     const response = await axios.post('/user/avatar', data);
+    callback(response);
+    useAuthStore().getMe();
+  } catch (error: any) {
+    console.log(error.response);
+      loading.value = false;
+  }
+}
+
+const submitChoose = async (choice: string) => {
+  try {
+    const response = await axios.post('/user/avatar/choose', {
+      link: choice
+    });
     callback(response);
     useAuthStore().getMe();
   } catch (error: any) {
@@ -102,7 +126,8 @@ const changechooseddAvatar = (pic: { name:string, path: string, clicked:boolean}
   else {
     chooseddAvatar.value = pic.path
     pics.value[index].clicked = true;
-    avatar.value[0] = "";
+    isSelected.value = false;
+    avatar.value = "";
   }
 }
 
@@ -121,10 +146,17 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
 })
 
 
+const updateFileModelValue = (value: any) => {
+  avatar.value = value
+}
+
+const setIsSelected = (value: boolean) => {
+  isSelected.value = value;
+}
 </script>
 
 <template>
-    <v-card  elevation="0" color="transparent">
+    <v-card  elevation="0"  color="transparent">
       <div class="avatarPic">
         <img class="pic" :src="me.avatar" alt="Avatar image">
         <v-btn @click="dialog = !dialog" variant="text" class="changePic"
@@ -133,18 +165,15 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
       </v-card>
     <v-row justify="center">
       <v-form @submit.prevent="handleSubmit" :disabled="loading">
-        <v-dialog overlay-color="red" overlay-opacity="1" v-model="dialog" persistent width="500" backgound="red">
-          <v-card color="rgb(var(--v-theme-colorTwo))">
+        <v-dialog class="overlay" v-model="dialog" persistent width="600">
+          <v-card color="colorThree" class="pa-2" rounded="xl">
             <v-card-title> Update avatar </v-card-title>
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col clos="12">
-                    <v-file-input v-if="showInput" accept="image/png, image/jpeg, image/jpg" placeholder="Pick an avatar"
-                      prepend-icon="mdi-camera" label="upload" v-model="avatar"></v-file-input>
-                  </v-col>
                 </v-row>
                 <v-row>
+                <file-input @select="setIsSelected" :is-selected="isSelected" :value="avatar" @update:model-value="updateFileModelValue"> </file-input>
                   <button v-for="pic in pics" @click="changechooseddAvatar(pic)">
                     <img class="chooseAvatar"  :class="pic.clicked ? `active-avatar` : ``" :src="pic.path" :alt="pic.name"   >
                   </button>
@@ -167,7 +196,12 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
 </template>
 
 
-<style scoped>
+<style lang="scss" scoped>
+.hidden {
+    .v-input__control {
+      display: none !important;
+    }
+}
 
 .pic {
   width: 100px;
