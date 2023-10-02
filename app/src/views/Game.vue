@@ -65,8 +65,6 @@ export default {
     const gameId = ref(null);
     const currentTheme = computed(() => gameStore.currentTheme);
 
-    let loadedImages: { [key: string]: HTMLImageElement } = {};
-
     // Listening for game state updates
         gameSocket.value?.on('state', (newState: GameState) => {
           gameState.value = newState;
@@ -175,6 +173,8 @@ export default {
             !isNaN(gameState.players[0].paddleYRatio) &&
             !isNaN(gameState.players[1].paddleYRatio);
     };
+
+    let loadedImages: { [key: string]: HTMLImageElement } = {};
 
     // Draws a dotted line in the middle of the canvas
     const drawCenterLine = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
@@ -320,6 +320,25 @@ export default {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(resizeHandler, 100);
     };
+    
+    const preloadImages = () => {
+      const theme = currentTheme.value;
+      // Preload background image
+      if (theme.backgroundImage && !loadedImages[theme.backgroundImage]) {
+        const bgImg = new Image();
+        bgImg.src = theme.backgroundImage;
+        bgImg.onload = () => {
+            loadedImages[theme.backgroundImage] = bgImg;
+        };
+      }
+      if (theme.ballImage && !loadedImages[theme.ballImage]) {
+        const ballImg = new Image();
+        ballImg.src = theme.ballImage;
+        ballImg.onload = () => {
+            loadedImages[theme.ballImage] = ballImg;
+        };
+      }
+    }
 
     // Initialization: set up listeners and join the game
     const initializeGameListeners = () => {
@@ -339,7 +358,10 @@ export default {
       window.removeEventListener('keyup', handleKeyUpEvent);
     }
 
-    onMounted(initializeGameListeners);
+    onMounted(() => {
+        preloadImages();
+        initializeGameListeners();
+    });
     onUnmounted(cleanupGameListeners);
 
     let connectionAttempts = 0;
