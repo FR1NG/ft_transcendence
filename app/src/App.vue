@@ -1,13 +1,9 @@
 <script lang="ts" setup>
 import { bootstrap } from './composables/socket';
 import { onMounted } from 'vue';
-import { useThemeStore } from '@/store/theme'
 
 const themeStore = useThemeStore();
 themeStore.initTheme();
-onMounted(() => {
-  bootstrap();
-})
 </script>
 
 <template>

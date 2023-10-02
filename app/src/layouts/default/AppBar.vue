@@ -2,14 +2,30 @@
 import NavMenu from './navbar/NavMenu.vue';
 import NavNotification from './navbar/NavNotification.vue';
 import UserSearch from '@/components/ProfileComponents/search/UserSearch.vue';
+import Messages from './navbar/Messages.vue'
+import { bootstrap } from '@/composables/socket';
 import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
-import { useRoute } from 'vue-router';
+import { onUpdated } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 
 const authStore = useAuthStore();
 const { logged } = storeToRefs(authStore);
 const route = useRoute();
+
+if(route.meta.auth)
+  bootstrap()
+
+onUpdated(() => {
+    if(route.meta.auth)
+      bootstrap()
+});
+
+useRouter().beforeEach(async (to) => {
+  if(to.meta.auth)
+    await useAuthStore().whoami();
+});
 </script>
 
 <template>
@@ -29,13 +45,14 @@ const route = useRoute();
         </template>
 
     <v-spacer></v-spacer>
+    <Messages />
     <NavNotification v-if="logged"/>
-    <v-menu :close-on-content-click="false" width="200" location="bottom left" offset="5">
+    <v-menu v-if="logged" :close-on-content-click="false" width="200" location="bottom left" offset="5">
       <template v-slot:activator="{props}">
           <v-btn v-bind="props" color="colorFour" icon><v-icon>mdi-magnify</v-icon></v-btn>
       </template>
       <!-- <v-card width="200" class="pa-4"> -->
-      <user-search v-if="logged">
+      <user-search >
         <template v-slot:items="{users}">
           <v-list-item
             v-for="user in users"
