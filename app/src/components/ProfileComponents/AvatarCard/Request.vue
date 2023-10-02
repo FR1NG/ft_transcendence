@@ -206,9 +206,6 @@ const inviteGame = (userId: string) => {
 
     padding: 10px;
   }
-.v-btn--size-default {
-  height: 30px !important;
-}
 }
 
 @media (width < 600px) {

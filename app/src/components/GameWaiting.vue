@@ -1,15 +1,53 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="bouncingWrapper">
-        <div class="paddleWrapper">
-            <div class="paddle"><div class="top"></div><div class="bottom"></div><div class="left"></div><div class="right"></div><div class="ceil"></div></div>
+    <div class="waiting">
+        <div class="bouncingWrapper">
+            <div class="paddleWrapper">
+                <div class="paddle"><div class="top"></div><div class="bottom"></div><div class="left"></div><div class="right"></div><div class="ceil"></div></div>
+            </div>
+            <div class="ball"></div>
         </div>
-        <div class="ball"></div>
+        <h2>Waiting for another player
+            <div class="dot dot-1">.</div>
+            <div class="dot dot-2">.</div>
+            <div class="dot dot-3">.</div>
+        </h2>
     </div>
 </template>
 
 <style lang="scss" scoped>
+
+
+.waiting{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2vw;
+  padding: 5rem 0;
+  height: 100%;
+  width: 100%;
+  font-size: 4vw;
+  color: rgb(var(--v-theme-colorFoure));
+  h2 {
+    position: relative;
+    display: flex;
+    gap: 1vw;
+  @for $i from 1 through 3 {
+    .dot-#{$i} {
+      animation: bounceDot 3s linear infinite calc($i * 500) + 1ms;
+    }
+  }
+    @keyframes bounceDot {
+      50%, 100%{
+        transform: translateY(0);
+      }
+      75%{
+        transform: translateY(-35%);
+      }
+    }
+  }
+}
 .bouncingWrapper {
     position: relative;
     height: 200px;
@@ -25,7 +63,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: rotateX(80deg);
+    transform: rotateX(75deg);
     transform-style: preserve-3d;
 }
 .paddle {
@@ -126,5 +164,6 @@
         top: 60%;
     }
 }
+
 
 </style>

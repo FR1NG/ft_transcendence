@@ -1,7 +1,8 @@
 <template>
   <game-result v-if="gameResult.length !== 0"></game-result>
   <div  v-else class="container">
-    <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div>
+    <!-- <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div> -->
+    <GameWaiting v-if="waitingForOpponent"/>
     <div v-if="gameState" class="avatar-section">
       <div v-if="gameState.players[0].id === me.id">
         <img :src="me.avatar" alt="My Avatar">
@@ -29,10 +30,11 @@ import { useSocketStore } from '@/store/socket';
 import GameResult from './GameResult.vue'
 import { onBeforeRouteLeave } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
+import GameWaiting from '@/components/GameWaiting.vue'
 
 export default {
   name: 'Game',
-  components: {GameResult},
+  components: { GameResult, GameWaiting },
   setup() {
     const gameStore = useGameStore();
     const socketStore = useSocketStore();
@@ -432,19 +434,6 @@ export default {
   height: 100vh;
   width: 100vw;
   overflow: hidden !important;
-}
-
-.waiting{
-  position: absolute;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  font-family: 'Public Pixel';
-  font-size: 20px;
-  color: rgb(var(--v-theme-colorFoure));
 }
 
 body, html {

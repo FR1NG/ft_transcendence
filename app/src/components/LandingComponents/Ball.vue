@@ -4,8 +4,10 @@ import Paddles from './Paddles.vue'
 
 <template>
     <div class="ballWrapper">
-      <div class="ball"></div>
-      <Paddles/>
+      <div class="conta">
+        <div class="ball"></div>
+        <Paddles/>
+      </div>
     </div>
 </template>
 
@@ -13,6 +15,11 @@ import Paddles from './Paddles.vue'
 
 
 .ballWrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.conta {
   position: relative;
   width: 100%;
   height: 100%;
@@ -20,29 +27,27 @@ import Paddles from './Paddles.vue'
 
 .ball {
   position: absolute;
-  top: 8vw;
-  left: 41vw;
-  width: 7vw;
-  height: 7vw;
+  top: -10rem;
+  left: -10vw;
+  width: 5vw;
+  height: 5vw;
   border-radius: 50%;
   background-color: rgb(var(--v-theme-colorTwo));
-  animation:group 0.5s linear forwards,
-            bend1 1s linear 1s,
-            flyLeft 1s linear forwards 1s,
-            bouncing 4s linear forwards 2s,
-            squashing 4s linear forwards 2s,
-            bend1 1s linear 6s,
-            strike1 1s linear forwards 6s,
-            bend2 1s linear 7s,
-            strike2 1s linear forwards 7s,
-            bend3 1s linear 8s,
-            strike3 1s linear forwards 8s,
-            bend4 1s linear 9s,
-            strike4 1s linear forwards 9s,
-            strike5 0.5s linear forwards 10s,
-            speeding1 2s linear forwards 10.5s, 
-            speeding2 0.1s forwards 12.5s 30,
-            fadeOut 3s forwards 11.5s;
+  animation:
+            bouncing 4s linear forwards 0.5s,
+            squashing 4s linear forwards 0.5s,
+            bend1 1s linear 4.5s,
+            strike1 1s linear forwards 4.5s,
+            bend2 1s linear 5.5s,
+            strike2 1s linear forwards 5.5s,
+            bend3 1s linear 6.5s,
+            strike3 1s linear forwards 6.5s,
+            bend4 1s linear 7.5s,
+            strike4 1s linear forwards 7.5s,
+            strike5 0.5s linear forwards 8.5s,
+            speeding1 2s linear forwards 9s, 
+            speeding2 0.1s forwards 11s 30,
+            fadeOut 3s forwards 10s;
 }
 
 @keyframes group {
@@ -174,7 +179,7 @@ import Paddles from './Paddles.vue'
   100% {
     transform: rotate(0deg);
     top: 11vw;
-    left: 63.5vw;
+    left: 63vw;
     width: 3vw; height: 5vw;
     border-radius: 50px 25px 25px 50px;
   }
@@ -186,7 +191,7 @@ import Paddles from './Paddles.vue'
   }
   100% {
     height: 5vw; width: 3vw;
-    left: 32vw;
+    left: 33vw;
     border-radius: 25px 50px 50px 25px;
   }
 }
@@ -197,17 +202,17 @@ import Paddles from './Paddles.vue'
   }
   10%, 30%, 50%, 64%, 78%, 86%, 92%, 96%, 98%, 99% 
   {
-    left: 60vw;  
+    left: 61vw;  
     animation-timing-function: ease-in;
   }
   20%, 40%, 57%, 71%, 82%, 90%, 94%, 97%, 98.5% 
   {
-    left: 32vw;   
+    left: 33vw;   
     animation-timing-function: ease-in;
   }
   100% 
   {
-    left: 32vw;   
+    left: 33vw;   
     animation-timing-function: ease-in;
     transform: rotate(360deg);
   }
@@ -215,13 +220,13 @@ import Paddles from './Paddles.vue'
 @keyframes speeding2 {
   10%, 30%, 50%, 70%, 90% 
   {
-    left: 60vw;  
+    left: 61vw;  
     animation-timing-function: ease-out;
   }
   20%, 40%, 60%, 80%, 100% 
   {
     box-shadow: 0 0 0.3em 0.3em rgb(var(--v-theme-colorTwo));
-    left: 32vw;   
+    left: 33vw;   
     animation-timing-function: ease-out;
     transform: rotate(360deg);
   }
@@ -229,21 +234,27 @@ import Paddles from './Paddles.vue'
 @keyframes fadeOut {
   15% {
     opacity: 0.8;
+    box-shadow: 0 0 2px 2px rgb(var(--v-theme-colorTwo));
   }
   30% {
     opacity: 0.7;
+    box-shadow: 0 0 5px 5px rgb(var(--v-theme-colorTwo));
   }
   45% {
     opacity: 0.5;
+    box-shadow: 0 0 10px 10px rgb(var(--v-theme-colorTwo));
   }
   60% {
     opacity: 0.4;
+    box-shadow: 0 0 15px 15px rgb(var(--v-theme-colorTwo));
   }
   75% {
     opacity: 0.2;
+    box-shadow: 0 0 20px 20px rgb(var(--v-theme-colorTwo));
   }
   90% {
     opacity: 0.1;
+    box-shadow: 0 0 25px 25px rgb(var(--v-theme-colorTwo));
   }
   100% {
     opacity: 0;

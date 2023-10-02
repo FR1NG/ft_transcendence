@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import axios from 'axios';
-  import CustomCard from '@/components/CustomCard.vue';
   import { reactive, ref } from 'vue'
   import { storeToRefs } from 'pinia'
   import { useRoute } from 'vue-router'
@@ -66,22 +65,11 @@ const callback = async (response: any) => {
 
 <template>
   <div class="loginWrapper">
-    <CustomCard class="card" :loading="false">
-      <v-container>
-        <form v-if="!attemptinLoginWithIntra">
-          <v-text-field variant="outlined" v-model="state.name" label="username" required></v-text-field>
-          <v-text-field variant="outlined" v-model="state.email" label="password" type="password" required></v-text-field>
-          <v-card-actions>
-            <v-btn variant="outlined" color="colorTwo">Login</v-btn>
-          </v-card-actions>
-          <v-divider thinkness="50" color="white" class="my-4"></v-divider>
-        </form>
-        <v-btn block variant="outlined" color="colorTwo" :loading="attemptinLoginWithIntra"
-          :disabled="attemptinLoginWithIntra" :href="intra_url">
-          login with intra
-        </v-btn>
-      </v-container>
-    </CustomCard>
+    <img class="logo42" src="/images/42logo.png" alt="42 logo">
+    <v-btn variant="outlined" color="colorTwo" width="250" :loading="attemptinLoginWithIntra"
+      :disabled="attemptinLoginWithIntra" :href="intra_url">
+      login with 42 intra
+    </v-btn>
   </div >
 </template>
 
@@ -93,25 +81,13 @@ const callback = async (response: any) => {
   height: 100%;
   background-color: rgb(var(--v-theme-colorOne));
   display: flex;
-  justify-content: center;
-  .card {
-    color: rgb(var(--v-theme-colorTwo));
-    width: 80%;
-    max-height: 350px;
+  flex-direction: column;
+  align-items: center;
+  padding: 5rem;
+  .logo42 {
+    width: 250px;
   }
-.v-overlay--active {
-    backdrop-filter: blur(2px);
-    background: rgba(var(--v-theme-colorTwo),0.3);
-}
-}
-.snack {
-  animation: fade-at-leave 0.8s linear forwards 3200ms;
-}
 
-@keyframes fade-at-leave {
-  100% {
-    opacity: 0;
   }
-}
 </style>
 

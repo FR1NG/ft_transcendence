@@ -56,7 +56,7 @@ const update = async () => {
   try {
     const response = await userStore.updateProfile({ username, email })
     updating.value = false;
-    pushNotify({status:'error', title:'error', text:response.message || 'updated'})
+    pushNotify({status:'success', title:'Action completed', text:response.message || 'updated'})
   } catch (error: any) {
     // assignin valiation errors to errors object
     pushNotify({status:'error', title:'error', text:error.data.message})

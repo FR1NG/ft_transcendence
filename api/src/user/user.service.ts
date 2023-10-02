@@ -148,9 +148,12 @@ export class UserService {
     return profile;
   }
 
-  async updateAvatar(user: AuthenticatedUser, fileName: string): Promise<any> {
-    const path = `${this.config.get('CDN_URL')}/users/${fileName}`;
-    const result = await this.prisma.users.update({
+  async updateAvatar(user: AuthenticatedUser, fileName: string, append = true): Promise<any> {
+    let path = fileName;
+    if(append)
+       path = `${this.config.get('CDN_URL')}/users/${fileName}`;
+
+    await this.prisma.users.update({
       where: {
         id: user.sub,
       },
