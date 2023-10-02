@@ -16,7 +16,7 @@ import { Users } from '@prisma/client';
 type AuthSocket = Socket & { user: AuthenticatedUser};
 
 @WebSocketGateway()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,
     private userService: UserService,
@@ -33,12 +33,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const payload = await this.getUser(client);
-      this.logger.verbose('client connected')
       if (payload) {
+        this.logger.verbose('client connected')
         client['user'] = payload;
         if (payload.sub) {
           // setting the user status to online
-          this.userService.setOnline(payload.sub, true);
+          this.logger.verbose('setting user online')
+          await this.userService.setOnline(payload.sub, true);
+          this.logger.verbose('user is now online')
           // getting all rooms for the authenticated user
           const rooms = await this.roomService.getUserRooms(payload);
           // joining the socket of the user rooms
@@ -48,6 +50,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
         // adding the user of the connected user map
         this.clients.set(payload.sub, client);
+      } else {
+        this.logger.verbose('disconnecting client');
+        client.disconnect();
       }
     } catch(error) {
       this.logger.error('exception thrown on handle disconnection')
@@ -92,13 +97,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   @SubscribeMessage('login')
   @UseGuards(WsAuthGuard)
   async handleUserLogin(client: AuthSocket) {
-    this.clients.set(client.user.sub, client);
-    await this.userService.setOnline(client.user.sub, true);
+    console.log('------------------------------')
+    // this.logger.verbose('login event emited')
+    // this.clients.set(client.user.sub, client);
+    // await this.userService.setOnline(client.user.sub, true);
   }
 
   @SubscribeMessage('logout')
   @UseGuards(WsAuthGuard)
   async handleUserLogout(client: AuthSocket) {
+    this.logger.log('logout event emited')
     this.clients.delete(client.user.sub);
     await this.userService.setOnline(client.user.sub, false);
   }
