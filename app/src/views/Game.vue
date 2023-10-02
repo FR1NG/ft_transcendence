@@ -2,8 +2,18 @@
   <game-result v-if="gameResult.length !== 0"></game-result>
   <div  v-else class="container">
     <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div>
+    <div v-if="gameState" class="avatar-section">
+      <div v-if="gameState.players[0].id === me.id">
+        <img :src="me.avatar" alt="My Avatar">
+        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[1].id }}</span>
+      </div>
+      <div v-else>
+        <img :src="me.avatar" alt="My Avatar">
+        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[0].id }}</span>
+      </div>
+    </div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
-    <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
+    <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down (You're left).</p>
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
   </div>
 </template>
@@ -37,7 +47,8 @@ export default {
     onBeforeRouteLeave(() => {
       gameStore.reset();
     })
-    
+
+    const gameState = ref<GameState | null>(null);
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
@@ -55,6 +66,11 @@ export default {
     const currentTheme = computed(() => gameStore.currentTheme);
 
     let loadedImages: { [key: string]: HTMLImageElement } = {};
+
+    // Listening for game state updates
+        gameSocket.value?.on('state', (newState: GameState) => {
+          gameState.value = newState;
+        });
 
     gameSocket.value?.emit('request-info');
 
@@ -222,17 +238,17 @@ export default {
 
     // Display the score on the canvas
     const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number, mirrored: boolean) => {
-    ctx.font = '35px Arial';
-    ctx.fillStyle = currentTheme.value.scoreColor;
+      ctx.font = '35px Arial';
+      ctx.fillStyle = currentTheme.value.scoreColor;
 
-    if (mirrored) {
-        ctx.fillText(scoreRight.toString(), canvasWidth / 4, 50);
-        ctx.fillText(scoreLeft.toString(), (3 * canvasWidth) / 4, 50);
-    } else {
-        ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
-        ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
-    }
-  };
+      if (mirrored) {
+          ctx.fillText(scoreRight.toString(), canvasWidth / 4, 50);
+          ctx.fillText(scoreLeft.toString(), (3 * canvasWidth) / 4, 50);
+      } else {
+          ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
+          ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
+      }
+    };
 
     // Render the current game state onto the canvas
     const renderGameState = (gameState: GameState) => {
@@ -360,6 +376,8 @@ export default {
       waitingForOpponent,
       gameStore,
       gameResult,
+      me,
+      gameState
     };
   }
 }
@@ -543,4 +561,47 @@ h1:hover {
     color: rgb(var(--v-theme-colorFoure));
   }
 }
+
+.avatar-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; // Spacing between this section and the canvas
+
+  img {
+    width: 50px;  // Adjust based on your preference
+    height: 50px; // Adjust based on your preference
+    border-radius: 50%;
+    border: 2px solid rgb(var(--v-theme-colorTwo));
+    margin: 0 20px;  // Space between the avatar and the username
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    font-size: 20px;  // Adjust based on your preference
+    color: rgb(var(--v-theme-colorTwo));
+    border: 1px solid rgb(var(--v-theme-colorTwo));
+    padding: 10px 20px;  // Space inside the border
+    border-radius: 15px;
+    
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgb(var(--v-theme-colorTwo));
+      margin: 0 10px;
+    }
+  }
+
+  .vs-text {
+    margin: 0 15px;  // Space around the "VS" text
+    color: rgb(var(--v-theme-colorThree));
+    font-family: 'Public Pixel', sans-serif;
+    font-size: 24px;
+    text-shadow: 2px 2px 4px rgb(var(--v-theme-colorThree));
+  }
+}
+
+
 </style>
