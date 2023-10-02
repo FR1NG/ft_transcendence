@@ -410,6 +410,9 @@ export class GameService {
         ],
         status: type
       },
+      orderBy: {
+      created_at: 'desc'
+      },
       include: {
         host: true,
         guest: true

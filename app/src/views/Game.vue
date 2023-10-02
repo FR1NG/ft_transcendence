@@ -40,7 +40,7 @@ export default {
     const gameStore = useGameStore();
     const socketStore = useSocketStore();
     const { gameSocket } = storeToRefs(socketStore);
-    const { gameResult } = storeToRefs(gameStore);
+    const { gameResult, rematch } = storeToRefs(gameStore);
     const authStore = useAuthStore();
     const { me } = storeToRefs(authStore);
     const opponent = ref<Opponent>();
@@ -49,7 +49,9 @@ export default {
 
     // clealing store before route leave
     onBeforeRouteLeave(() => {
+      console.log('route leaved')
       gameStore.reset();
+      gameSocket.value?.emit('game-leave');
     })
 
     const gameState = ref<GameState | null>(null);
@@ -93,10 +95,10 @@ export default {
       waitingForOpponent.value = false;
     });
 
-    gameSocket.value?.on('announceWinner', function(winnerId) {
-      gameOver.value = true;
-      winner.value = winnerId;
-    });
+    // gameSocket.value?.on('announceWinner', function(winnerId) {
+    //   gameOver.value = true;
+    //   winner.value = winnerId;
+    // });
 
     gameSocket.value?.on('hideStartButton', () => {
       showStartButton.value = false;
