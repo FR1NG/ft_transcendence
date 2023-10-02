@@ -114,8 +114,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client2.game = game;
     client1.socket.join(game.id);
     client2.socket.join(game.id);
-    client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
-    client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+    const client1Opponent = await this.gameService.getOpponent(player2);
+    const client2Opponent = await this.gameService.getOpponent(player1);
+    client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent});
+    client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent:  client2Opponent});
     this.logger.verbose(`game created with id ${game.id}`)
     return game;
 }
@@ -172,12 +174,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     delete this.clients.get(game.guestId)?.game;
   }
 
-  async handleDisconnect(client: Socket) {
-    try{
+  private async endGame(client: Socket) {
       const user = await this.getUser(client)
       if(!user)
         throw new WsException('unauthorized');
       const userId = user.sub;
+      // remove from invitations
+      const key = [...this.invitatios.entries()]
+        .filter(({ 1: v }) => v[0] === user.sub || v[1] === user.sub)
+        .map(([k]) => k).forEach((id: string) => {
+        this.invitatios.delete(id)
+    });
+      // this.invitatios.values().
       this.removeUserFromQueues(userId);
       const game = await this.gameService.getMyGame(user, 'STARTED');
       if(!game)
@@ -185,11 +193,17 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const state = this.gameService.getCurrentState(game.id);
       if(state)
         state.gameOver = true
-      this.server.to(game.id).emit('opponentDisconnected');
+      this.server.to(game.id).emit('no-rematch');
       this.broadcastGameState(game.id);
-      const opponentId = game.guestId === user.sub ? game.guestId : game.hostId;
+      const opponentId = game.guestId === user.sub ? game.hostId : game.guestId;
       if(state)
         this.gameService.finishGame(game.id, opponentId);
+
+  }
+
+  async handleDisconnect(client: Socket) {
+    try{
+      await this.endGame(client);
     } catch {
       this.logger.error('exception thrown on handle disconnection')
     }
@@ -312,6 +326,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     await this.handleInvitation({user, invitationId: restartId});
   }
 
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('game-leave')
+  async gameLeave(client: AuthSocket) {
+    // TODO  clean game  data here
+    this.logger.verbose(client.user.username + ': player leaved the game')
+    await this.endGame(client)
+  }
+
   @OnEvent('game.invite')
   async handleInvitation(payload: InvitationPayload) {
     this.logger.verbose(`${payload.user.username} joined`);
@@ -329,10 +351,14 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         client2.game = game;
         client1.socket.join(game.id);
         client2.socket.join(game.id);
-        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
-        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+        const client1Opponent = await this.gameService.getOpponent(invit[1]);
+        const client2Opponent = await this.gameService.getOpponent(invit[0]);
+        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent });
+        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent: client2Opponent});
         this.broadcastGameState(game.id);
         this.logger.verbose(`game created with id ${game.id}`)
+        console.log(this.invitatios)
+        // this.invitatios.delete(payload.invitationId);
     } else {
       this.invitatios.set(payload.invitationId, [payload.user.sub]);
       this.logger.verbose('one wants to restart');

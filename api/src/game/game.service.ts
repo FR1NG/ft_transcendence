@@ -410,11 +410,28 @@ export class GameService {
         ],
         status: type
       },
+      orderBy: {
+      created_at: 'desc'
+      },
       include: {
         host: true,
         guest: true
       }
     });
     return game;
+  }
+
+  async getOpponent(id: string) {
+      const user = await this.prisma.users.findUnique({
+      where: {
+        id
+      },
+      select: {
+        id: true,
+        username: true,
+        avatar: true
+      }
+    });
+    return user;
   }
 }

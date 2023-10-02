@@ -14,6 +14,7 @@ export const useGameStore = defineStore('game', {
     selectedMode: 'NORMAL',
     themeSelected: false,
     modeSelected: false,
+    rematch: true,
     currentTheme: {
       backgroundColor: '#FFFFFF',
       paddleColor: '#FFFFFF',
@@ -67,10 +68,15 @@ export const useGameStore = defineStore('game', {
       this.modeSelected = true;
     },
     setResult(value: string) {
-      this.gameResult = value;
+      if(this.router.currentRoute.value.name === 'Game') {
+        console.log(value)
+        this.gameResult = value;
+      }
     },
     setRestartId(value: string) {
+      if(this.router.currentRoute.value.name === 'Game') {
       this.restartId = value;
+      }
     },
     restartGame() {
       console.log('restart game called from store');
@@ -81,8 +87,12 @@ export const useGameStore = defineStore('game', {
       this.gameResult = '';
     },
     reset() {
+      console.log('reset called')
       this.gameResult =  '';
       this.restartId =  '';
+      this.themeSelected = false;
+      this.modeSelected = false;
+      this.rematch = true;
     }
   }// end of actions
 })// end of store
