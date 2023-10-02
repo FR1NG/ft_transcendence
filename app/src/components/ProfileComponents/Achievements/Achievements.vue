@@ -38,7 +38,7 @@ const isLocked = (name: string) => {
     justify-content: center;
     gap: 2rem 5rem;
     flex-wrap: wrap;
-    padding: 2rem;
+    padding: 1rem;
 }
 
 
