@@ -1,9 +1,20 @@
 <template>
   <game-result v-if="gameResult.length !== 0"></game-result>
   <div  v-else class="container">
+    <!-- <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div> -->
     <GameWaiting v-if="waitingForOpponent"/>
+    <div v-if="gameState" class="avatar-section">
+      <div v-if="gameState.players[0].id === me.id">
+        <img :src="me.avatar" alt="My Avatar">
+        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[1].id }}</span>
+      </div>
+      <div v-else>
+        <img :src="me.avatar" alt="My Avatar">
+        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[0].id }}</span>
+      </div>
+    </div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
-    <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down.</p>
+    <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down (You're left).</p>
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
   </div>
 </template>
@@ -18,6 +29,7 @@ import { bootstrapGameSocket } from '@/composables/game.socket';
 import { useSocketStore } from '@/store/socket';
 import GameResult from './GameResult.vue'
 import { onBeforeRouteLeave } from 'vue-router';
+import { useAuthStore } from '@/store/auth';
 import GameWaiting from '@/components/GameWaiting.vue'
 
 export default {
@@ -28,7 +40,8 @@ export default {
     const socketStore = useSocketStore();
     const { gameSocket } = storeToRefs(socketStore);
     const { gameResult } = storeToRefs(gameStore);
-
+    const authStore = useAuthStore();
+    const { me } = storeToRefs(authStore);
     // initializign game socket
     bootstrapGameSocket();
 
@@ -37,6 +50,7 @@ export default {
       gameStore.reset();
     })
 
+    const gameState = ref<GameState | null>(null);
     const ASPECT_RATIO = 16 / 9;
     const canvasWidthPercentage = 0.8;  // 80% of window's width
     const canvasWidth = ref(window.innerWidth * canvasWidthPercentage);
@@ -53,7 +67,10 @@ export default {
     const gameId = ref(null);
     const currentTheme = computed(() => gameStore.currentTheme);
 
-    let loadedImages: { [key: string]: HTMLImageElement } = {};
+    // Listening for game state updates
+        gameSocket.value?.on('state', (newState: GameState) => {
+          gameState.value = newState;
+        });
 
     gameSocket.value?.emit('request-info');
 
@@ -64,7 +81,7 @@ export default {
       playerId.value = data.role;
       gameId.value = data.gameId;
     });
-
+  
     // Listen for gameStarted event from the server
     gameSocket.value?.on('gameStarted', () => {
       console.log('Received gameStarted event.');
@@ -159,6 +176,8 @@ export default {
             !isNaN(gameState.players[1].paddleYRatio);
     };
 
+    let loadedImages: { [key: string]: HTMLImageElement } = {};
+
     // Draws a dotted line in the middle of the canvas
     const drawCenterLine = (ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
       const segmentLength = 10;
@@ -220,11 +239,17 @@ export default {
     };
 
     // Display the score on the canvas
-    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number) => {
+    const drawScore = (ctx: CanvasRenderingContext2D, scoreLeft: number, scoreRight: number, canvasWidth: number, mirrored: boolean) => {
       ctx.font = '35px Arial';
       ctx.fillStyle = currentTheme.value.scoreColor;
-      ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
-      ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
+
+      if (mirrored) {
+          ctx.fillText(scoreRight.toString(), canvasWidth / 4, 50);
+          ctx.fillText(scoreLeft.toString(), (3 * canvasWidth) / 4, 50);
+      } else {
+          ctx.fillText(scoreLeft.toString(), canvasWidth / 4, 50);
+          ctx.fillText(scoreRight.toString(), (3 * canvasWidth) / 4, 50);
+      }
     };
 
     // Render the current game state onto the canvas
@@ -248,31 +273,42 @@ export default {
         ctx.fillStyle = currentTheme.value.backgroundColor;
         ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
       }
-      const leftPlayer = gameState.players[0];
-      const rightPlayer = gameState.players[1];
+      let leftPlayer, rightPlayer;
+      const mirrored = me.value.id === gameState.players[1].id;
+      if (mirrored) {
+        leftPlayer = gameState.players[1];
+        rightPlayer = gameState.players[0];
+      } else {
+        leftPlayer = gameState.players[0];
+        rightPlayer = gameState.players[1];
+      }
 
       drawCenterLine(ctx, canvasWidth.value, canvasHeight.value);
+      const LpaddleXRatio = mirrored ? 1 - leftPlayer.xRatio - leftPlayer.paddleWidthRatio : leftPlayer.xRatio;
       drawPaddle(
         ctx,
-        leftPlayer.xRatio,
+        // leftPlayer.xRatio,
+        LpaddleXRatio,
         leftPlayer.paddleYRatio,
         leftPlayer.paddleWidthRatio,
         leftPlayer.paddleHeightRatio
       );
+      const RpaddleXRatio = mirrored ? 1 - rightPlayer.xRatio - rightPlayer.paddleWidthRatio : rightPlayer.xRatio;
       drawPaddle(
         ctx,
-        rightPlayer.xRatio,
+        RpaddleXRatio,
         rightPlayer.paddleYRatio,
         rightPlayer.paddleWidthRatio,
         rightPlayer.paddleHeightRatio
       );
+      const ballXRatio = mirrored ? 1 - gameState.ball.xRatio : gameState.ball.xRatio;
       drawBall(
         ctx,
-        gameState.ball.xRatio,
+        ballXRatio,
         gameState.ball.yRatio,
         gameState.ball.radiusRatio
       );
-      drawScore(ctx, leftPlayer.score, rightPlayer.score, canvasWidth.value);
+      drawScore(ctx, mirrored ? rightPlayer.score : leftPlayer.score, mirrored ? leftPlayer.score : rightPlayer.score, canvasWidth.value, mirrored);
     };
 
     // Watch for canvas dimension changes and notify the server
@@ -286,6 +322,25 @@ export default {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(resizeHandler, 100);
     };
+    
+    const preloadImages = () => {
+      const theme = currentTheme.value;
+      // Preload background image
+      if (theme.backgroundImage && !loadedImages[theme.backgroundImage]) {
+        const bgImg = new Image();
+        bgImg.src = theme.backgroundImage;
+        bgImg.onload = () => {
+            loadedImages[theme.backgroundImage] = bgImg;
+        };
+      }
+      if (theme.ballImage && !loadedImages[theme.ballImage]) {
+        const ballImg = new Image();
+        ballImg.src = theme.ballImage;
+        ballImg.onload = () => {
+            loadedImages[theme.ballImage] = ballImg;
+        };
+      }
+    }
 
     // Initialization: set up listeners and join the game
     const initializeGameListeners = () => {
@@ -305,7 +360,10 @@ export default {
       window.removeEventListener('keyup', handleKeyUpEvent);
     }
 
-    onMounted(initializeGameListeners);
+    onMounted(() => {
+        preloadImages();
+        initializeGameListeners();
+    });
     onUnmounted(cleanupGameListeners);
 
     let connectionAttempts = 0;
@@ -342,6 +400,8 @@ export default {
       waitingForOpponent,
       gameStore,
       gameResult,
+      me,
+      gameState
     };
   }
 }
@@ -512,4 +572,47 @@ h1:hover {
     color: rgb(var(--v-theme-colorFoure));
   }
 }
+
+.avatar-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px; // Spacing between this section and the canvas
+
+  img {
+    width: 50px;  // Adjust based on your preference
+    height: 50px; // Adjust based on your preference
+    border-radius: 50%;
+    border: 2px solid rgb(var(--v-theme-colorTwo));
+    margin: 0 20px;  // Space between the avatar and the username
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    font-size: 20px;  // Adjust based on your preference
+    color: rgb(var(--v-theme-colorTwo));
+    border: 1px solid rgb(var(--v-theme-colorTwo));
+    padding: 10px 20px;  // Space inside the border
+    border-radius: 15px;
+    
+    &::before, &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgb(var(--v-theme-colorTwo));
+      margin: 0 10px;
+    }
+  }
+
+  .vs-text {
+    margin: 0 15px;  // Space around the "VS" text
+    color: rgb(var(--v-theme-colorThree));
+    font-family: 'Public Pixel', sans-serif;
+    font-size: 24px;
+    text-shadow: 2px 2px 4px rgb(var(--v-theme-colorThree));
+  }
+}
+
+
 </style>
