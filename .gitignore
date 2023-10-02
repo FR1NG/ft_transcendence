@@ -1,4 +1,5 @@
 api/node_modules
+api/upload/users/*
 api/.env
 app/node_modules
 app/.env
