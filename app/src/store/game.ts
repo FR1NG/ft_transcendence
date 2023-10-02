@@ -83,6 +83,8 @@ export const useGameStore = defineStore('game', {
     reset() {
       this.gameResult =  '';
       this.restartId =  '';
+      this.themeSelected = false;
+      this.modeSelected = false;
     }
   }// end of actions
 })// end of store
