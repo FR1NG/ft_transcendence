@@ -114,8 +114,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     client2.game = game;
     client1.socket.join(game.id);
     client2.socket.join(game.id);
-    client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
-    client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+    const client1Opponent = await this.gameService.getOpponent(player2);
+    const client2Opponent = await this.gameService.getOpponent(player1);
+    client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent});
+    client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent:  client2Opponent});
     this.logger.verbose(`game created with id ${game.id}`)
     return game;
 }
@@ -329,8 +331,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         client2.game = game;
         client1.socket.join(game.id);
         client2.socket.join(game.id);
-        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id });
-        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id });
+        const client1Opponent = await this.gameService.getOpponent(invit[1]);
+        const client2Opponent = await this.gameService.getOpponent(invit[0]);
+        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent });
+        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent: client2Opponent});
         this.broadcastGameState(game.id);
         this.logger.verbose(`game created with id ${game.id}`)
     } else {

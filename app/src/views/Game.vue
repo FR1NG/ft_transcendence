@@ -4,15 +4,10 @@
     <!-- <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div> -->
     <GameWaiting v-if="waitingForOpponent"/>
     <div v-if="gameState" class="avatar-section">
-      <div v-if="gameState.players[0].id === me.id">
         <img :src="me.avatar" alt="My Avatar">
-        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[1].id }}</span>
+        <span>{{ me.username }} (You)<span class="vs-text">VS</span> {{opponent?.username}}</span>
+      <img :src="opponent?.avatar" alt="My Avatar">
       </div>
-      <div v-else>
-        <img :src="me.avatar" alt="My Avatar">
-        <span>{{ me.username }} <span class="vs-text">VS</span> {{ gameState.players[0].id }}</span>
-      </div>
-    </div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
     <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down (You're left).</p>
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
@@ -32,6 +27,12 @@ import { onBeforeRouteLeave } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import GameWaiting from '@/components/GameWaiting.vue'
 
+type Opponent = {
+  id: string
+  username: string
+  avatar: string
+}
+
 export default {
   name: 'Game',
   components: { GameResult, GameWaiting },
@@ -42,6 +43,7 @@ export default {
     const { gameResult } = storeToRefs(gameStore);
     const authStore = useAuthStore();
     const { me } = storeToRefs(authStore);
+    const opponent = ref<Opponent>();
     // initializign game socket
     bootstrapGameSocket();
 
@@ -80,8 +82,9 @@ export default {
       showStartButton.value = true;
       playerId.value = data.role;
       gameId.value = data.gameId;
+      opponent.value = data.opponent
     });
-  
+
     // Listen for gameStarted event from the server
     gameSocket.value?.on('gameStarted', () => {
       console.log('Received gameStarted event.');
@@ -211,7 +214,7 @@ export default {
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
         }
-      } else 
+      } else
       {
         ctx.shadowColor = '#FFFFFF';
         ctx.shadowBlur = 20;
@@ -268,7 +271,7 @@ export default {
         } else {
           ctx.drawImage(loadedImages[currentTheme.value.backgroundImage], 0, 0, canvasWidth.value, canvasHeight.value);
         }
-      } else 
+      } else
       {
         ctx.fillStyle = currentTheme.value.backgroundColor;
         ctx.fillRect(0, 0, canvasWidth.value, canvasHeight.value);
@@ -322,7 +325,7 @@ export default {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(resizeHandler, 100);
     };
-    
+
     const preloadImages = () => {
       const theme = currentTheme.value;
       // Preload background image
@@ -401,7 +404,8 @@ export default {
       gameStore,
       gameResult,
       me,
-      gameState
+      gameState,
+      opponent
     };
   }
 }
@@ -595,7 +599,7 @@ h1:hover {
     border: 1px solid rgb(var(--v-theme-colorTwo));
     padding: 10px 20px;  // Space inside the border
     border-radius: 15px;
-    
+
     &::before, &::after {
       content: '';
       flex: 1;
