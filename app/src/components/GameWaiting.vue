@@ -99,6 +99,28 @@
         transform: translateZ(10px);
     }
 }
+.ceil::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: scale(.5);
+    border-radius: 50%;
+    background-image: radial-gradient( black, rgb(var(--v-theme-colorTwo)));
+    animation: ballShadow 2s linear infinite;
+}
+@keyframes ballShadow {
+    0%, 30%, 70%, 100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.3;
+        transform: scale(0.5);
+    }
+}
 
 .top {
     transform-origin: top;
@@ -151,7 +173,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: radial-gradient(circle at top, rgb(var(--v-theme-colorTwo)), rgb(var(--v-theme-colorThree)));
+    background: radial-gradient(circle at top, rgb(var(--v-theme-colorTwo)), rgb(var(--v-theme-colorOne)));
     animation: bounce 1s linear infinite alternate;
 }
 
