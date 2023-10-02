@@ -12,7 +12,7 @@ const init = (): boolean => {
   const { domain, api_url } = storeToRefs(useAppStore());
   return socketStore.init(`${domain.value}`, {
     auth: {
-      token: sessionStorage.getItem('access_token'),
+      token: useAuthStore().getToken(),
     }
   });
 }
@@ -43,7 +43,6 @@ const listen = () => {
 
   }, (error: any) => {
       pushNotify({status:'error', title:'error', text:error.toString()})
-      console.log(error)
   });
 }
 
