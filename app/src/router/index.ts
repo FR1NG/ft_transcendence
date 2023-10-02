@@ -1,8 +1,9 @@
 // Composables
+import { useAuthStore } from '@/store/auth';
 import { createRouter, createWebHistory } from 'vue-router'
 
 const hasToken = () => {
-  if(sessionStorage.getItem('access_token'))
+  if(useAuthStore().getToken())
     return true
   return false;
 }

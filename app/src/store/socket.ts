@@ -26,11 +26,7 @@ export const useSocketStore = defineStore('socket', {
   // actions
   actions: {
     init(domain: string, config: {}) {
-      useRouter().beforeEach((to) => {
-        if(to.meta.auth)
-          useAuthStore().getMe();
-      });
-      if(!this.socket) {
+      if(!this.socket && useAuthStore().whoami()) {
         this.socket = io(domain, config);
         return true;
       }
@@ -90,7 +86,7 @@ export const useSocketStore = defineStore('socket', {
     sendMessage(content: string, recieverId: string, type: 'dm' | 'room', callback: ({}) => void): Message {
       if(!this.socket)
         return this.throwError();
-      this.setToken(sessionStorage.getItem('access_token') as string);
+      this.setToken(useAuthStore().getToken());
       const tmpId = Math.random().toString();
       const message: Message = {
         content,
