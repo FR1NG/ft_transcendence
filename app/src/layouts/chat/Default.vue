@@ -68,7 +68,7 @@ const handleLeaveRoom = () => {
 }
 
 const focus = () => {
-  chatStore.markRead(chatId);
+  chatStore.markeRead(chatId);
 }
 
 </script>

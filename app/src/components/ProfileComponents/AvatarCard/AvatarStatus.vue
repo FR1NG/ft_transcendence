@@ -17,7 +17,7 @@ defineProps<{ user: User, loading: Boolean, me: Me }>()
         <v-card width="100%" max-height="150px" class="ma-3 status-container" rounded="xl">
           <v-img height="100%" :src="user.avatar" cover>
           </v-img>
-            <OnOffStatus v-if="user" class="status" :isOnline="user.isOnline" :avatar="user.avatar" />
+            <OnOffStatus v-if="user && user.id !== me.id" class="status" :isOnline="user.isOnline" :avatar="user.avatar" />
         </v-card>
       </v-col>
       <v-col cols="6" sm="3">

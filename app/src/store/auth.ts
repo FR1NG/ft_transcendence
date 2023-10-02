@@ -1,10 +1,12 @@
-import { defineStore } from "pinia";
+import { defineStore, storeToRefs } from "pinia";
 import axios from '../plugins/axios'
 import { useUserStore } from './user'
 import { AxiosError, AxiosResponse } from "axios";
 import router from "@/router";
 import { pushNotify } from "@/composables/simpleNotify";
 import { meTypes } from "@/types/stateTypes/auth";
+import { useSocketStore } from "./socket";
+import { bootstrap } from "@/composables/socket";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -17,6 +19,12 @@ export const useAuthStore = defineStore('auth', {
     IntraUrl: (state) => state.SIntraUrl,
   },
   actions: {
+    async whoami() {
+      if(this.me.id)
+        return this.me;
+      await this.getMe();
+      return this.me;
+    },
     async getMe() {
       return new Promise(async (resolve, reject) => {
       try {
@@ -41,21 +49,34 @@ export const useAuthStore = defineStore('auth', {
             router.push({name: 'OtpVirify'})
           else {
             this.logged = true;
-            this.getMe();
+            await this.getMe();
             this.redirect();
+            this.setOnline(res.data?.access_token);
           }
         } catch (error: any) {
-          pushNotify({status:'error', title:'error', text:error.response.data.message})
+          pushNotify({status:'error', title:'error', text:error.response?.data?.message})
         }
       }
     },
+    setOnline(token: string) {
+      bootstrap();
+      const { socket } = storeToRefs(useSocketStore());
+      useSocketStore().setToken(token);
+      if(socket.value) {
+        socket.value.emit('login');
+      }
+    },
+    setOffline() {
+      const { socket } = storeToRefs(useSocketStore());
+      if(socket.value)
+        socket.value.emit('logout')
+    },
     setToken(token: string) {
       if (token) {
-        sessionStorage.setItem('access_token', token);
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+        localStorage.setItem('access_token', token);
       } else {
         this.logged = false;
-        sessionStorage.removeItem('access_token');
+        localStorage.removeItem('access_token');
       }
     },
     getProfile() {
@@ -66,21 +87,22 @@ export const useAuthStore = defineStore('auth', {
       this.router.push({ name: 'Home' })
     },
     logout() {
-      sessionStorage.removeItem('access_token');
-      this.logged = false;
+      this.setToken('') ;
+      this.setOffline();
+      this.reset();
       this.router.push({name: 'Login'})
     },
     checkAuth() {
-      if (sessionStorage.getItem('access_token')) {
+      if (this.getToken()) {
         this.logged = true;
         return true;
       }
       return false;
     },
-    getToken() {
-      const token = sessionStorage.getItem('access_token');
-      return token;
+    getToken(): string {
+      return localStorage.getItem('access_token') as string;
     },
+
     async getQr() {
         return new Promise(async (resolve, reject) => {
           try {

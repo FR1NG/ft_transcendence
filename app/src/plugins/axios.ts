@@ -12,10 +12,8 @@ Trexios.interceptors.response.use(response => {
     return response;
 }, error => {
     if (error.response.status === 401) {
-      if(sessionStorage.getItem('access_token')){
+      if(useAuthStore().getToken()){
         useAuthStore().logout();
-
-        // window.location.reload();
       }
     }
     return Promise.reject(error);
@@ -23,7 +21,7 @@ Trexios.interceptors.response.use(response => {
 
 // inject Authorization header in every request
 Trexios.interceptors.request.use(function(config) {
-  const token = sessionStorage.getItem('access_token');
+  const token = useAuthStore().getToken();
   if (token)
     config.headers.Authorization = `Bearer ${token}`;
   return config;

@@ -11,9 +11,12 @@ import { RoomService } from 'src/room/room.service';
 import { Server, Socket } from 'socket.io'
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuthenticatedUser } from 'src/types';
+import { Users } from '@prisma/client';
+
+type AuthSocket = Socket & { user: AuthenticatedUser};
 
 @WebSocketGateway()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,
     private userService: UserService,
@@ -30,12 +33,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const payload = await this.getUser(client);
-      this.logger.verbose('client connected')
       if (payload) {
+        this.logger.verbose('client connected')
         client['user'] = payload;
         if (payload.sub) {
           // setting the user status to online
-          this.userService.setOnline(payload.sub, true);
+          this.logger.verbose('setting user online')
+          await this.userService.setOnline(payload.sub, true);
+          this.logger.verbose('user is now online')
           // getting all rooms for the authenticated user
           const rooms = await this.roomService.getUserRooms(payload);
           // joining the socket of the user rooms
@@ -45,6 +50,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         }
         // adding the user of the connected user map
         this.clients.set(payload.sub, client);
+      } else {
+        this.logger.verbose('disconnecting client');
+        client.disconnect();
       }
     } catch(error) {
       this.logger.error('exception thrown on handle disconnection')
@@ -61,10 +69,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     } catch(erro) {
         this.logger.error('exception thrown on handle disconnection')
     }
-  }
-
-  afterInit(server: any) {
-      
   }
 
   @SubscribeMessage('message')
@@ -90,6 +94,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     throw new WsException('invalid message payload');
   }
 
+  @SubscribeMessage('login')
+  @UseGuards(WsAuthGuard)
+  async handleUserLogin(client: AuthSocket) {
+    console.log('------------------------------')
+    // this.logger.verbose('login event emited')
+    // this.clients.set(client.user.sub, client);
+    // await this.userService.setOnline(client.user.sub, true);
+  }
+
+  @SubscribeMessage('logout')
+  @UseGuards(WsAuthGuard)
+  async handleUserLogout(client: AuthSocket) {
+    this.logger.log('logout event emited')
+    this.clients.delete(client.user.sub);
+    await this.userService.setOnline(client.user.sub, false);
+  }
+
   private async checkRoomAbility(user: AuthenticatedUser, payload: MessagePaylod) {
     const isAble = await this.roomService.isUserAbleToSend(user, payload);
     if(!isAble)
@@ -108,8 +129,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
           secret: this.config.get('APP_KEY')
         }
       );
-      console.log('from get user')
-      console.log(payload);
       return payload;
     } catch (error) {
       return null;
@@ -119,7 +138,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
 
 
   // listing to event emitter
-
   @OnEvent('room.join')
   hadleRoomJoin(payload) {
     const client = this.clients.get(payload.userId);

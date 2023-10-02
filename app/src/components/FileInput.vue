@@ -9,7 +9,6 @@ import { ref } from 'vue';
 
 
   const handleOnChange = (e:any) => {
-  // console.log(e.target.files[0])
   selectedFile.value = e.target.files[0];
     emit('update:modelValue', selectedFile.value)
     emit('select', true);

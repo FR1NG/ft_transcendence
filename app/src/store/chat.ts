@@ -13,7 +13,8 @@ export const useChatStore = defineStore('chat', {
     activeConversation: [] as Message[],
     selectedUser: {} as  User,
     selectedRoom: {} as UserRoom,
-    users: [] as UserConversation[]
+    users: [] as UserConversation[],
+    unreadedCount: 0
   }),
   getters: {
 
@@ -67,6 +68,7 @@ export const useChatStore = defineStore('chat', {
       if(conversation?.messages) {
         conversation.messages.push(message);
         if(type === 'dm' && !message.loading) {
+          this.unreadedCount += 1;
           const indexOfUser = this.users.findIndex((el: any) => el.user.id === id);
           this.users[indexOfUser]?.unseen.push(message.id);
         }
@@ -115,9 +117,10 @@ export const useChatStore = defineStore('chat', {
       this.activeConversation = [];
     },
 
-    async markRead(id: string) {
+    async markeRead(id: string) {
       const index = this.users.findIndex((el: any) => el.user.id === id);
-      if(this.users.at(index)?.unseen.length === 0)
+      const unseen = this.users.at(index)?.unseen.length || 0;
+      if(!unseen)
         return;
 
       return new Promise(async (resolve, reject) => {
@@ -127,6 +130,7 @@ export const useChatStore = defineStore('chat', {
           });
           const { data } = response;
           this.users[index].unseen = [];
+          this.unreadedCount -= unseen;
           resolve(data);
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
@@ -153,6 +157,19 @@ export const useChatStore = defineStore('chat', {
       this.selectedUser = {} as User;
       this.selectedRoom = {} as UserRoom;
       this.users = [] as UserConversation[];
+    },
+    getUnreadedMessagesCount() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.get('/chat/unreadedCount');
+          console.log(response.data);
+          this.unreadedCount = response.data;
+          console.log(this.unreadedCount);
+          resolve(response.data)
+        } catch(error: any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
+        }
+      })
     }
   },// end of actions
 

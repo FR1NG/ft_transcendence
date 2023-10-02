@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
@@ -8,13 +8,17 @@ import { AuthenticatedUser } from 'src/types';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode'
 import { Users } from '@prisma/client';
-import { ForbiddenError } from '@casl/ability';
 
 @Injectable()
 export class AuthService {
   intra_base_url: string = "https://api.intra.42.fr"
 
-  constructor(private config: ConfigService, private userService: UserService, private jwtService: JwtService, private prisma: PrismaService) {}
+  constructor(
+    private config: ConfigService,
+    private userService: UserService,
+    private jwtService: JwtService,
+    private prisma: PrismaService,
+  ) {}
 
 
   async login(code: string): Promise<any> {

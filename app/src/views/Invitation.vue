@@ -43,7 +43,6 @@ const getData = (invitId: string) => {
   loading.value = true;
   invitationStore.getInvitation(invitId).then((result) => {
     loading.value = false;
-    console.log(result)
   }).catch((error:any) => {
     errorMessage.value = error?.data?.message
     loading.value = false;

@@ -455,6 +455,36 @@ export class ChatService {
     throw new InternalServerErrorException();
   }
 
+  async getUnreadedMessagesCount(user: AuthenticatedUser) {
+    const unreaded = await this.prisma.usersConversation.findFirst({
+      where: {
+        OR:[
+          {userOneId: user.sub},
+          {userTwoId: user.sub},
+        ]
+      },
+      select: {
+        conversation: {
+          select: {
+            messages: {
+              where: {
+                NOT: [
+                  {senderId: user.sub}
+                ],
+                seen: false
+              },
+              select: {
+                id: true,
+              }
+            }
+          }
+        }
+      }
+    });
+    return unreaded?.conversation?.messages?.length || 0;
+  }
+
+
 
   //class:END
 }

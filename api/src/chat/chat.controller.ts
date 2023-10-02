@@ -31,4 +31,10 @@ export class ChatController {
     return await this.chatService.markRead(user, id);
   }
 
+  @UseGuards(AuthGuard)
+  @Get('unreadedCount')
+  async unreadedCount(@User() user: AuthenticatedUser) {
+    return await this.chatService.getUnreadedMessagesCount(user);
+  }
+
 }

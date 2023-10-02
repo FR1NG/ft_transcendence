@@ -43,7 +43,6 @@ const callback = () => {
 
 const error = () => {
   loading.value = false;
-  console.log('error on confirmation component');
 }
 
 const confirm = () => {
