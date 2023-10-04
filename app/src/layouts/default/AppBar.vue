@@ -45,7 +45,7 @@ useRouter().beforeEach(async (to) => {
         </template>
 
     <v-spacer></v-spacer>
-    <Messages />
+    <Messages v-if="logged" />
     <NavNotification v-if="logged"/>
     <v-menu v-if="logged" :close-on-content-click="false" width="200" location="bottom left" offset="5">
       <template v-slot:activator="{props}">
