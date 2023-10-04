@@ -1,6 +1,7 @@
 import  Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
 import { notifyStatus } from 'simple-notify/dist/types'
+import '@/scss/simple-notify.scss'
 
 let myNotify: Notify
 
@@ -18,7 +19,8 @@ export function pushNotify(config = {status:'info' as notifyStatus, title:"info"
     gap: 20,
     distance: 20,
     type: 1,
-    position: 'right top'
+    position: 'right top',
+    customClass:'.notifications-container'
   })
 }
 

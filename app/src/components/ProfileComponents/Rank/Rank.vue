@@ -40,7 +40,7 @@ const handleClick = (username: string) => {
 
 .rankWrapper {
     position: relative;
-    padding-top: 6rem;
+    padding-top: 4rem;
     display: flex;
     justify-content: center;
     align-items: center;

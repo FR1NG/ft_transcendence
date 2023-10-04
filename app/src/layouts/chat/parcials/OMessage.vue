@@ -56,7 +56,7 @@ time.value = moment(props.message.created_at).fromNow()
 }
 
 .content {
-  color: rgb(var(--v-theme-colorFoure));
+  color: rgb(var(--v-theme-chatBubble));
   padding: 5px !important;
 }
 

@@ -15,17 +15,11 @@ const { theme } = storeToRefs(themeStore)
 
 const vTheme = useTheme();
 const localTheme = ref<string>(localStorage.getItem('theme') as string)
-const changeTheme = () => {
-    console.log(theme.value)
-      
-}
 
 watch(() => localTheme.value, (newValue) => {
-    console.log(newValue)
         vTheme.global.name.value = localTheme.value;
-    // if(newValue != localStorage.getItem('theme')) {
-    //     localStorage.setItem('theme', theme.value);
-    // }
+        window.localStorage.setItem('theme', localTheme.value);
+        console.log("from local sto", localStorage.getItem('theme'))
 })
 
 </script>
