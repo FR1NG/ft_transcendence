@@ -17,6 +17,10 @@ const virify = () => {
   });
 }
 
+const cancel = () => {
+  authStore.logout();
+}
+
 onMounted(() => {
   input.value?.focus();
 });
@@ -38,7 +42,7 @@ onMounted(() => {
                 Virify
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn type="submit">
+              <v-btn @click="cancel">
                 cancel
               </v-btn>
             </v-card-actions>
