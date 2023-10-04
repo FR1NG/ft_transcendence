@@ -6,7 +6,10 @@
 
 <template>
 <div class="wrapper">
-    <div class="pong">pong</div>
+    <div class="pongWrapper">
+        <div class="pong">pong</div>
+    </div>
+            
     <Ball/>
 </div>
 </template>
@@ -35,11 +38,10 @@
     content: '';
     position: absolute;
     background: rgb(var(--v-theme-colorTwo));
-    top: -20%;
-    bottom: 0;
+    top: 80%;
     width: 100%;
     height: 100%;
-    transform: perspective(800px) rotateX(80deg) scale(0.4, 0.35);
+    transform: perspective(800px) rotateX(70deg) scale(0.4, 0.35);
     filter: blur(1.5em);
     animation: appear 3s linear forwards 10s;
     opacity: 0;
