@@ -38,6 +38,7 @@ const positions:string[] = [
     perspective: 100em;
     display: flex;
     justify-content: center;
+    color: rgb(var(--v-theme-colorTwo));
 
     &:hover {
     cursor: pointer;
@@ -53,7 +54,7 @@ const positions:string[] = [
         position: absolute;
         top:20%;
         left: 4%;
-        background-image:  linear-gradient(rgb(var(--v-theme-colorOne)), rgb(var(--v-theme-colorThree)));
+        background:  linear-gradient(rgba(var(--v-theme-colorOne), 0.2) 10%, rgb(var(--v-theme-colorThree)));
         width: 90%;
         height: 50%;
         rotate: x 80deg;
@@ -63,7 +64,7 @@ const positions:string[] = [
         position: absolute;
         top: 49.4%;
         left: 2%;
-        background-image:  linear-gradient(rgb(var(--v-theme-colorThree)),rgb(var(--v-theme-colorOne)));
+        background:  linear-gradient(rgb(var(--v-theme-colorThree)) 70%,rgba(var(--v-theme-colorOne), 0.2));
         width: 94.2%;
         height: 35%;
     }
