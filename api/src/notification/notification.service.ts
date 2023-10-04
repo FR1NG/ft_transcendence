@@ -64,23 +64,29 @@ export class NotificationService {
       }
     });
 
-    unseen.forEach(async (el) => {
-      if(ids.includes(el.id)) {
-      const result = await this.prisma.notifications.update({
-        where: {
-          id: el.id,
-        },
-        data: {
-          seen: true
-        },
-        select: {
-          id: true
+    try {
+      unseen.forEach(async (el) => {
+        if(ids.includes(el.id)) {
+          if(el.id) {
+            const result = await this.prisma.notifications.update({
+              where: {
+                id: el.id,
+              },
+              data: {
+                seen: true
+              },
+              select: {
+                id: true
+              }
+            });
+            if(result)
+              updated.push(result.id);
+          }
         }
-      });
-      if(result)
-        updated.push(result.id);
-      }
-    })
+      })
+    } catch(error) {
+      console.log('server errro')
+    }
     return updated;
   }
 }

@@ -7,6 +7,7 @@ import { pushNotify } from "@/composables/simpleNotify";
 import { meTypes } from "@/types/stateTypes/auth";
 import { useSocketStore } from "./socket";
 import { bootstrap } from "@/composables/socket";
+import { useAppStore } from "./app";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -89,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.setToken('') ;
       this.setOffline();
-      this.reset();
+      useAppStore().resetAll();
       this.router.push({name: 'Login'})
     },
     checkAuth() {

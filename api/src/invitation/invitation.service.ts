@@ -101,10 +101,8 @@ export class InvitationService {
   }
 
   private async acceptGameInvit(user: AuthenticatedUser, invit: Invitation) {
-    const game = await this.gameService.createGame(invit.byId, invit.toId, 'NORMAL');
     this.emiter.emit('game.invite', {user, invitationId: invit.id});
     this.deleteInvitation(invit.byId, invit.id);
-    return game;
   }
 
   private async acceptRoomInvit(user: AuthenticatedUser, invit: Invitation) {

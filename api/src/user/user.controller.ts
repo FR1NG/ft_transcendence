@@ -12,14 +12,8 @@ import {
   UploadedFile,
   Req,
   InternalServerErrorException,
-  UseFilters,
-  HttpException,
   Query,
-  HttpCode,
-  HttpStatus,
-  ParseFilePipe,
-  MaxFileSizeValidator,
-  FileTypeValidator,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -29,7 +23,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { ValidationExceptionFilterFilter } from 'src/exception-filters/validation.filter';
 import { AuthPayload } from './dto/auth-payload';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { User } from 'src/common/decorators'
@@ -81,6 +74,18 @@ export class UserController {
   @Post('avatar')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar', {
+      limits: {
+        fileSize: 500000
+      },
+      fileFilter: (req: any, file: any, cb: any) => {
+              if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+                  // Allow storage of file
+                  cb(null, true);
+              } else {
+                  // Reject file
+                  cb(new BadRequestException('unsupported file type'), false);
+              }
+          },
     storage: diskStorage({
       destination: './uploads/users',
       filename: (request , file, cb) => {
@@ -93,12 +98,6 @@ export class UserController {
   )
   async uploadAvatar(
     @UploadedFile(
-    new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({maxSize: 500000, message: 'File is too large'}),
-          new FileTypeValidator({fileType: /(jpg|jpeg|png)$/, })
-        ]
-      })
     ) file: Express.Multer.File,
     @User() user: AuthenticatedUser
   ) {

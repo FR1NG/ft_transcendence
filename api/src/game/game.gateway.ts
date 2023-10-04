@@ -297,7 +297,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     const game = this.clients.get(client.user.sub).game;
     if(game) {
       const role = game.hostId === client.user.sub ? 'Host' : 'Guest';
-      client.emit('matchFound', { role, gameId:game.id });
+      const opponentId = game.hostId === client.user.sub ? game.guestId : game.hostId;
+      const opponent = await this.gameService.getOpponent(opponentId)
+      client.emit('matchFound', { role, gameId:game.id, opponent });
     }
   }
 
