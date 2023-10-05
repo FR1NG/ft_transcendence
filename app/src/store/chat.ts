@@ -6,6 +6,7 @@ import { UserRoom } from '@/types/room';
 import { AxiosResponse } from 'axios';
 import { pushNotify } from '@/composables/simpleNotify';
 import { UserConversation } from '@/types/stateTypes/userConversation';
+import { resetObject } from '@/composables/helpers';
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
@@ -23,11 +24,16 @@ export const useChatStore = defineStore('chat', {
     async getConversation(id: string, type: string) {
       if (!id)
         return;
+      this.selectedUser = {} as User
+      this.selectedRoom = {} as UserRoom
       const conversation = this.conversations.get(id);
       if(conversation) {
         this.activeConversation = conversation.messages;
-        if(type === 'dm')
+        if(type === 'dm') {
+
+          console.log(conversation.sender)
           this.selectedUser = conversation.sender as User;
+        }
         else if (type === 'room')
           this.selectedRoom = conversation.sender as UserRoom;
       } else {
@@ -162,9 +168,7 @@ export const useChatStore = defineStore('chat', {
       return new Promise(async (resolve, reject) => {
         try {
           const response = await axios.get('/chat/unreadedCount');
-          console.log(response.data);
           this.unreadedCount = response.data;
-          console.log(this.unreadedCount);
           resolve(response.data)
         } catch(error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
