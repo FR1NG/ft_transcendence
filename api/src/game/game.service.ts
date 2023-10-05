@@ -51,7 +51,7 @@ export class GameService {
         paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.28,
         score: 0,
-        xRatio: 0
+        xRatio: 0.035
       },
       {
         id: 'Guest',
@@ -59,7 +59,7 @@ export class GameService {
         paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.28,
         score: 0,
-        xRatio: 0.98
+        xRatio: 0.95
       }
     ];    
   }

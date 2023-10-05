@@ -1,7 +1,6 @@
 <template>
   <game-result v-if="gameResult.length !== 0"></game-result>
   <div  v-else class="container">
-    <!-- <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div> -->
     <GameWaiting v-if="waitingForOpponent"/>
     <div v-if="gameState" class="avatar-section">
       <div class="mavatar">
@@ -101,11 +100,6 @@ export default {
       waitingForOpponent.value = false;
     });
 
-    // gameSocket.value?.on('announceWinner', function(winnerId) {
-    //   gameOver.value = true;
-    //   winner.value = winnerId;
-    // });
-
     gameSocket.value?.on('hideStartButton', () => {
       showStartButton.value = false;
     });
@@ -125,10 +119,6 @@ export default {
     const keyStates = reactive({
       w: false,
       s: false
-    });
-
-    watch([canvasWidth], ([width]) => {
-      scaleFactor.value = width / 800;
     });
 
     // Listen for player assignments from the server
@@ -168,7 +158,7 @@ export default {
     // Adjust canvas dimensions on window resize
     const resizeHandler = () => {
       canvasWidth.value = window.innerWidth * canvasWidthPercentage;
-      canvasHeight.value = (window.innerWidth / ASPECT_RATIO)* canvasWidthPercentage;
+      canvasHeight.value = (canvasWidth.value / ASPECT_RATIO)* canvasWidthPercentage;
       gameSocket.value?.emit('canvasDimensions', {
         width: canvasWidth.value,
         height: canvasHeight.value,
