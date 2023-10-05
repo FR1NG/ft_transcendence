@@ -1,5 +1,19 @@
 import { PartialType } from "@nestjs/mapped-types"
-import { IsEnum, IsNumber, IsString, IsStrongPassword, IsUUID, Length, Matches, Min, Validate, ValidateIf, ValidationArguments } from "class-validator"
+import { Transform, TransformFnParams } from "class-transformer"
+import { IsEnum,
+  IsNumber,
+  IsString,
+  IsStrongPassword,
+  IsUUID,
+  Length,
+  Matches,
+  Min,
+  Validate,
+  ValidateIf,
+  ValidationArguments,
+  
+
+} from "class-validator"
 enum Types {
   'PUBLIC',
   'PROTECTED',
@@ -10,6 +24,7 @@ export  class CreateRoomDto {
 
   @IsString()
   @Length(3, 50)
+  @Transform(({value}: TransformFnParams) => value.trim())
   name: string
 
   @IsEnum(Types)

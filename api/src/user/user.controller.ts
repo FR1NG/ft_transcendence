@@ -60,9 +60,8 @@ export class UserController {
 
   @Patch()
   @UseGuards(AuthGuard)
-  update(@Request() request, @Body() updateUserDto: UpdateUserDto) {
-    const { sub } = request.user;
-    return this.userService.update(sub, updateUserDto);
+  async update(@User() user: AuthenticatedUser, @Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.update(user, updateUserDto);
   }
 
   @Delete(':id')
