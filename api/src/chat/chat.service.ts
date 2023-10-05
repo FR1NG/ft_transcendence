@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -99,6 +99,7 @@ export class ChatService {
           select: {
             id: true,
             messages: {
+              take: 50,
               select: {
                 id: true,
                 content: true,
@@ -234,7 +235,12 @@ export class ChatService {
       select: {
         conversation: {
           select: {
+            id: true,
             messages: {
+              take: 50,
+              orderBy: {
+                created_at: 'desc'
+              },
               select: {
                 id: true,
                 content: true,
@@ -286,27 +292,25 @@ export class ChatService {
       }
     });
 
+    let messagesCount = 0;
+    if(conversation?.conversation) {
+       messagesCount = await this.prisma.messages.count({
+        where: {
+          conversationId: conversation.conversation.id
+        }
+      });
+    }
+
     user['block'] = block ? true : false;
 
-    const messages = conversation?.conversation?.messages;
-    // const filtredMessages = [];
-    // conversation?.conversation?.messages?.forEach(message => {
-    //   let type: string;
-    //   const { id, content } = message
-    //   if (message.senderId === authUser.sub)
-    //     type = 'sent';
-    //   else
-    //     type = 'recieved';
-    //   filtredMessages.push({
-    //     id,
-    //     content,
-    //     type,
-    //     loading: false
-    //   })
-    // })
+    let messages = [];
+    if(conversation?.conversation)
+      messages = conversation?.conversation?.messages?.reverse();
     return {
       user,
       messages,
+      messagesCount,
+      conversationId: conversation?.conversation?.id
     };
   }
 
@@ -329,6 +333,10 @@ export class ChatService {
           select: {
             id: true,
             messages: {
+              orderBy: {
+                created_at: 'desc'
+              },
+              take: 50,
               select: {
                 id: true,
                 content: true,
@@ -344,11 +352,20 @@ export class ChatService {
           }
         }
       }
-    })
-
+    });
+    if(!room)
+      throw new NotFoundException();
     if (room.users.length === 0)
       throw new UnauthorizedException('you are not authorized to access this room');
+
+    room.conversation.messages = room.conversation?.messages?.reverse();
+    const count = await this.prisma.messages.count({
+      where: {
+        conversationId: room.conversation.id
+      }
+    })
     delete room['users'];
+    room['messagesCount'] = count;
     return room;
   }
 
@@ -484,6 +501,60 @@ export class ChatService {
     return unreaded?.conversation?.messages?.length || 0;
   }
 
+
+  // load more messages
+  async loadMore(user: AuthenticatedUser, id: string, skip: number, type: 'dm' | 'room') {
+    if (type === 'dm') {
+      const allowed = await this.prisma.usersConversation.findFirst({
+        where: {
+          OR: [
+            {userOneId: user.sub},
+            {userTwoId: user.sub}
+          ],
+          conversationId: id
+        },
+      });
+      if(!allowed)
+        throw new ForbiddenException()
+    } else if(type === 'room') {
+      // TODO: load room conversation
+      const allowed = await this.prisma.usersRooms.findFirst({
+        where: {
+          userId: user.sub,
+          room: {
+            conversationId: id
+          }
+        },
+      });
+      if(!allowed)
+        throw new ForbiddenException();
+    } else {
+      throw new ForbiddenException();
+    }
+      const messages = await this.prisma.messages.findMany({
+        orderBy: {
+        created_at: 'desc'
+        },
+        skip: parseInt(skip.toString()),
+        take: 50,
+        where: {
+          conversationId: id,
+        },
+        select: {
+          id: true,
+          content: true,
+          seen: true,
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            }
+          }
+        }
+      })
+      return messages.reverse();
+  }
 
 
   //class:END

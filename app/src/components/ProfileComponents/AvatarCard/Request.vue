@@ -78,11 +78,8 @@ const unfriend = (userId: string) => {
 // invite for a geme
 const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
-    console.log('trying to change the route')
     router.push({ name: 'Game'});
-  }).catch((error: any) => {
-    useSnackBarStore().notify(error.data.message);
-  });
+  })
 }
 
 // invite user for a game

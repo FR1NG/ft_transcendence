@@ -37,4 +37,10 @@ export class ChatController {
     return await this.chatService.getUnreadedMessagesCount(user);
   }
 
+  @UseGuards(AuthGuard)
+  @Get('messages/load')
+  async loadMore(@User() user: AuthenticatedUser, @Query('id') id: string, @Query('skip') skip: number, @Query('type') type: 'room' | 'dm') {
+    return await this.chatService.loadMore(user, id, skip, type);
+  }
+
 }

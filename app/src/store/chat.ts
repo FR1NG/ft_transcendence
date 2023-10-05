@@ -11,7 +11,7 @@ import { resetObject } from '@/composables/helpers';
 export const useChatStore = defineStore('chat', {
   state: () => ({
     conversations: new Map() as Map<string, Conversation>,
-    activeConversation: [] as Message[],
+    activeConversation: {} as Conversation,
     selectedUser: {} as  User,
     selectedRoom: {} as UserRoom,
     users: [] as UserConversation[],
@@ -28,26 +28,26 @@ export const useChatStore = defineStore('chat', {
       this.selectedRoom = {} as UserRoom
       const conversation = this.conversations.get(id);
       if(conversation) {
-        this.activeConversation = conversation.messages;
-        if(type === 'dm') {
+        this.activeConversation = conversation;
 
-          console.log(conversation.sender)
+        if(type === 'dm')
           this.selectedUser = conversation.sender as User;
-        }
         else if (type === 'room')
           this.selectedRoom = conversation.sender as UserRoom;
       } else {
       try {
         const { data } = await axios.get(`/chat/conversation/${id}?type=${type}`);
         if(type === 'dm') {
-          const { messages, user} = data;
-          this.conversations.set(data.user.id, {messages, sender: user});
+          const { messages, messagesCount, user, conversationId} = data;
+          this.conversations.set(data.user.id, {messages, sender: user, messagesCount, conversationId});
           this.selectedUser = data.user;
-          this.activeConversation = data.messages;
+          this.activeConversation = data;
         } else if(type === 'room') {
-            const {conversation, ...room} = data;
-            this.conversations.set(id, {messages: conversation.messages, sender: room});
-            this.activeConversation = conversation.messages;
+            const {conversation, messagesCount, ...room} = data;
+            this.conversations.set(id, {messages: conversation.messages, sender: room, conversationId: conversation.id, messagesCount});
+            this.activeConversation.messages = conversation.messages;
+            this.activeConversation.conversationId = conversation.id;
+            this.activeConversation.messagesCount = messagesCount;
             this.selectedRoom = room;
           }
         this.scrollDown()
@@ -84,7 +84,7 @@ export const useChatStore = defineStore('chat', {
           message
         ];
           conversation["messages"] = messages;
-          this.activeConversation = messages;
+          this.activeConversation.messages = messages;
         }
         else
           this.getConversationsUsers();
@@ -120,7 +120,7 @@ export const useChatStore = defineStore('chat', {
     resetActiveConversation() {
       this.selectedRoom = {} as UserRoom;
       this.selectedUser = {} as User;
-      this.activeConversation = [];
+      this.activeConversation = {} as Conversation;
     },
 
     async markeRead(id: string) {
@@ -159,7 +159,7 @@ export const useChatStore = defineStore('chat', {
     },
     reset() {
       this.conversations = new Map();
-      this.activeConversation = [];
+      this.activeConversation = {} as Conversation;
       this.selectedUser = {} as User;
       this.selectedRoom = {} as UserRoom;
       this.users = [] as UserConversation[];
@@ -174,6 +174,19 @@ export const useChatStore = defineStore('chat', {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
         }
       })
+    },
+    // load more messages
+    async loadMore(type: 'room' | 'dm') {
+      return new Promise(async (resolve, reject) => {
+          try {
+          const response = await axios.get(`/chat/messages/load?id=${this.activeConversation.conversationId}&skip=${this.activeConversation.messages.length}&type=${type}`)
+          const { data } = response;
+          this.activeConversation.messages = [ ...data, ...this.activeConversation.messages];
+          resolve(data);
+        } catch(error: any) {
+          resolve(error.response)
+        }
+        })
     }
   },// end of actions
 

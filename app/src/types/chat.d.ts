@@ -17,6 +17,8 @@ type Sender = {
 }
 
 export type Conversation = {
+  conversationId: string
   messages: Message[]
+  messagesCount: number
   sender: User | UserRoom
 }

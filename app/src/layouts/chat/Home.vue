@@ -16,7 +16,7 @@ bootstrap();
 const route = useRoute();
 const chatStore = useChatStore();
 const { selectedUser, selectedRoom, users } = storeToRefs(chatStore);
-const drawer = ref(true)
+const drawer = ref(window.innerWidth < 1280 ? false : true)
 
 // getting conversations
 chatStore.getConversationsUsers();

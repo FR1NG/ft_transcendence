@@ -3,8 +3,11 @@ import type { User } from '@/types/user'
 import type { Room } from '@/types/room'
 import { useRoomStore } from '@/store/room'
 import { computed } from 'vue';
+import { useInvitationStore } from '@/store/invitation';
+import { useRouter } from 'vue-router';
 
 const roomStore = useRoomStore();
+
 
 const props = defineProps<{
   user: User | undefined
@@ -12,6 +15,7 @@ const props = defineProps<{
   type: 'dm' | 'room'
 }>()
 
+const router = useRouter();
 const emit = defineEmits(['click:menu'])
 
 const toggle = () => {
@@ -26,6 +30,15 @@ const appearance = computed({
   get() { return props.room?.id || props.user?.id; },
   set() {}
 })
+
+// invite for a geme
+const inviteGame = (userId: string) => {
+  if(userId === '')
+    return;
+  useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
+   router.push({ name: 'Game'});
+  })
+}
 
 </script>
 
@@ -47,6 +60,6 @@ const appearance = computed({
       </div>
     </div>
       <v-spacer></v-spacer>
-
+    <v-btn v-if="type === 'dm'" @click="inviteGame(user?.id || '')" prepend-icon="mdi-gamepad-variant-outline">invite</v-btn>
     </v-app-bar>
 </template>
