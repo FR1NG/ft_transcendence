@@ -50,43 +50,19 @@ export class NotificationService {
     return notifications;
   }
 
-  async markRead(user: AuthenticatedUser, ids: Array<number>) {
-    const updated: Array<number> = [];
-    const unseen = await this.prisma.notifications.findMany({
-      where: {
-        user: {
-          id: user.sub
-        },
-        seen: false,
-      },
-      select: {
-        id: true
-      }
-    });
-
+  async markRead(user: AuthenticatedUser) {
     try {
-      unseen.forEach(async (el) => {
-        if(ids.includes(el.id)) {
-          if(el.id) {
-            const result = await this.prisma.notifications.update({
-              where: {
-                id: el.id,
-              },
-              data: {
-                seen: true
-              },
-              select: {
-                id: true
-              }
-            });
-            if(result)
-              updated.push(result.id);
-          }
+      await this.prisma.notifications.updateMany({
+        where: {
+          userId: user.sub,
+          seen: false
+        },
+        data: {
+          seen: true
         }
-      })
+      });
     } catch(error) {
-      console.log('server errro')
+      console.log('server error');
     }
-    return updated;
   }
 }

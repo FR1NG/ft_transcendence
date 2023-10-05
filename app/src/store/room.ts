@@ -277,6 +277,7 @@ export const useRoomStore = defineStore('room', {
           const response: AxiosResponse = await axios.post(`/invitation/accept/${id}`);
           const { data } = response;
           resolve(data);
+          this.getRooms();
         } catch (error: any) {
           pushNotify({status: 'error', title: 'error', text: error.response.data.message})
           reject(error.response);

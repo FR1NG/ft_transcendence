@@ -149,7 +149,7 @@ export class InvitationService {
       }
     });
     if(result.notification) {
-        await this.prisma.notifications.delete({
+        await this.prisma.notifications.deleteMany({
         where: {
           id: result.notification.id
         }

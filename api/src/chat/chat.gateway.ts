@@ -11,11 +11,12 @@ import { RoomService } from 'src/room/room.service';
 import { Server, Socket } from 'socket.io'
 import { OnEvent } from '@nestjs/event-emitter';
 import { AuthenticatedUser } from 'src/types';
-import { Users } from '@prisma/client';
+import { WsPrismaFilter } from 'src/exception-filters/ws-prisma.filter';
 
 type AuthSocket = Socket & { user: AuthenticatedUser};
 
 @WebSocketGateway()
+@UseFilters(new WsPrismaFilter())
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,

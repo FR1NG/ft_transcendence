@@ -60,12 +60,13 @@ getData(route.params.id as string);
 
 <template>
   <v-main class="the-main vh-100">
-      <v-card :loading="loading" bg-color="colorOne" class="d-flex justify-center ma-4" rounded="xl" variant="outlined" min-height="200" color="colorTwo">
+      <v-card :loading="loading" bg-color="colorOne" class="pa-5 ma-4" rounded="xl" variant="outlined" color="colorTwo">
       <div v-if="invitation.id">
           <v-card-text>
           {{ invitation.notification?.content}}
           </v-card-text>
           <v-card-actions>
+          <v-spacer></v-spacer>
             <v-btn @click="handleAccept" :disabled="loading">accept</v-btn>
             <v-btn @click="handleDecline" :disabled="loading">decline</v-btn>
           </v-card-actions>

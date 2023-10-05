@@ -30,7 +30,6 @@ export class PrismaFilter implements ExceptionFilter {
   }
 
   private getError(code: string) {
-    console.log(code);
     const error  = this.errorMessageMapping[code] || null;
     if(error) return error.error || 'Unkdown error';
     return 'Unkdown error';
@@ -51,8 +50,7 @@ export class PrismaFilter implements ExceptionFilter {
           errors: this.getErrorMessages(code, exception.meta.target as string),
         });
       } else {
-        console.log(exception)
-        response.status(500).json({
+        response.status(400).json({
           message: "prisma error"
         });
       }

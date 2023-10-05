@@ -4,8 +4,7 @@ import { useAppStore } from '@/store/app'
 import { useSocketStore } from '@/store/socket';
 import { useGameStore } from '@/store/game';
 import { useAuthStore } from '@/store/auth';
-import router from '@/router/index'
-import { useRouter } from 'vue-router';
+import { pushNotify } from './simpleNotify';
 
 const init = (): boolean => {
   const socketStore = useSocketStore();
@@ -33,6 +32,10 @@ const listen = () => {
       console.log('other user leaved')
       rematch.value = false
     })
+
+  gameSocket.value?.on('error', (error: any) => {
+      pushNotify({status:'error', title:'error', text:error.toString()})
+  })
 }
 
 export const bootstrapGameSocket = () => {

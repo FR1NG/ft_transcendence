@@ -59,6 +59,7 @@ const update = async () => {
     const response = await userStore.updateProfile({ username, email })
     updating.value = false;
     pushNotify({status:'success', title:'Action completed', text:response.message || 'updated'})
+    useAuthStore().getMe();
   } catch (error: any) {
     // assignin valiation errors to errors object
     console.log(error);

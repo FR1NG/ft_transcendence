@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable,  Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateRoomDto, JoinRoomDto, UpdateRoomDto, MuteUserDto } from './dto/room.dto';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';

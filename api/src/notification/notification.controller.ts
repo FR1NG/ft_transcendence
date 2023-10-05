@@ -18,8 +18,7 @@ export class NotificationController {
 
   @Post('read')
   @UseGuards(AuthGuard)
-  async markRead(@User() user: AuthenticatedUser, @Body('ids') ids: Array<number>) {
-    return await this.notificationService.markRead(user, ids)
+  async markRead(@User() user: AuthenticatedUser) {
+    return await this.notificationService.markRead(user)
   }
-
 }
