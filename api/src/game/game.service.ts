@@ -51,7 +51,7 @@ export class GameService {
         paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.28,
         score: 0,
-        xRatio: 0.035
+        xRatio: 0.017
       },
       {
         id: 'Guest',
@@ -59,7 +59,7 @@ export class GameService {
         paddleWidthRatio: 0.017,
         paddleHeightRatio: 0.28,
         score: 0,
-        xRatio: 0.95
+        xRatio: 0.97
       }
     ];    
   }
@@ -83,7 +83,7 @@ export class GameService {
       ball: {
         xRatio: 0.5,
         yRatio: 0.5,
-        radiusRatio: 0.0277,
+        radiusRatio: 0.024,
         velocityXRatio: ballSpeeds[mode],
         velocityYRatio: 0,
       },
