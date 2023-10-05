@@ -40,6 +40,9 @@ useRouter().beforeEach(async (to) => {
       <v-btn flat variant="flat" color="colorThree" class="text-colorOne" :active="false" :to="{name: 'Home'}">
         Home
       </v-btn>
+      <v-btn v-if="!logged" flat variant="flat" color="colorThree" class="ml-4 text-colorOne" :to="{name: 'About'}">
+        about
+      </v-btn>
 
           <!-- <v-app-bar-nav-icon></v-app-bar-nav-icon> -->
         </template>

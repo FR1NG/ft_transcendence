@@ -30,6 +30,11 @@ const routes = [
         component: () => import('@/views/Landing.vue'),
       },
       {
+        path: 'about',
+        name: 'About',
+        component: () => import('@/views/About.vue'),
+      },
+      {
         path: '/game/waiting/:invitationId',
         name: 'GameWaiting',
         component: () => import('@/views/GameWaiting.vue'),
