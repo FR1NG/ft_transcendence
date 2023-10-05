@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
-import { Logger, UseGuards } from '@nestjs/common';
+import { Logger, UseGuards, UseFilters } from '@nestjs/common';
 import { WsAuthGuard } from 'src/auth/ws.guard';
 import { InvitationService } from 'src/invitation/invitation.service';
 import { AuthenticatedUser } from 'src/types';
@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { GameMode, Games } from '@prisma/client';
 import { OnEvent } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
+import { WsPrismaFilter } from 'src/exception-filters/ws-prisma.filter';
 
 type AuthSocket = Socket & { user: AuthenticatedUser};
 type InvitationPayload = {
@@ -26,6 +27,7 @@ type InvitationPayload = {
 }
 
 @WebSocketGateway({namespace: '/game'})
+@UseFilters(new WsPrismaFilter())
 export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
 
@@ -294,7 +296,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('request-info')
   @UseGuards(WsAuthGuard)
   async requestInfo(client: AuthSocket) {
-    const game = this.clients.get(client.user.sub).game;
+    // const game = this.clients.get(client.user.sub).game;
+    const game = await this.gameService.getMyGame(client.user, 'CREATED');
+    console.log(game)
     if(game) {
       const role = game.hostId === client.user.sub ? 'Host' : 'Guest';
       const opponentId = game.hostId === client.user.sub ? game.guestId : game.hostId;
@@ -333,6 +337,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async gameLeave(client: AuthSocket) {
     // TODO  clean game  data here
     this.logger.verbose(client.user.username + ': player leaved the game')
+    this.gameService.deleteGame(client.user);
     await this.endGame(client)
   }
 
@@ -347,6 +352,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           return;
         this.logger.verbose('both want to restart game');
         const game = await this.gameService.createGame(invit[0], invit[1], 'NORMAL');
+      console.log('this is the game')
+        console.log(game)
         const client1 = this.clients.get(invit[0]);
         const client2 = this.clients.get(invit[1]);
         client1.game = game;

@@ -434,4 +434,16 @@ export class GameService {
     });
     return user;
   }
+
+  async deleteGame(user: AuthenticatedUser) {
+    await this.prisma.games.deleteMany({
+      where: {
+        status: 'CREATED',
+        OR: [
+          {hostId: user.sub},
+          {guestId: user.sub},
+        ],
+      }
+    });
+  }
 }

@@ -38,6 +38,8 @@ const getProfile = async () => {
   // removing old errors
   resetObject(errors);
   try {
+    if(!me.value.id)
+      await useAuthStore().getMe();
     assignObject(me.value, profile);
     tfa.value = true
   } catch (error) {
@@ -57,9 +59,11 @@ const update = async () => {
     const response = await userStore.updateProfile({ username, email })
     updating.value = false;
     pushNotify({status:'success', title:'Action completed', text:response.message || 'updated'})
+    useAuthStore().getMe();
   } catch (error: any) {
     // assignin valiation errors to errors object
-    pushNotify({status:'error', title:'error', text:error.data.message})
+    console.log(error);
+    pushNotify({status:'error', title:'error', text:error?.message})
     assignObject(error.errors, errors);
     updating.value = false;
   }

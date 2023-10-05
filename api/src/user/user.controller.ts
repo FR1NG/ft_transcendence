@@ -11,7 +11,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
-  InternalServerErrorException,
   Query,
   BadRequestException,
 } from '@nestjs/common';
@@ -60,9 +59,8 @@ export class UserController {
 
   @Patch()
   @UseGuards(AuthGuard)
-  update(@Request() request, @Body() updateUserDto: UpdateUserDto) {
-    const { sub } = request.user;
-    return this.userService.update(sub, updateUserDto);
+  async update(@User() user: AuthenticatedUser, @Body() updateUserDto: UpdateUserDto) {
+    return await this.userService.update(user, updateUserDto);
   }
 
   @Delete(':id')
@@ -102,7 +100,7 @@ export class UserController {
     @User() user: AuthenticatedUser
   ) {
     // to be changed to the right exception
-    if (!file) throw new InternalServerErrorException();
+    if (!file) throw new BadRequestException();
     return await this.userService.updateAvatar(user, file.filename);
   }
 

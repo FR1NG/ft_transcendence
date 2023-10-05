@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus, Injectable,  NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
@@ -113,14 +113,14 @@ export class UserService {
     return 0;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(user: AuthenticatedUser, updateUserDto: UpdateUserDto) {
     const result = await this.prisma.users.update({
       where: {
-        id,
+        id: user.sub,
       },
       data: {
-        username: updateUserDto.username,
-        email: updateUserDto.email,
+        username: updateUserDto.username.trim(),
+        email: updateUserDto.email.trim(),
       },
     });
     return {message: 'profile updated successfully'};

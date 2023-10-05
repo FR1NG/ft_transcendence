@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
@@ -452,7 +452,7 @@ export class ChatService {
     });
     if(result)
       return {message: 'messages read successfully'};
-    throw new InternalServerErrorException();
+    throw new BadRequestException();
   }
 
   async getUnreadedMessagesCount(user: AuthenticatedUser) {

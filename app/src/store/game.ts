@@ -70,12 +70,12 @@ export const useGameStore = defineStore('game', {
     setResult(value: string) {
       if(this.router.currentRoute.value.name === 'Game') {
         console.log(value)
-        this.gameResult = value;
+          this.gameResult = value;
       }
     },
     setRestartId(value: string) {
       if(this.router.currentRoute.value.name === 'Game') {
-      this.restartId = value;
+        this.restartId = value;
       }
     },
     restartGame() {

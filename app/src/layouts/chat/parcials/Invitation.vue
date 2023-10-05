@@ -57,8 +57,8 @@ const back = () => {
 
 <template>
   <v-main>
-    <v-dialog v-model="model" overlay-color="black">
-      <v-card max-width="600" class="mx-auto" :loading="loading">
+    <v-dialog v-model="model" class="overlay">
+      <v-card max-width="800" class="mx-auto pa-4" color="colorThree text-colorOne"  rounded="xl" :loading="loading">
         <div v-if="appearance">
           <v-card-text>
             invitation to join room: {{ data.inviter.name }}
@@ -72,7 +72,8 @@ const back = () => {
           <v-card-text>
             {{ errorMessage }}
           </v-card-text>
-          <v-card-actions class="d-flex justify-center">
+          <v-card-actions>
+            <v-spacer></v-spacer>
             <v-btn variant="outlined" @click="back" prepend-icon="mdi-home-outline">Home</v-btn>
           </v-card-actions>
         </div>

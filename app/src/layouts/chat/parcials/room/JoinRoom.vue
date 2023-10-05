@@ -47,7 +47,7 @@ const confirm = async () => {
 
 <template>
   <v-dialog v-model="appearance" width="500" persistent>
-    <v-card :loading="loading">
+    <v-card :loading="loading" class="pa-4" rounded="xl" color="colorFoure">
       <v-card-title>
         Join room
       </v-card-title>
@@ -60,8 +60,8 @@ const confirm = async () => {
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="onClose" color="secondary">cancel</v-btn>
-        <v-btn @click="confirm" color="primary" variant="outlined" :loading="loading" >confirm</v-btn>
+        <v-btn @click="onClose" >cancel</v-btn>
+        <v-btn @click="confirm" variant="text" :loading="loading" >confirm</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
