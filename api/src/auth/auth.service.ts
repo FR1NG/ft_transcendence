@@ -37,7 +37,7 @@ export class AuthService {
         virificationRequired: user.isOtpActivated
       };
     } catch(error) {
-      console.log(error);
+      throw new UnauthorizedException();
     }
   }
 
