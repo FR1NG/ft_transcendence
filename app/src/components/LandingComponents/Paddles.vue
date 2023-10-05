@@ -33,8 +33,8 @@
 }
 
 .ltrail {
-  width: 1.5vw;
-  height: 9.8vw;
+  width: 1.4vw;
+  height: 9.7vw;
   position: absolute;
   background-color: rgb(var(--v-theme-colorTwo));
   left: -5%;
@@ -53,8 +53,8 @@
 }
 
 .rtrail {
-  width: 1.5vw;
-  height: 9.8vw;
+  width: 1.4vw;
+  height: 9.7vw;
   position: absolute;
   background-color: rgb(var(--v-theme-colorTwo));
   top:30vw;
@@ -69,6 +69,7 @@
               rightMove1 0.8s linear forwards calc($i * 20) + 5700ms,
               revert_1 0.5s linear forwards calc($i * 20) + 6500ms,
               rightMove2 0.8s linear forwards calc($i * 20) + 7700ms,
+              g-shape 3s linear forwards calc($i * 20) + 8700ms,
               fadeOut 4s forwards calc($i * 20) + 8000ms;
   }
 }
@@ -76,8 +77,8 @@
 
 
 .leftSide {
-  width: 1.5vw;
-  height: 9.8vw;
+  width: 1.4vw;
+  height: 9.7vw;
   position: absolute;
   background-color: rgb(var(--v-theme-colorTwo));
   box-shadow: 0 0 3px 0.1px rgba(var(--v-theme-colorTwo), 0.5);
@@ -92,8 +93,8 @@
 }
 
 .rightSide {
-  width: 1.5vw;
-  height: 9.8vw;
+  width: 1.4vw;
+  height: 9.7vw;
   position: absolute;
   background-color: rgb(var(--v-theme-colorTwo));
   box-shadow: 0 0 3px 0.1px rgba(var(--v-theme-colorTwo), 0.5);
@@ -105,6 +106,7 @@
             rightMove1 0.8s linear forwards 5.7s,
             revert_1 0.5s linear forwards 6.5s,
             rightMove2 0.8s linear forwards 7.7s,
+            g-shape 3s linear forwards 8.7s,
             fadeOut 4s forwards 8s;
 }
 
@@ -183,8 +185,8 @@
 @keyframes rightMove2 {
   100% {
     transform: rotate(360deg);
-    left: 66.3vw;
-    top: 7.1vw;
+    left: 66.4vw;
+    top: 7.2vw;
     animation-timing-function: ease-in;
   }
 }
@@ -192,8 +194,13 @@
   100% {
     transform: rotate(-1turn);
     left: 31.8vw;
-    top: 7.1vw;
+    top: 7.2vw;
     animation-timing-function: ease-in;
+  }
+}
+@keyframes g-shape {
+  100% {
+    border-radius: 0 0 25px 0;
   }
 }
 
