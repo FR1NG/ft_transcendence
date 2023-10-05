@@ -62,7 +62,7 @@ onBeforeRouteLeave(() => {
   position: absolute;
   background-color: rgb(var(--v-theme-colorOne));
   color: rgb(var(--v-theme-colorTwo));
-  top: 20vw;
+  left: 39vw;
   width: 22vw;
   height: 5vw;
   font-size: 2vw;

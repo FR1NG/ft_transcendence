@@ -4,10 +4,16 @@
     <!-- <div v-if="waitingForOpponent" class="waiting">Waiting for another player...</div> -->
     <GameWaiting v-if="waitingForOpponent"/>
     <div v-if="gameState" class="avatar-section">
-        <img :src="me.avatar" alt="My Avatar">
-        <span>{{ me.username }} (You)<span class="vs-text">VS</span> {{opponent?.username}}</span>
-      <img :src="opponent?.avatar" alt="My Avatar">
+      <div class="mavatar">
+        <img :src="me.avatar" alt="my avatar">
+        <div class="uname">{{ me.username }}</div>
       </div>
+        <div class="vs">vs</div>
+      <div class="oavatar">
+        <div class="uname">{{ opponent?.username }}</div>
+        <img :src="opponent?.avatar" alt="opp avatar">
+      </div>
+    </div>
     <button v-if="showStartButton" id="startButton" @click="startGame">Start</button>
     <p v-if=" showStartButton" class="game-guide">Use W and S to move the paddle up and down (You're left).</p>
     <canvas v-if="showGameElements && !gameOver" class="gameCanvas" ref="gameCanvas" :width="canvasWidth" :height="canvasHeight"></canvas>
@@ -211,7 +217,7 @@ export default {
           };
         } else {
           ctx.shadowColor = '#FFFFFF';
-          ctx.shadowBlur = 20;
+          ctx.shadowBlur = 5;
           ctx.drawImage(loadedImages[currentTheme.value.ballImage], x - radius, y - radius, 2 * radius, 2 * radius);
           ctx.shadowColor = 'transparent';
           ctx.shadowBlur = 0;
@@ -237,7 +243,7 @@ export default {
       const height = heightRatio * canvasHeight.value;
       ctx.fillStyle = currentTheme.value.paddleColor;
       ctx.shadowColor = '#FFFFFF';
-      ctx.shadowBlur = 20;
+      ctx.shadowBlur = 5;
       ctx.fillRect(x, y - (height / 2), width, height);
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -418,21 +424,16 @@ export default {
 // Game Elements
 .gameCanvas {
   padding: 0;
+  width: 90%;
   display: block;
   color: rgb(var(--v-theme-colorTwo));
   border: 1px solid rgb(var(--v-theme-colorTwo));
   box-sizing: border-box;
-  box-shadow:
-    0 0 2.5px rgb(var(--v-theme-colorTwo)),
-    0 0 5px rgb(var(--v-theme-colorTwo)),
-    0 0 7.5px rgb(var(--v-theme-colorThree)),
-    0 0 10px rgb(var(--v-theme-colorThree)),
-    0 0 12.5px rgb(var(--v-theme-colorThree)),
-    0 0 15px rgb(var(--v-theme-colorThree));
 }
 
 .container {
-  background-color: rgb(var(--v-theme-colorOne));
+  background-image: url("/images/background.jpg");
+  background-size: cover;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -447,65 +448,44 @@ body, html {
   color: rgb(var(--v-theme-colorOne));
 }
 
-#startButton, #restartButton {
-  margin-top: 20px;
-  font-size: 24px;
-  font-family: 'Public Pixel', sans-serif;
-  padding: 16px 32px;
-  margin: 12px;
-  border: none;
-  background-color: transparent;
-  color: rgb(var(--v-theme-colorTwo));
+#startButton {
+  position: relative;
+  font-size: 30px;
+  padding: 10px 32px;
+  background: linear-gradient(to right, rgb(160, 157, 241), rgb(255, 0, 123));
+  color: white;
   border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.3s ease;
-
-  box-shadow:
-    0 0 5px rgb(var(--v-theme-colorTwo)),
-    0 0 10px rgb(var(--v-theme-colorTwo)),
-    0 0 15px rgb(var(--v-theme-colorThree)),
-    0 0 20px rgb(var(--v-theme-colorThree)),
-    0 0 25px rgb(var(--v-theme-colorThree)),
-    0 0 30px rgb(var(--v-theme-colorThree));
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 #startButton:active {
-  transform: scale(0.9);
-  box-shadow: 0 2px 5px rgb(var(--v-theme-colorThree));
+  color: black;
+  box-shadow: inset -5px -5px 2px rgba(255, 255, 255, 0.4),
+              inset 5px 5px 2px rgba(0, 0, 0, 0.3);
 }
 
-#startButton {
-  display: inline-block;
+#startButton::before {
+  content: '';
   position: absolute;
-  justify-content: center;
-  font-size: 16px;
+  height: 120px;
+  width: 20px;
+  top: -40px;
+  background-color: white;
+  transform: rotate(-30deg) translateX(-70px);
+  filter: blur(1px);
+  transition: 0.8s;
+  opacity: 0.8;
+}
 
-  &:hover {
-    transform: scale(1.1);
-    box-shadow:
-      0 0 10px rgb(var(--v-theme-colorTwo)),
-      0 0 20px rgb(var(--v-theme-colorTwo)),
-      0 0 30px rgb(var(--v-theme-colorThree)),
-      0 0 40px rgb(var(--v-theme-colorThree)),
-      0 0 50px rgb(var(--v-theme-colorThree)),
-      0 0 60px rgb(var(--v-theme-colorThree));
-  }
-  &:active {
-    box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
-  }
-  &:disabled {
-    box-shadow:
-      0 0 5px rgb(var(--v-theme-colorFoure)),
-      0 0 10px rgb(var(--v-theme-colorFoure));
-    cursor: not-allowed;
-    color: rgb(var(--v-theme-colorFoure));
-  }
+#startButton:hover:before {
+  transform: translate(150px) rotate(-30deg);
 }
 
 .game-guide {
-  font-family: 'Public Pixel', sans-serif;
   font-size: 15px;
-  color: rgb(var(--v-theme-colorFoure));
+  color: white;
   text-align: center;
   position: absolute;
   bottom: 70px;
@@ -553,70 +533,41 @@ h1:hover {
   color: rgb(var(--v-theme-colorTwo));
 }
 
-#restartButton {
-  display: inline-block;
-  justify-content: center;
-  font-size: 16px;
-  &:hover {
-    transform: scale(1.1);
-    box-shadow:
-      0 0 10px rgb(var(--v-theme-colorTwo)),
-      0 0 20px rgb(var(--v-theme-colorTwo)),
-      0 0 30px rgb(var(--v-theme-colorThree)),
-      0 0 40px rgb(var(--v-theme-colorThree)),
-      0 0 50px rgb(var(--v-theme-colorThree)),
-      0 0 60px rgb(var(--v-theme-colorThree));
-  }
-  &:active {
-    box-shadow: 0 0 5px rgb(var(--v-theme-colorThree));
-    }
-  &:disabled {
-    box-shadow:
-      0 0 5px rgb(var(--v-theme-colorFoure)),
-      0 0 10px rgb(var(--v-theme-colorFoure));
-    cursor: not-allowed;
-    color: rgb(var(--v-theme-colorFoure));
-  }
-}
 
 .avatar-section {
   display: flex;
-  justify-content: center;
+  width: 90%;
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px; // Spacing between this section and the canvas
+  color: rgb(var(--v-theme-colorTwo));
+  font-size: 2vw;
+  margin-bottom: 1rem;
 
+  .vs {
+    font-size: 5vw;
+    width: 10%;
+    display: flex;
+    justify-content: center;
+  }
+  .mavatar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    width: 37%;
+  }
+  .oavatar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    width: 37%;
+  }
   img {
     width: 50px;  // Adjust based on your preference
     height: 50px; // Adjust based on your preference
     border-radius: 50%;
     border: 2px solid rgb(var(--v-theme-colorTwo));
-    margin: 0 20px;  // Space between the avatar and the username
-  }
-
-  span {
-    display: flex;
-    align-items: center;
-    font-size: 20px;  // Adjust based on your preference
-    color: rgb(var(--v-theme-colorTwo));
-    border: 1px solid rgb(var(--v-theme-colorTwo));
-    padding: 10px 20px;  // Space inside the border
-    border-radius: 15px;
-
-    &::before, &::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgb(var(--v-theme-colorTwo));
-      margin: 0 10px;
-    }
-  }
-
-  .vs-text {
-    margin: 0 15px;  // Space around the "VS" text
-    color: rgb(var(--v-theme-colorThree));
-    font-family: 'Public Pixel', sans-serif;
-    font-size: 24px;
-    text-shadow: 2px 2px 4px rgb(var(--v-theme-colorThree));
   }
 }
 
