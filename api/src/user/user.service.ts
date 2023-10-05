@@ -312,6 +312,7 @@ export class UserService {
   // getting the user games with a specific user
   async getUserGames(userId: string) {
     const games = await this.prisma.games.findMany({
+      take: 30,
       where: {
         OR: [
           {guestId: userId},

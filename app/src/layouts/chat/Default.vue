@@ -18,7 +18,7 @@ const route = useRoute();
 const chatStore = useChatStore();
 const socketStore = useSocketStore();
 const roomStore = useRoomStore();
-const { activeConversation: messages, selectedUser } = storeToRefs(chatStore);
+const { activeConversation, selectedUser } = storeToRefs(chatStore);
 const { roomSettings } = storeToRefs(roomStore)
 
 // type of the conversation (dm / room)
@@ -75,6 +75,6 @@ const focus = () => {
 
 <template>
     <room-settings v-if="roomSettings" @leave="handleLeaveRoom"> </room-settings>
-    <o-container :messages="messages"></o-container>
+    <o-container :type="type" :messages="activeConversation.messages" :messages-count="activeConversation.messagesCount"></o-container>
     <message-input v-model="message" :disabled="selectedUser?.block" @send="send" @focus="focus"> </message-input>
 </template>

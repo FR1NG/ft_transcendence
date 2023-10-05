@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { Message } from '@/types/chat'
 import OMessage from './OMessage.vue'
+import { useChatStore } from '@/store/chat';
+import { ref } from 'vue';
 
-const props = defineProps<{messages: Message[] | undefined}>()
+const props = defineProps<{messages: Message[] | undefined, messagesCount: number, type: 'dm'|'room'}>()
 
 // message details
 let previous = '';
@@ -19,15 +21,22 @@ const printDetails = (message: Message): boolean => {
   }
   return false;
 }
+
+const loadMoreLoader = ref(false);
+
+const loadMore = async () => {
+  loadMoreLoader.value = true;
+  await useChatStore().loadMore(props.type);
+  loadMoreLoader.value = false;
+}
 </script>
 
 
 <template>
   <div class="ma-2 pa-2" v-if="messages">
-    <o-message v-for="message in messages" :printDetails="printDetails(message)" :message="message" :loading="message.loading"> </o-message>
+    <v-btn variant="text" @click="loadMore" :loading="loadMoreLoader" class="ma-4" v-if="messagesCount > messages.length">load more</v-btn>
+      <o-message v-for="message in messages" :printDetails="printDetails(message)" :message="message" :loading="message.loading"> </o-message>
   </div>
-
-
 </template>
 
 <style lang="scss">
