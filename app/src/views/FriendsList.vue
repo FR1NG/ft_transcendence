@@ -37,11 +37,11 @@ import { ref } from 'vue';
           <td>
             <v-list-item :prepend-avatar="friend.avatar">{{ friend.username }}</v-list-item>
           </td>
-          <td>
+          <td class="text-center" :style="friend.status === 'online' ? 'color: green;' : friend.status === 'offline' ? 'color: red;' : 'color:blue;'">
             <v-list-item>{{ friend.status }}</v-list-item>
           </td>
-          <td>
-            <v-list-item :to="{name: 'UserProfile', params: {username: friend.username}}">view profile</v-list-item>
+          <td class="text-right">
+            <v-btn :to="{name: 'UserProfile', params: {username: friend.username}}">view</v-btn>
           </td>
         </tr>
       </tbody>

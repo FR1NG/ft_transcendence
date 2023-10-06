@@ -9,16 +9,16 @@ defineProps<{user: User, loading: Boolean}>()
   <CustomCard class="matchesWrapper" :loading="loading">
     <h2 class="matchesHeader">Last matches</h2>
     <v-table class="matchesTable" theme="dark">
-      <thead>
+      <thead class="pa-4">
         <tr>
           <th class="text-left">
-            host
+            <span>....</span>host
           </th>
           <th class="text-center">
             result
           </th>
           <th class="text-right">
-            guest
+            guest<span>..</span>
           </th>
         </tr>
       </thead>
@@ -32,7 +32,7 @@ defineProps<{user: User, loading: Boolean}>()
 
           <td class="text-center">{{ game.winnerId === game.host.id ? `${game.winnerScore} - ${game.loserScore}` : `${game.loserScore} - ${game.winnerScore}`}}</td>
           <td>
-            <v-list-item lines="one" :to="{name: 'UserProfile', params: {username: game.guest.username}}" :active="false" :prepend-avatar="game.guest.avatar">
+            <v-list-item class="text-right" lines="one" :to="{name: 'UserProfile', params: {username: game.guest.username}}" :active="false" :append-avatar="game.guest.avatar">
               {{ game.guest.username }}
             </v-list-item>
           </td>
@@ -91,5 +91,9 @@ defineProps<{user: User, loading: Boolean}>()
 .v-list-item__content {
   text-wrap: nowrap;
   text-overflow: ellipsis;
+}
+
+span {
+  opacity: 0;
 }
 </style>
