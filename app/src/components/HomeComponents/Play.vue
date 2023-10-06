@@ -23,6 +23,8 @@ import NeonButton from './NeonButton.vue'
     .playGame {
         position: relative;
         display: flex;
+        flex-direction: column;
+        align-items: center;
         height: 100%;
         background-color: rgb(var(--v-theme-colorOne));
         gap: 5rem;
@@ -32,26 +34,19 @@ import NeonButton from './NeonButton.vue'
         }
         .play {
             width: fit-content;
-            height: 100%;
-            width: 100%;
             display: flex;
             flex-wrap: wrap-reverse;
-            align-content: flex-end;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
         }
         .pongGif {
             min-width: 20rem;
             width: 50%;
+            // max-height: 20rem;
             right: 0;
             z-index: 1;
             border-radius: 20px;
         }
-    }
-    .leaderboard {
-        color: rgb(var(--v-theme-colorTwo));
-        height: 100%;
-        background-color: red;
     }
 
 </style>

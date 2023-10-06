@@ -192,6 +192,7 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
       const game = await this.gameService.getMyGame(user, 'STARTED');
       if(!game)
         return;
+      await this.gameService.endGame(game.id);
       const state = this.gameService.getCurrentState(game.id);
       if(state)
         state.gameOver = true
