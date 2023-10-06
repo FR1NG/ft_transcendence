@@ -291,6 +291,8 @@ export class GameService {
         this.eventEmiter.emit('game.clear', game);
         // send resutls to users
         this.eventEmiter.emit('send.result', game);
+        // update users satus
+        this.endGame(game.id);
       });
   }
 
