@@ -22,10 +22,10 @@ onUpdated(() => {
       bootstrap()
 });
 
-useRouter().beforeEach(async (to) => {
-  if(to.meta.auth)
-    await useAuthStore().whoami();
-});
+// useRouter().beforeEach(async (to) => {
+  // if(to.meta.auth)
+  //   await useAuthStore().whoami();
+// });
 </script>
 
 <template>
@@ -37,10 +37,10 @@ useRouter().beforeEach(async (to) => {
     <!-- </v-app-bar-title> -->
         <template v-slot:prepend>
 
-      <v-btn flat variant="flat" color="colorThree" class="text-colorOne" :active="false" :to="{name: 'Home'}">
+      <v-btn flat variant="flat" color="colorThree" class="text-colorOne" :active="false" :to="{name: (logged? 'Home': 'Landing')}">
         Home
       </v-btn>
-      <v-btn v-if="!logged" flat variant="flat" color="colorThree" class="ml-4 text-colorOne" :to="{name: 'About'}">
+      <v-btn flat variant="flat" color="colorThree" class="ml-4 text-colorOne" :to="{name: 'About'}">
         about
       </v-btn>
 

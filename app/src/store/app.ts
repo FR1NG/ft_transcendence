@@ -27,7 +27,9 @@ export const useAppStore = defineStore('app', {
         userStore.getProfile();
       }
     },
-
+    gotToLanding() {
+      this.router.push({name: 'Landing'});
+    },
     resetAll() {
         useAuthStore().reset();
         useChatStore().reset();

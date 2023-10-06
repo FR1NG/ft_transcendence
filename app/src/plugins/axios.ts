@@ -1,3 +1,4 @@
+import { useAppStore } from '@/store/app';
 import { useAuthStore } from '@/store/auth';
 import axios from 'axios'
 import { useRouter } from 'vue-router';
@@ -14,6 +15,8 @@ Trexios.interceptors.response.use(response => {
     if (error.response.status === 401) {
       if(useAuthStore().getToken()){
         useAuthStore().logout();
+      } else {
+        useAppStore().gotToLanding();
       }
     }
     return Promise.reject(error);
