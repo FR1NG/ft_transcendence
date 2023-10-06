@@ -44,7 +44,6 @@ watch(() => form, () => {
   changeState = true;
 else {
     showActions.value = true;
-    console.log('changing the state')
   }
 },
 { deep: true}

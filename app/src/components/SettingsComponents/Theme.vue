@@ -19,7 +19,6 @@ const localTheme = ref<string>(localStorage.getItem('theme') as string)
 watch(() => localTheme.value, (newValue) => {
         vTheme.global.name.value = localTheme.value;
         window.localStorage.setItem('theme', localTheme.value);
-        console.log("from local sto", localStorage.getItem('theme'))
 })
 
 </script>
@@ -34,7 +33,7 @@ watch(() => localTheme.value, (newValue) => {
             :color="radio.color"
             :label="radio.label"
                  ></v-radio>
-        </v-radio-group>    
+        </v-radio-group>
     </v-card>
 </template>
 

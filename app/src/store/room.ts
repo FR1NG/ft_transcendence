@@ -55,11 +55,9 @@ export const useRoomStore = defineStore('room', {
     },
 
     showSettings(id: string) {
-      console.log('showing setting')
       this.roomSettings = true;
     },
     async getRoomUsers(roomId: string): Promise<any> {
-      console.log(roomId)
       return new Promise(async (resolve, reject) => {
         try {
         const response: AxiosResponse = await axios.get(`/room/users?id=${roomId}`);
@@ -82,7 +80,6 @@ export const useRoomStore = defineStore('room', {
           const { data } = await axios.get(`/room/search/${pattern}`);
           this.searchedRooms = data;
           this.searching = false;
-          console.log(data);
           resolve(data);
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})

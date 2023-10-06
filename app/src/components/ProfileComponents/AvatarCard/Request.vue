@@ -64,7 +64,6 @@ const unblockUser = async () => {
   try {
     const result = await userStore.unblockUser(props.user.id);
     pushNotify({status:'success', title:'Action completed', text:`${props.user.username} has been unblocked`});
-    console.log(result);
   } catch (error) {
   }
 }

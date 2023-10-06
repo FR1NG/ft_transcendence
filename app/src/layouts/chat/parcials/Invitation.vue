@@ -14,7 +14,6 @@ const loading = ref(false);
 const router = useRouter();
 
 // getting invitation
-console.log(invitationId);
 roomStore.getInvitation(invitationId).then(result => {
   data.value = result
   appearance.value = true;
@@ -29,7 +28,6 @@ const handleAccept = () => {
   loading.value = true;
   roomStore.acceptInvitation(invitationId).then(() => {
     loading.value = false;
-    console.log('by id: ',data.value.byId);
     router.push({ name:  'Room', params: { id: data.value.byId }});
     pushNotify({status:'success', title:'Action completed', text:'room joined successfully'})
   }).catch(() => {

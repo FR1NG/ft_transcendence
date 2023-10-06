@@ -54,7 +54,6 @@ export default {
 
     // clealing store before route leave
     onBeforeRouteLeave(() => {
-      console.log('route leaved')
       gameStore.reset();
       gameSocket.value?.emit('game-leave');
     })
@@ -84,7 +83,6 @@ export default {
     gameSocket.value?.emit('request-info');
 
     gameSocket.value?.on('matchFound', (data: any) => {
-      console.log('Received matchFound event with data:', data);
       waitingForOpponent.value = false;
       showStartButton.value = true;
       playerId.value = data.role;
@@ -94,7 +92,6 @@ export default {
 
     // Listen for gameStarted event from the server
     gameSocket.value?.on('gameStarted', () => {
-      console.log('Received gameStarted event.');
       showGameElements.value = true;
       showStartButton.value = false;
       waitingForOpponent.value = false;
@@ -263,7 +260,6 @@ export default {
           img.src = currentTheme.value.backgroundImage;
           img.onload = () => {
             loadedImages[currentTheme.value.backgroundImage] = img;
-            console.log("Image loaded: " + img.src)
             ctx.drawImage(img, 0, 0, canvasWidth.value, canvasHeight.value);
           };
         } else {
@@ -369,13 +365,10 @@ export default {
 
     let connectionAttempts = 0;
     gameSocket.value?.on('connect', () => {
-      console.log('Connected to the server');
       connectionAttempts++;
-      console.log(`Connection attempt number: ${connectionAttempts}`);
     });
 
     gameSocket.value?.on('disconnect', () => {
-      console.log('disconnected from the server');
       if(showGameElements.value && !gameOver.value) {
         gameOver.value = true;
         winner.value = playerId.value === 'Host' ? 'Guest' : 'Host';

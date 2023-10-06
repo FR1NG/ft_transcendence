@@ -64,7 +64,6 @@ const update = async () => {
     useAuthStore().getMe();
   } catch (error: any) {
     // assignin valiation errors to errors object
-    console.log(error);
     pushNotify({status:'error', title:'error', text:error?.message})
     assignObject(error.errors, errors);
     updating.value = false;

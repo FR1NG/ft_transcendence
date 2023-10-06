@@ -80,14 +80,12 @@ const handleSubmit = async () => {
 const submitUpload = async () => {
   const data = new FormData();
   loading.value = true
-  console.log(avatar.value)
   data.append('avatar', avatar.value);
   try {
     const response = await axios.post('/user/avatar', data);
     callback(response);
     useAuthStore().getMe();
   } catch (error: any) {
-    console.log(error.response);
       loading.value = false;
   }
 }
@@ -100,7 +98,6 @@ const submitChoose = async (choice: string) => {
     callback(response);
     useAuthStore().getMe();
   } catch (error: any) {
-    console.log(error.response);
       loading.value = false;
   }
 }

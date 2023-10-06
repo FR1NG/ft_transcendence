@@ -70,7 +70,6 @@ const removeAdmin = async (id: string) => {
   try {
     const result = await roomStore.removeAdmin(roomId, id);
     getData();
-    console.log(result);
   } catch (error: any) {
   }
 }
@@ -79,7 +78,6 @@ const kick = async (id: string) => {
   try {
     const result = await roomStore.kickUser(roomId, id);
     getData();
-    console.log(result);
   } catch (error: any) {
   }
 }
@@ -88,7 +86,6 @@ const ban = async (id: string) => {
   try {
     const result = await roomStore.banUser(roomId, id);
     getData();
-    console.log(result);
   } catch (error: any) {
   }
 
@@ -101,7 +98,6 @@ const leaveDialog = ref(false);
 const leave = async (callback: () => void, handleError: () => void) => {
   try {
     const result = await roomStore.leaveRoom(roomId);
-    console.log(result);
     callback();
     emit('leave');
     router.push({ name: 'Chat' })

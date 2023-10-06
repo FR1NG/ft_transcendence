@@ -29,7 +29,6 @@ const listen = () => {
 
     // on opponent leave event
     gameSocket.value?.on('no-rematch', () => {
-      console.log('other user leaved')
       rematch.value = false
     })
 

@@ -138,6 +138,8 @@ export const useChatStore = defineStore('chat', {
           const { data } = response;
           this.users[index].unseen = [];
           this.unreadedCount -= unseen;
+          if(this.unreadedCount < 0)
+            this.unreadedCount = 0;
           resolve(data);
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response.data.message})
@@ -195,7 +197,6 @@ export const useChatStore = defineStore('chat', {
         try {
           const response = await axios.get('friend/blocked');
           const {data} = response;
-          console.log(data);
           this.blocked = data;
           resolve(data);
         } catch(error: any) {

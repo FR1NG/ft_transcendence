@@ -33,10 +33,11 @@ defineProps<{
     <v-divider></v-divider>
     <v-list-item v-for='element in users' :key="element.user.id" :title="element.user.username" :prependAvatar="element.user.avatar"
       :to="{ name: 'Dm', params: { id: element.user.id } }" :value='element.user.username'>
-      <v-badge dot :color="element.user.isOnline ? `success` : `secondary`" inline>
+      <v-badge dot :color="element.user.isOnline ? `green` : `gray`" inline>
       </v-badge>
-      <template v-slot:append v-if="element.unseen.length > 0">
-        <v-badge :content="element.unseen.length" color="red"></v-badge>
+      <template v-slot:append >
+        <v-badge v-if="element.unseen.length > 0" :content="element.unseen.length" color="red" inline>
+      </v-badge>
       </template>
     </v-list-item>
   </v-list>
