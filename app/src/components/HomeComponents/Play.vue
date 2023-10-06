@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import NeonButton from './NeonButton.vue'
-import LiveGames from './LiveGames.vue'
-import RoomsList from './RoomsList.vue'
 
 
 </script>
@@ -10,10 +8,10 @@ import RoomsList from './RoomsList.vue'
 
 <template>
     <div class="playGame">
-        <p class="quote">Ready to test your reflexes and paddle your way to victory?</p>
         <div class="play">
             <NeonButton/>
             <img class="pongGif" src="/images/ppong.gif" alt="pong gif">
+            <p class="quote">Ready to test your reflexes and paddle your way to victory?</p>
         </div>
     </div >
 </template>
@@ -25,8 +23,6 @@ import RoomsList from './RoomsList.vue'
     .playGame {
         position: relative;
         display: flex;
-        flex-direction: column;
-        align-items: center;
         height: 100%;
         background-color: rgb(var(--v-theme-colorOne));
         gap: 5rem;
@@ -36,21 +32,26 @@ import RoomsList from './RoomsList.vue'
         }
         .play {
             width: fit-content;
+            height: 100%;
+            width: 100%;
             display: flex;
             flex-wrap: wrap-reverse;
-            align-items: center;
+            align-content: flex-end;
             justify-content: center;
+            align-items: center;
         }
         .pongGif {
             min-width: 20rem;
             width: 50%;
-            // max-height: 20rem;
             right: 0;
             z-index: 1;
             border-radius: 20px;
         }
     }
+    .leaderboard {
+        color: rgb(var(--v-theme-colorTwo));
+        height: 100%;
+        background-color: red;
+    }
 
-
-    // @media (width)
 </style>

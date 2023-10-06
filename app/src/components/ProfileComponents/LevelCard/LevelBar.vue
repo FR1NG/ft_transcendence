@@ -27,10 +27,19 @@ calculate();
 
 <template>
   <v-progress-linear
+      class="level-bar"
       v-model="level"
-      color="colorTwo"
+      color="colorThree"
       height="25"
     >
     {{ `${points} / ${nextGoal}` }}
   </v-progress-linear>
 </template>
+
+<style lang="scss">
+
+  .level-bar {
+    width: 95%;
+    border-radius: 20px;
+  }
+</style>

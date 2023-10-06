@@ -23,14 +23,15 @@ defineProps<{ user: User, loading: Boolean, me: Me }>()
       <v-col cols="6" sm="3">
         <div class="friendsCount">
           <h4 class="username"> {{ user.username }} </h4>
-          <v-chip class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
+          <v-btn v-if="user && user.id == me.id" :to="{name: 'FriendsList'}" class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
+            variant="flat"> {{ user.friendsCount.toString() }} friends</v-btn>
+          <v-chip v-else class="ms-2 text-medium-emphasis" color="colorTwo" prepend-icon="mdi-account-multiple" size="small"
             variant="flat"> {{ user.friendsCount.toString() }} friends</v-chip>
         </div>
       </v-col>
       <v-col cols="12" sm="6">
         <UserInteract v-if="user.id !== me.id" :user="user" />
       </v-col>
-
     </v-row>
   </CustomCard>
 </template>
