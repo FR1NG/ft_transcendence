@@ -19,14 +19,6 @@ export const useAppStore = defineStore('app', {
 
   },
   actions: {
-    async getInitialData(): Promise<any> {
-      const authStore = useAuthStore();
-      const userStore = useUserStore();
-
-      if(authStore.checkAuth()) {
-        userStore.getProfile();
-      }
-    },
     gotToLanding() {
       this.router.push({name: 'Landing'});
     },

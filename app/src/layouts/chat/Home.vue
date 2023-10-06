@@ -21,6 +21,9 @@ const drawer = ref(window.innerWidth < 1280 ? false : true)
 // getting conversations
 chatStore.getConversationsUsers();
 
+// getting list of blocked users
+chatStore.getBlocked();
+
 // type of the conversation (dm / room)
 type Type = 'dm' | 'room';
 const type = ref(route.name?.toString().toLowerCase() as Type);

@@ -15,7 +15,8 @@ export const useChatStore = defineStore('chat', {
     selectedUser: {} as  User,
     selectedRoom: {} as UserRoom,
     users: [] as UserConversation[],
-    unreadedCount: 0
+    unreadedCount: 0,
+    blocked: []
   }),
   getters: {
 
@@ -187,6 +188,20 @@ export const useChatStore = defineStore('chat', {
           resolve(error.response)
         }
         })
+    },
+    // get list of blocked users
+    async getBlocked() {
+      return new Promise(async (resolve, reject) => {
+        try {
+          const response = await axios.get('friend/blocked');
+          const {data} = response;
+          console.log(data);
+          this.blocked = data;
+          resolve(data);
+        } catch(error: any) {
+          reject(error.response);
+        }
+      })
     }
   },// end of actions
 

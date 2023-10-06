@@ -189,6 +189,14 @@ export class UserService {
 
   // search for a user
   async searchUser(pattern: string, auth: AuthenticatedUser): Promise<any> {
+    const block = await this.prisma.block.findMany({
+      where: {
+        blockedId: auth.sub
+      },
+      select: {
+        blockerId: true
+      }
+    });
     const users = await this.prisma.users.findMany({
       where: {
         username: {
@@ -201,7 +209,8 @@ export class UserService {
       },
     });
 
-    return users;
+    const filtredUsers = users.filter(user => !block.find(b => b.blockerId === user.id));
+    return filtredUsers;
   }
 
 // block a user

@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue'
 import { useChatStore } from '@/store/chat';
 import { User } from '@/types/user';
 import moment from 'moment';
+import { storeToRefs } from 'pinia';
 const props = defineProps<{
   message: Message,
   printDetails: boolean
@@ -12,6 +13,7 @@ const props = defineProps<{
 
 const chatStore = useChatStore();
 const time = ref(moment(props.message.created_at).fromNow())
+const { blocked } = storeToRefs(useChatStore());
 onMounted(() => {
   chatStore.scrollDown();
 });
@@ -24,7 +26,7 @@ time.value = moment(props.message.created_at).fromNow()
 
 
 <template>
-  <v-row>
+  <v-row v-if="!blocked.includes(message.sender.id)">
     <v-row>
       <v-col class="message-container"  no-gutters>
         <v-list-item class="message" color="colorFoure">

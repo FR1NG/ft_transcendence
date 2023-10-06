@@ -3,10 +3,11 @@ import { MessagePaylod } from './dto/chat';
 import { PrismaService } from 'src/prisma.service';
 import { AuthenticatedUser } from 'src/types';
 import { WsException } from '@nestjs/websockets';
+import { FriendService } from 'src/friend/friend.service';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private friendService: FriendService) { }
   async createDm(payload: MessagePaylod, auth: AuthenticatedUser) {
 
     const { sub: createorId } = auth;
@@ -427,11 +428,15 @@ export class ChatService {
     });
     
      const users = [];
+    const blocked = await this.friendService.getBlocked(user);
     conversations.forEach(el => {
-      if (el.userOne.id !== id)
-        users.push({ user: el.userOne, unseen: el.conversation.messages});
-      else
-        users.push({ user: el.userTwo, unseen: el.conversation.messages});
+      const otherId = el.userOne.id !== user.sub ? el.userOne.id : el.userTwo.id; 
+      if(!blocked.includes(otherId)) {
+        if (el.userOne.id !== id)
+          users.push({ user: el.userOne, unseen: el.conversation.messages});
+        else
+          users.push({ user: el.userTwo, unseen: el.conversation.messages});
+      }
     });
     return users;
   }

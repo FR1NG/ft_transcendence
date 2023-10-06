@@ -10,6 +10,7 @@ import { ChatService } from './chat.service';
 import { RoomService } from 'src/room/room.service';
 import { CaslAbilityFactory } from 'src/casl/casl-ability.factory/casl-ability.factory';
 import { NotificationService } from 'src/notification/notification.service';
+import { FriendService } from 'src/friend/friend.service';
 
 @Module({
   imports: [UserModule, JwtModule],
@@ -22,7 +23,8 @@ import { NotificationService } from 'src/notification/notification.service';
     ChatService,
     RoomService,
     CaslAbilityFactory,
-    NotificationService
+    NotificationService,
+    FriendService
   ],
   controllers: [ChatController]
 })

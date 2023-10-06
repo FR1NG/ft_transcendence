@@ -51,4 +51,10 @@ export class FriendController {
     return await this.friendService.getOnlineFriends(user);
   }
 
+  @Get('blocked')
+  @UseGuards(AuthGuard)
+  async getBlocked(@User() user: AuthenticatedUser){
+    return await this.friendService.getBlocked(user);
+  }
+
 }
