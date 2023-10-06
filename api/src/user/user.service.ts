@@ -121,6 +121,7 @@ export class UserService {
       data: {
         username: updateUserDto.username.trim(),
         email: updateUserDto.email.trim(),
+        isSetup: true
       },
     });
     return {message: 'profile updated successfully'};

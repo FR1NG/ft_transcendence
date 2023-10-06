@@ -9,6 +9,7 @@ export type meTypes = {
     isOtpActivated: boolean
     otpSecret: any
     points: number
+    isSetup: boolean
     updated_at: string
     username: string
   }

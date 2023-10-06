@@ -8,6 +8,7 @@ import { meTypes } from "@/types/stateTypes/auth";
 import { useSocketStore } from "./socket";
 import { bootstrap } from "@/composables/socket";
 import { useAppStore } from "./app";
+import { useRouter } from "vue-router";
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -39,6 +40,12 @@ export const useAuthStore = defineStore('auth', {
         }
       })
     },
+    async isSetup() {
+      if(this.me.id)
+        return this.me.isSetup;
+      await this.getMe();
+      return this.me.isSetup;
+    },
     async attemptLogin(code: string) {
       if (code) {
         try {
@@ -51,8 +58,8 @@ export const useAuthStore = defineStore('auth', {
           else {
             this.logged = true;
             await this.getMe();
-            this.redirect();
             this.setOnline(res.data?.access_token);
+            this.redirect();
           }
         } catch (error: any) {
           pushNotify({status:'error', title:'error', text:error.response?.data?.message})
@@ -91,17 +98,17 @@ export const useAuthStore = defineStore('auth', {
       this.setToken('') ;
       this.setOffline();
       useAppStore().resetAll();
+      window.localStorage.removeItem('access_token');
       this.router.push({name: 'Login'})
     },
-    checkAuth() {
-      if (this.getToken()) {
-        this.logged = true;
+    async checkAuth() {
+      if(this.me.id)
         return true;
-      }
-      return false;
+      await this.getMe();
+      return true;
     },
     getToken(): string {
-      return localStorage.getItem('access_token') as string;
+      return window.localStorage.getItem('access_token') as string;
     },
 
     async getQr() {

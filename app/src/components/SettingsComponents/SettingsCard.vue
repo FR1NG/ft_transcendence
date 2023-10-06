@@ -41,6 +41,8 @@ const getProfile = async () => {
     if(!me.value.id)
       await useAuthStore().getMe();
     assignObject(me.value, profile);
+    if(!me.value.isSetup)
+      profile.username = '';
     tfa.value = true
   } catch (error) {
   }

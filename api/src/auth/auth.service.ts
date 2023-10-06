@@ -8,6 +8,7 @@ import { AuthenticatedUser } from 'src/types';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode'
 import { Users } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -80,7 +81,7 @@ export class AuthService {
     else {
       const result = await this.userService.create({
         intra_id: data.id,
-        username: data.login,
+        username: randomUUID(),
         email: data.email,
         avatar: data.image.versions.medium
       });

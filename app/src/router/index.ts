@@ -2,10 +2,12 @@
 import { useAuthStore } from '@/store/auth';
 import { createRouter, createWebHistory } from 'vue-router'
 
-const hasToken = () => {
-  if(useAuthStore().getToken())
-    return true
-  return false;
+const checkAuth = async () => {
+  return (await useAuthStore().checkAuth())
+}
+
+const checkSetup = async () => {
+  return (await useAuthStore().isSetup())
 }
 
 const routes = [
@@ -157,11 +159,24 @@ const router = createRouter({
   routes,
 })
 
+const withoutSetup = [
+  'Settings'
+]
 
-router.beforeEach((to, from, next) => {
-  if (to.meta.auth && to.name !== 'Login' && !hasToken()) next({ name: 'Landing' })
-  else if (hasToken() && to.name === 'Login') next({name: 'Home'})
-  else next()
+router.beforeEach(async (to, from) => {
+  if (to.meta.auth) {
+    try {
+      await useAuthStore().checkAuth();
+      const setup = await checkSetup();
+        if (!setup && to.name !== 'Settings')
+          return ({ name: 'Settings' });
+      if (!useAuthStore().getToken()) return ({ name: 'Landing' })
+    } catch (error: any) {
+      if (error.satus === 401)
+        return ({ name: 'Landing' });
+    }
+  }
+  if (to.name === 'Login' && useAuthStore().getToken()) return ({ name: 'Home' })
 })
 
 export default router
