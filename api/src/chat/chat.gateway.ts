@@ -98,7 +98,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('login')
   @UseGuards(WsAuthGuard)
   async handleUserLogin(client: AuthSocket) {
-    console.log('------------------------------')
     // this.logger.verbose('login event emited')
     // this.clients.set(client.user.sub, client);
     // await this.userService.setOnline(client.user.sub, true);

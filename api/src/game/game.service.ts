@@ -325,7 +325,6 @@ export class GameService {
   }
 
   private declareWinner(gameId: string, playerId: string): void {
-    console.log(`Player ${playerId} is the winner!`);
     this.finishGame(gameId, playerId);
     this.gameStates[gameId].gameOver = true;
     // Stop the ball and paddles from moving
@@ -347,7 +346,6 @@ export class GameService {
     if (!this.isPlayerInQueue(playerId)) {
       mode = mode || GameMode.NORMAL;
       if (this.isValidMode(mode)) {
-        console.log(`joined queue in: ${mode}`);
         this.playerQueues[mode].push(playerId);
       } else {
         console.error(`Invalid mode: ${mode}.`);

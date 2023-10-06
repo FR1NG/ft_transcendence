@@ -47,16 +47,13 @@ const handleDecline = () => {
   });
 }
 
-const back = () => {
-  router.go(-1)
-}
 
 </script>
 
 <template>
   <v-main>
     <v-dialog v-model="model" class="overlay">
-      <v-card max-width="800" class="mx-auto pa-4" color="colorThree text-colorOne"  rounded="xl" :loading="loading">
+      <v-card width="400" class="mx-auto pa-4" color="colorThree text-colorOne"  rounded="xl" :loading="loading">
         <div v-if="appearance">
           <v-card-text>
             invitation to join room: {{ data.inviter.name }}
@@ -72,7 +69,7 @@ const back = () => {
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="outlined" @click="back" prepend-icon="mdi-home-outline">Home</v-btn>
+            <v-btn variant="outlined" :to="{name: 'Home'}" prepend-icon="mdi-home-outline">Home</v-btn>
           </v-card-actions>
         </div>
 

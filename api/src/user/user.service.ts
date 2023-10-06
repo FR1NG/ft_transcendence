@@ -3,15 +3,20 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { FilterUserDto } from './dto/filter-user.dto';
 import { AuthenticatedUser } from 'src/types';
-import { Prisma } from '@prisma/client';
+import { AuthService } from 'src/auth/auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 type FriendshipStatus = 'FRIENDS' | 'INVITATION_SENT' | 'INVITATION_RECIEVED' | 'NONE'
 type InvitationStatus = 'SENT' | 'RECIEVED' | 'NONE'
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService, private config: ConfigService) { }
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+    // private authService: AuthService
+    private jwtService: JwtService,
+  ) { }
 
   async create(createUserDto: CreateUserDto) {
     const user = await this.prisma.users.create({
@@ -124,7 +129,9 @@ export class UserService {
         isSetup: true
       },
     });
-    return {message: 'profile updated successfully'};
+    
+    const token = await this.jwtService.signAsync({username: result.username, sub: result.id, isOtpActivated: result.isOtpActivated, isOtpVirified: true });
+    return {message: 'profile updated successfully', access_token: token };
   }
 
   remove(id: number) {

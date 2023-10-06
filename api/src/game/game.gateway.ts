@@ -60,7 +60,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('joinQueue')
   @UseGuards(WsAuthGuard)
   joinQueue(client: any, mode: GameMode = 'NORMAL') {
-    console.log('event emmited')
     const user = client.user
     this.logger.verbose(`${user.username} joined ${mode} queue`);
     this.gameService.joinQueue(user.sub, mode);
@@ -84,7 +83,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.handlePlayerConnection(client, mode);
     const game = await this.matchPlayers(mode);
     if (game) {
-        console.log("Game ID:", game.id);
         this.broadcastGameState(game.id);
     } else {
         client.emit('waitingForMatch');
@@ -92,14 +90,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handlePlayerConnection(client: Socket, mode: GameMode): void {
-    // console.log(`Client connected: ${client.id}`);
     // if (!this.gameService.isPlayerInQueue(client.id)) {
     //   this.gameService.joinQueue(client.id, mode);
     // }
   }
   
   async matchPlayers(mode: GameMode): Promise<Games> {
-    console.log("Attempting to match players...");
     const players = this.gameService.getPlayersForMatch(mode);
     if (!players) return null;
     const [player1, player2] = players;
@@ -128,7 +124,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   handleRestartRequest(client: Socket, data: any): void {
     // const mode: GameMode = data;
     // const clientId = client.id;
-    // console.log(`Received joinQueueAgain from ${client.id}`);
     // const clientData = this.clients[clientId];
     // if (clientData) {
     //   const { gameId } = clientData;
@@ -225,12 +220,10 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @SubscribeMessage('startGame')
   @UseGuards(WsAuthGuard)
   async handleGameStart(client: any): Promise<void> {
-    // console.log(client)
     const user = client.user;
     const socket = this.clients.get(user.sub)
     const game = socket.game;
     if (!socket) {
-      console.log(`Client with ID ${client.id} was not found in the clients list.`);
       return;
     }
     if(!game) throw new WsException('game not found');
@@ -299,7 +292,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   async requestInfo(client: AuthSocket) {
     // const game = this.clients.get(client.user.sub).game;
     const game = await this.gameService.getMyGame(client.user, 'CREATED');
-    console.log(game)
     if(game) {
       const role = game.hostId === client.user.sub ? 'Host' : 'Guest';
       const opponentId = game.hostId === client.user.sub ? game.guestId : game.hostId;
@@ -353,8 +345,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           return;
         this.logger.verbose('both want to restart game');
         const game = await this.gameService.createGame(invit[0], invit[1], 'NORMAL');
-      console.log('this is the game')
-        console.log(game)
         const client1 = this.clients.get(invit[0]);
         const client2 = this.clients.get(invit[1]);
         client1.game = game;
@@ -367,7 +357,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent: client2Opponent});
         this.broadcastGameState(game.id);
         this.logger.verbose(`game created with id ${game.id}`)
-        console.log(this.invitatios)
         // this.invitatios.delete(payload.invitationId);
     } else {
       this.invitatios.set(payload.invitationId, [payload.user.sub]);

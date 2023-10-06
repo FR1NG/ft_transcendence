@@ -30,7 +30,7 @@ const logout = () => {
 
       <v-card min-width="250">
         <v-list>
-          <v-list-item :prepend-avatar="me.avatar" :title="me.username">
+          <v-list-item :prepend-avatar="me.avatar" :title="me.isSetup ? me.username : '(you should choose username)'">
           </v-list-item>
         </v-list>
 
@@ -38,7 +38,7 @@ const logout = () => {
 
         <v-list>
 
-          <v-list-item :to="{ name: 'UserProfile', params: { username: me.username } }">
+          <v-list-item v-if="me.isSetup" :to="{ name: 'UserProfile', params: { username: me.username } }">
             Profile
           </v-list-item>
           <v-list-item :to="{ name: 'Settings' }">

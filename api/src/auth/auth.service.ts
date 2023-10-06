@@ -42,6 +42,10 @@ export class AuthService {
     }
   }
 
+  async getNewJwt(payload) {
+    return await this.jwtService.signAsync(payload);
+  }
+
   async verifyOtp(user: AuthenticatedUser, code: string) {
     const auser = await this.prisma.users.findUnique({
       where: {

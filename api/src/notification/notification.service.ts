@@ -27,7 +27,6 @@ export class NotificationService {
         link: link,
       }
     });
-    console.log(notification);
     return notification;
   }
 
@@ -62,7 +61,6 @@ export class NotificationService {
         }
       });
     } catch(error) {
-      console.log('server error');
     }
   }
 }

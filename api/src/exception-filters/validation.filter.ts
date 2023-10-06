@@ -11,7 +11,6 @@ export class ValidationExceptionFilterFilter implements ExceptionFilter {
       const exceptionResponse = exception.getResponse() as Record<string, any>;
       const { message, statusCode } = exceptionResponse;
     if (exception instanceof BadRequestException) {
-      console.log(exception);
       const costumeMessages = {};
 
       if(message instanceof Array) {

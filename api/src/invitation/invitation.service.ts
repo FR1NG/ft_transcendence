@@ -200,7 +200,6 @@ export class InvitationService {
       }
     });
     // emitting event to join the game
-    console.log(`${user.username} created invitation`)
     this.emiter.emit('game.invite', {user, invitationId: result.id});
     return  result;
   }
@@ -210,7 +209,6 @@ export class InvitationService {
   }
 
   private async createFriendInvit(user: AuthenticatedUser, data: CreateInvitationDto) {
-    console.log('creating friend request')
     const isFriend = await this.userService.isFriend(user, data.userId);
     if(isFriend)
       throw new ConflictException(`you are already friends`);

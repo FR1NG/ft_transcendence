@@ -13,7 +13,6 @@ export class WsPrismaFilter implements ExceptionFilter {
 
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     host.switchToWs().getClient().emit('error', 'prisma error');
-    console.log('prisma error on ws');
     if(exception instanceof Prisma.PrismaClientKnownRequestError) {
     }
   } 
