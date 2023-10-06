@@ -357,7 +357,7 @@ export class ChatService {
     if(!room)
       throw new NotFoundException();
     if (room.users.length === 0)
-      throw new UnauthorizedException('you are not authorized to access this room');
+      throw new ForbiddenException('you are not authorized to access this room');
 
     room.conversation.messages = room.conversation?.messages?.reverse();
     const count = await this.prisma.messages.count({

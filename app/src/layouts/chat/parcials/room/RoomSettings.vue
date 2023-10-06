@@ -88,6 +88,14 @@ const ban = async (id: string) => {
     getData();
   } catch (error: any) {
   }
+}
+
+const unban = async (id: string) => {
+  try {
+    const result = await roomStore.unbanUser(roomId, id);
+    getData();
+  } catch (error: any) {
+  }
 
 }
 
@@ -163,6 +171,9 @@ const closeMute = () => {
               <v-icon v-if="user.role !== 'USER'" class="role-icon" :color="iconColor(user.role)">
                 {{ getIcon(user.role) }}
               </v-icon>
+              <v-icon v-if="user.baned" class="role-icon" color="red">
+                mdi-cancel
+              </v-icon>
               <v-avatar>
                 <v-img :src="user.user.avatar"></v-img>
               </v-avatar>
@@ -174,11 +185,14 @@ const closeMute = () => {
                   <v-icon v-bind="props">mdi-dots-vertical</v-icon>
                 </template>
                 <v-list>
+                  <div v-if="!user.baned">
                   <v-list-item v-if="user.role !== 'ADMIN'" @click="makeAdmin(user.user.id)">Make Admine</v-list-item>
                   <v-list-item v-else @click="removeAdmin(user.user.id)">Remove Admine</v-list-item>
-                  <v-list-item @click="ban(user.user.id)">Ban</v-list-item>
-                  <v-list-item @click="kick(user.user.id)">Kick</v-list-item>
-                  <v-list-item @click="mute(user.user.id, user.user.username)">Mute</v-list-item>
+                  </div>
+                  <v-list-item v-if="!user.baned" @click="ban(user.user.id)">Ban</v-list-item>
+                  <v-list-item v-else @click="unban(user.user.id)">Unban</v-list-item>
+                  <v-list-item v-if="!user.baned" @click="kick(user.user.id)">Kick</v-list-item>
+                  <v-list-item v-if="!user.baned" @click="mute(user.user.id, user.user.username)">Mute</v-list-item>
                 </v-list>
               </v-menu>
             </template>

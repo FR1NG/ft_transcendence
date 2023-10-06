@@ -185,6 +185,21 @@ export const useRoomStore = defineStore('room', {
         }
       });
     },
+   async unbanUser(roomId: string, userId: string): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+        try {
+          const response: AxiosResponse = await axios.post('/room/unban', {
+            roomId,
+            userId
+          });
+          const { data } = response;
+          resolve(data);
+        } catch (error: AxiosResponse | any) {
+          pushNotify({status:'error', title:'error', text:error.response.data.message})
+          reject(error.response)
+        }
+      });
+    },
 
     // laeve a room
     async leaveRoom(roomId: string): Promise<any> {

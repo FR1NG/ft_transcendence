@@ -131,7 +131,7 @@ export class RoomService {
       throw new NotFoundException();
 
     if (room.type === 'PRIVATE')
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
 
     if (room.type === 'PROTECTED') {
       const passwordMatch = await bcrypt.compare(password, room.password);
@@ -185,6 +185,7 @@ export class RoomService {
             users: {
               select: {
                 role: true,
+                baned: true,
                 user: {
                   select: {
                     id: true,
@@ -367,6 +368,33 @@ async banUser(roomId: string, userId: string) {
       },
       data: {
         baned: true
+      }
+    });
+    return result;
+}
+// unban a youser from a room
+async unbanUser(roomId: string, userId: string) {
+    const room = await this.prisma.usersRooms.findFirst({
+      where: {
+        userId,
+        roomId
+      },
+      select: {
+        id: true,
+        role: true
+        }
+    });
+
+    if(!room)
+      throw new NotFoundException('room not found');
+    if(room.role === 'OWNER')
+      throw new ForbiddenException(`you cannot kick a ${room.role}, are you stupid`);
+    const result = await this.prisma.usersRooms.update({
+      where: {
+        id: room.id
+      },
+      data: {
+        baned: false
       }
     });
     return result;

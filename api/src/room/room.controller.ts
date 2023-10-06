@@ -90,6 +90,14 @@ export class RoomController {
     return await this.roomService.banUser(roomId, userId);
   }
 
+  @Post('unban')
+  @UseGuards(RoomAbilityGuardGuard)
+  @CheckRoomAbility('update')
+  @UseGuards(AuthGuard)
+  async unbanUser(@User() user: AuthenticatedUser, @Body('roomId') roomId: string, @Body('userId') userId: string) {
+    return await this.roomService.unbanUser(roomId, userId);
+  }
+
   //leave a room
   @Post('leave')
   @UseGuards(RoomAbilityGuardGuard)
