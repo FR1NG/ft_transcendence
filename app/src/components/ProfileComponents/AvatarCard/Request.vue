@@ -86,16 +86,16 @@ const inviteGame = (userId: string) => {
 </script>
 
 <template>
-  <div class="ma-8">
+  <div class="mt-8 mr-5">
   <v-row>
     <v-col lg="6" cols="12">
-      <v-btn :to="{ name: 'Dm', params: { id: user.id } }" block variant="outlined" rounded="lg"
+      <v-btn density="comfortable" :to="{ name: 'Dm', params: { id: user.id } }" block variant="outlined" rounded="lg"
         prepend-icon="mdi-message-text-outline">
         message
       </v-btn>
     </v-col>
     <v-col lg="6" cols="12">
-      <v-btn class="btn text-none" rounded="lg" block variant="outlined" prepend-icon="mdi-gamepad-variant-outline"
+      <v-btn density="comfortable" class="btn text-none" rounded="lg" block variant="outlined" prepend-icon="mdi-gamepad-variant-outline"
         @click="inviteGame(user.id)">
         Game invite
       </v-btn>
@@ -103,29 +103,29 @@ const inviteGame = (userId: string) => {
   </v-row>
   <v-row>
     <v-col lg="6" cols="12">
-      <v-btn v-if="user.friendshipStatus === 'INVITATION_SENT'" block rounded="lg" :loading="data.sending"
+      <v-btn density="comfortable" v-if="user.friendshipStatus === 'INVITATION_SENT'" block rounded="lg" :loading="data.sending"
         @click="cancelFriendRequest(user.invitationId)" color="colorThree" variant="flat">
         cancel request
       </v-btn>
-      <v-btn v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" block rounded="lg" :loading="data.sending"
+      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" block rounded="lg" :loading="data.sending"
         @click="confirmFriendInvitaion(user.invitationId)" color="secondary" variant="flat">
         confirm
       </v-btn>
-      <v-btn v-else-if="user.friendshipStatus === 'FRIENDS'" block variant="outlined" rounded="lg" prepend-icon="mdi-minus"
+      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'FRIENDS'" block variant="outlined" rounded="lg" prepend-icon="mdi-minus"
         :loading="data.sending" @click="unfriend(user.id)">
         unfriend
       </v-btn>
-      <v-btn v-else="user.friendshipStatus === 'NONE'" block variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
+      <v-btn density="comfortable" v-else="user.friendshipStatus === 'NONE'" block variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
         :loading="data.sending" @click="sendFrienRequest(user.id)">
         add friend
       </v-btn>
     </v-col>
     <v-col lg="6" cols="12">
-      <v-btn v-if="user.blocked" @click="unblockUser" block rounded="lg" prepend-icon="mdi-lock-open-variant-outline"
+      <v-btn density="comfortable" v-if="user.blocked" @click="unblockUser" block rounded="lg" prepend-icon="mdi-lock-open-variant-outline"
         variant="outlined">
         unblock
       </v-btn>
-      <v-btn v-else variant="outlined" block rounded="lg" @click="blockUser" color="colorThree"
+      <v-btn density="comfortable" v-else variant="outlined" block rounded="lg" @click="blockUser" color="colorThree"
         prepend-icon="mdi-account-cancel-outline">
         block
       </v-btn>

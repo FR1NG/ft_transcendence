@@ -37,10 +37,10 @@ onUpdated(() => {
     <!-- </v-app-bar-title> -->
         <template v-slot:prepend>
 
-      <v-btn flat variant="flat" color="colorThree" class="text-colorOne" :active="false" :to="{name: (logged? 'Home': 'Landing')}">
+      <v-btn flat variant="text" color="colorThree" class="text-colorOne" :active="false" :to="{name: (logged? 'Home': 'Landing')}">
         Home
       </v-btn>
-      <v-btn flat variant="flat" color="colorThree" class="ml-4 text-colorOne" :to="{name: 'About'}">
+      <v-btn flat variant="text" color="colorThree" class="ml-4 text-colorOne" :to="{name: 'About'}">
         about
       </v-btn>
 
