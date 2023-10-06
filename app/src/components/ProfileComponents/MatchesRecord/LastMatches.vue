@@ -12,13 +12,13 @@ defineProps<{user: User, loading: Boolean}>()
       <thead class="pa-4">
         <tr>
           <th class="text-left">
-            <span>....</span>host
+            <span class="inv-points">....</span>host
           </th>
           <th class="text-center">
             result
           </th>
           <th class="text-right">
-            guest<span>..</span>
+            guest<span class="inv-points">..</span>
           </th>
         </tr>
       </thead>
@@ -93,7 +93,7 @@ defineProps<{user: User, loading: Boolean}>()
   text-overflow: ellipsis;
 }
 
-span {
+.inv-points {
   opacity: 0;
 }
 </style>
