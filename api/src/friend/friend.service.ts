@@ -1,11 +1,69 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { FriendRequestStatus } from '@prisma/client';
+import { FriendRequestStatus, Friends } from '@prisma/client';
 import { AuthenticatedUser } from 'src/types';
 
 @Injectable()
 export class FriendService {
   constructor(private prisma: PrismaService) { }
+
+  async getFriends(user: AuthenticatedUser) {
+      const friends = await this.prisma.friends.findMany({
+      where: {
+        OR: [
+          {friendId: user.sub},
+          {friendOfId: user.sub}
+        ],
+      },
+      select: {
+        friendWith: {
+          select: {
+            id: true,
+            avatar: true,
+            username: true,
+            isInGame: true,
+            isOnline: true
+          }
+        },
+        friendOf: {
+          select: {
+            id: true,
+            avatar: true,
+            username: true,
+            isInGame: true,
+            isOnline: true
+          }
+        }
+      }
+    });
+    return this.filterFriends(user, friends);
+  }
+
+  filterFriends(user: AuthenticatedUser, friends: any) {
+    const mergedFriends = [];
+    friends.forEach((el: any) => {
+      if(el.friendOf.id !== user.sub) {
+        if (el.friendOf.isOnline)
+          el.friendOf['status'] = 'online';
+        else
+          el.friendOf['status'] = 'offline';
+        if (el.friendOf.isInGame)
+          el.friendOf['status'] = 'in game';
+        mergedFriends.push(el.friendOf);
+      }
+      else {
+        if (el.friendWith.isOnline)
+          el.friendWith['status'] = 'online';
+        else
+          el.friendWith['status'] = 'offline';
+        if (el.friendWith.isInGame)
+          el.friendWith['status'] = 'in game';
+          
+        mergedFriends.push(el.friendWith);
+      }
+    });
+    return mergedFriends;
+  }
 
   async sendFrienRequest(authenticatedId: string, requestedId: string) {
     // finding reqeust

@@ -1,14 +1,24 @@
 <script setup lang="ts">
-    import { useUserStore } from '@/store/user'
+    import { useFriendsStore } from '@/store/friends'
     import { storeToRefs } from 'pinia'
+import { ref } from 'vue';
 
-    const userStore = useUserStore();
-    const { user } = storeToRefs(userStore);
+    const friendsStore = useFriendsStore();
+    const { friends } = storeToRefs(friendsStore);
+    const loader = ref(true);
+
+
+    friendsStore.getFriends().then(() => {
+      loader.value = false;
+    }).catch(() => {
+        loader.value = false;
+      });
+
 </script>
 
 <template>
     <div class="listWrapper">
-    <v-table class="matchesTable" theme="dark">
+    <v-table class="matchesTable" :loading="loader" theme="dark">
       <thead>
         <tr>
           <th class="text-left">
@@ -23,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="friend in user.friends" :key="friend.id">
+        <tr v-for="friend in friends" :key="friend.id">
           <td>
             <v-list-item :prepend-avatar="friend.avatar">{{ friend.username }}</v-list-item>
           </td>

@@ -9,6 +9,12 @@ import { User } from 'src/common/decorators'
 export class FriendController {
   constructor(private friendService: FriendService, private notificationService: NotificationService) {}
 
+  @Get()
+  @UseGuards(AuthGuard)
+  async getFriends(@User() user: AuthenticatedUser) {
+    return await this.friendService.getFriends(user);
+  }
+
   @Post()
   @UseGuards(AuthGuard)
   async sendFrienRequest(@Body('id') requestedId: string, @Req() request: any) {

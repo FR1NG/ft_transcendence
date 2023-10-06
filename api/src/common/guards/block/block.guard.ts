@@ -21,7 +21,6 @@ export class BlockGuard implements CanActivate {
         ]
       }
     });
-    console.log(block)
     if(block) {
       throw new ForbiddenException();
     }

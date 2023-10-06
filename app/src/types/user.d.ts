@@ -65,3 +65,12 @@ export interface Host {
   username: string
   avatar: string
 }
+
+export interface Friend {
+  id: string
+  avatar: string
+  username: string
+  isInGame: boolean
+  isOnline: boolean
+  status: string
+}
