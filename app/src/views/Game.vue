@@ -415,6 +415,7 @@ export default {
 .gameCanvas {
   padding: 0;
   width: 90%;
+  max-width: 1500px;
   display: block;
   color: rgb(var(--v-theme-colorTwo));
   border: 1px solid rgb(var(--v-theme-colorTwo));
@@ -428,7 +429,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 93.2vh;
   width: 100vw;
   overflow: hidden !important;
 }

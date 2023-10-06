@@ -92,6 +92,14 @@ const routes = [
           auth: true
         }
       },
+      {
+        path: '/friends',
+        name: 'FriendsList',
+        component: () => import('@/views/FriendsList.vue'),
+        meta: {
+          auth: true
+        }
+      },
       // error pages
       {
         path: '/forbidden',
