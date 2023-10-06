@@ -3,9 +3,11 @@ import { Message } from '@/types/chat'
 import OMessage from './OMessage.vue'
 import { useChatStore } from '@/store/chat';
 import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 
-const props = defineProps<{messages: Message[] | undefined, messagesCount: number, type: 'dm'|'room'}>()
+const props = defineProps<{messages: Message[] | undefined, messagesCount: Number, type: 'dm'|'room'}>()
 
+const { blocked } = storeToRefs(useChatStore());
 // message details
 let previous = '';
 const printDetails = (message: Message): boolean => {

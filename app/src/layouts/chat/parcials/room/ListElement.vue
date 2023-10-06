@@ -12,7 +12,6 @@ const props = defineProps<{
 
 // room settings
 const roomSettings = (room: UserRoom) => {
-  console.log('showing setting');
   // roomStore.showSettings(room);
 }
 

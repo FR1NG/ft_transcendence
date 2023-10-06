@@ -40,9 +40,7 @@ const invite = (userId: string) => {
 
 const cancel = (userId: string) => {
   loading.value.push(userId);
-  console.log('canceling')
   useRoomStore().cancelInvitation(roomId, userId).then(result => {
-      console.log(result);
     refetch();
     removeLoading(userId);
   }).catch((error: any) => {

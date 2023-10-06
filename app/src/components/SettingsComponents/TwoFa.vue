@@ -62,7 +62,6 @@ const getQrCode = async () => {
 }
 
 const focus = (value: boolean) => {
-  console.log(value);
   if(value)
     input.value?.focus();
 }

@@ -12,27 +12,8 @@ const route = useRoute()
 
 // listning for user joined the game event
 const init  = () => {
-  // console.log('listning to joined event')
-  // socket.value?.on('user-joined', (data: any) => {
-  //   console.log(data)
-  //   console.log('joined triggred');
-  // })
-
-  //
-  // // requesting game info if existed
-  // const invitationId = route.params.invitationId as string;
-  // socket.value?.emit('request-info', {invitationId});
-
-
     socket.value?.on('matchFound', (data: any) => {
-
-      console.log('Received matchFound event with data:', data);
-      // waitingForOpponent.value = false;
-      // showStartButton.value = true;
-      // playerId.value = data.role;
-      // gameId.value = data.gameId;
     });
-
 }
 
 init();

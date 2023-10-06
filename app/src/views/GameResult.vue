@@ -11,7 +11,6 @@ const restartGame = () => {
 }
 
 onBeforeRouteLeave(() => {
-  console.log('route leaved')
   gameStore.reset();
   // gameSocket.value?.emit('game-leave');
 })

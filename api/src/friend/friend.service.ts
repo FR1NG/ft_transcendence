@@ -207,4 +207,37 @@ export class FriendService {
     })
     return filtredFriends;
   }
+
+  // getting all blocked users
+  async getBlocked(user: AuthenticatedUser) {
+    const  blocked = await this.prisma.block.findMany({
+      where: {
+        OR: [
+          {blockedId: user.sub},
+          {blockerId: user.sub}
+        ]
+      },
+      select: {
+        blocked: {
+          select: {
+            id: true
+          }
+        },
+        blockedBy: {
+          select: {
+            id: true
+          }
+        }
+      }
+    });
+
+    const filtredBlocked = [];
+    blocked.forEach(el => {
+      if(el.blocked.id !== user.sub)
+        filtredBlocked.push(el.blocked.id)
+      if(el.blockedBy.id !== user.sub)
+        filtredBlocked.push(el.blockedBy.id)
+    });
+    return filtredBlocked;
+  }
 }

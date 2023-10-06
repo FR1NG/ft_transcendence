@@ -25,7 +25,6 @@ export const useNotificationStore = defineStore('notifications', {
         this.notifications = data;
       } catch (error: any) {
         pushNotify({status:'error', title:'error', text:error.response.data.message})
-        console.log(error)
       }
     },
     async markRead(ids: Array<number>) {

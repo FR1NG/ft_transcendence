@@ -69,7 +69,6 @@ export const useGameStore = defineStore('game', {
     },
     setResult(value: string) {
       if(this.router.currentRoute.value.name === 'Game') {
-        console.log(value)
           this.gameResult = value;
       }
     },
@@ -79,15 +78,12 @@ export const useGameStore = defineStore('game', {
       }
     },
     restartGame() {
-      console.log('restart game called from store');
       const socketStore = useSocketStore();
-      console.log(this.restartId);
       socketStore.gameSocket?.emit('restart', this.restartId)
       this.restartId = '';
       this.gameResult = '';
     },
     reset() {
-      console.log('reset called')
       this.gameResult =  '';
       this.restartId =  '';
       this.themeSelected = false;
