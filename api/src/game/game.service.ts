@@ -303,6 +303,22 @@ export class GameService {
         status: 'STARTED',
       }
     });
+    await this.prisma.users.update({
+      where: {
+        id: game.hostId
+      },
+      data: {
+        isInGame: true
+      }
+    });
+    await this.prisma.users.update({
+      where: {
+        id: game.guestId
+      },
+      data: {
+        isInGame: true
+      }
+    });
     this.initializeGameState(game.id, game.mode);
     this.setPlayersId(game.id, game.hostId, game.guestId);
     this.gameStates[game.id].gameStarted = true;
@@ -443,6 +459,32 @@ export class GameService {
           {hostId: user.sub},
           {guestId: user.sub},
         ],
+      }
+    });
+  }
+
+  // update game users satatus
+  async endGame(id: string) {
+    const game = await this.prisma.games.findUnique({
+      where: {
+        id
+      }
+    });
+
+    await this.prisma.users.update({
+      where: {
+        id: game.guestId
+      },
+      data: {
+        isInGame: false
+      }
+    });
+    await this.prisma.users.update({
+      where: {
+        id: game.hostId
+      },
+      data: {
+        isInGame: false
       }
     });
   }
