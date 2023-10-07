@@ -116,14 +116,17 @@ export const useSocketStore = defineStore('socket', {
     },
     // set the socket access token
     setToken(token: string) {
-    if(this.socket) {
-      this.socket.auth.token = token;
-    }
+      if(this.socket) {
+        this.socket.auth.token = token;
+      }
+    },
+    //getting socket instance
+    getSocket() {
+      return this.socket;
     },
     reset() {
-
-    this.socket = null as MySocket | null;
-    this.gameSocket = null as MySocket | null;
+      this.socket = null as MySocket | null;
+      this.gameSocket = null as MySocket | null;
     }
   },
 

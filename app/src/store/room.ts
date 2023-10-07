@@ -4,6 +4,7 @@ import axios from '@/plugins/axios'
 import { AxiosError, AxiosResponse } from 'axios'
 import { useChatStore } from './chat'
 import { pushNotify } from '@/composables/simpleNotify'
+import { useSocketStore } from './socket'
 
 type UserRoom = {
   role: String
@@ -289,7 +290,8 @@ export const useRoomStore = defineStore('room', {
           const response: AxiosResponse = await axios.post(`/invitation/accept/${id}`);
           const { data } = response;
           resolve(data);
-          this.getRooms();
+          await this.getRooms();
+          useSocketStore().getSocket()?.emit('join-room', {id: data.roomId});
         } catch (error: any) {
           pushNotify({status: 'error', title: 'error', text: error.response.data.message})
           reject(error.response);

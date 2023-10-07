@@ -94,6 +94,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     throw new WsException('invalid message payload');
   }
+  @SubscribeMessage('join-room')
+  @UseFilters(WebSocketExceptionFilter)
+  @UseGuards(WsAuthGuard)
+  async joinRoom(client: AuthSocket, payload) {
+    console.log(payload)
+    const allowed = await this.roomService.isInRoom(client.user, payload.id);
+    console.log(allowed);
+    if(allowed)
+      client.join(payload.id);
+  }
 
   @SubscribeMessage('login')
   @UseGuards(WsAuthGuard)

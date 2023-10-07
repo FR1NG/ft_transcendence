@@ -124,6 +124,7 @@ export class InvitationService {
       throw new InternalServerErrorException();
     this.deleteInvitation(result.roomId, invit.id);
     return {
+      roomId: result.roomId,
       message: 'you hanve joined the room',
     };
   }

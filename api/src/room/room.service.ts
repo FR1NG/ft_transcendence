@@ -138,7 +138,7 @@ export class RoomService {
       if (!passwordMatch)
         throw new HttpException({
           message: 'Invalid password'
-        }, HttpStatus.UNAUTHORIZED);
+        }, HttpStatus.FORBIDDEN);
     }
 
     const joined = await this.prisma.users.update({
@@ -222,6 +222,18 @@ export class RoomService {
     return room;
   }
 
+  async isInRoom(user: AuthenticatedUser, id: string) {
+    const room = this.prisma.usersRooms.findFirst({
+      where: {
+        roomId: id,
+        userId: user.sub
+      }
+    });
+    if(room)
+      return true;
+    return false;
+  }
+
 
   // search for a room
   async searchRoom(user: AuthenticatedUser, pattern: string) {
@@ -250,15 +262,16 @@ export class RoomService {
       }
     });
 
-    const filtred = rooms.map(el => {
+    const filtred = [];
+    rooms.forEach(el => {
       if (el.users.length > 0)
         el["joined"] = true;
       else
         el["joined"] = false;
       if(!el.users[0]?.baned) {
-        delete el["users"];
-          return el;
+        filtred.push(el)
       }
+      delete el["users"];
     })
     return filtred;
   }
