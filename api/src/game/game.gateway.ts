@@ -339,6 +339,11 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.logger.verbose(`${payload.user.username} joined`);
     const invit = this.invitatios.get(payload.invitationId);
     if(invit) {
+      if(!this.clients.get(payload.user.sub)) {
+        console.log('users socket not found here');
+        console.log(payload.user.sub);
+      }
+        
         if(!invit.includes(payload.user.sub))
           invit.push(payload.user.sub);
         if(invit.length !== 2)
@@ -349,14 +354,18 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           return;
         const client1 = this.clients.get(invit[0]);
         const client2 = this.clients.get(invit[1]);
-        client1.game = game;
-        client2.game = game;
-        client1.socket.join(game.id);
-        client2.socket.join(game.id);
-        const client1Opponent = await this.gameService.getOpponent(invit[1]);
-        const client2Opponent = await this.gameService.getOpponent(invit[0]);
-        client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent });
-        client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent: client2Opponent});
+        if(client1) {
+          client1.game = game;
+          client1.socket.join(game.id);
+          const client1Opponent = await this.gameService.getOpponent(invit[1]);
+          client1.socket.emit('matchFound', { role: 'Host', gameId:game.id, opponent: client1Opponent });
+        }
+        if(client2) {
+          client2.game = game;
+          client2.socket.join(game.id);
+          const client2Opponent = await this.gameService.getOpponent(invit[0]);
+          client2.socket.emit('matchFound', { role: 'Guest', gameId:game.id, opponent: client2Opponent});
+        }
         this.broadcastGameState(game.id);
         this.logger.verbose(`game created with id ${game.id}`)
         // this.invitatios.delete(payload.invitationId);

@@ -9,9 +9,11 @@ import RoomsList from './parcials/RoomsList.vue'
 import InfoBar from './parcials/InfoBar.vue'
 import UsersList from './parcials/UsersList.vue'
 import { RouterView } from 'vue-router';
+import { bootstrapGameSocket } from '@/composables/game.socket';
 
 // bootstrapping the socket if not initialized on home  component
 bootstrap();
+bootstrapGameSocket();
 
 const route = useRoute();
 const chatStore = useChatStore();

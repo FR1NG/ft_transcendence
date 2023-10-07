@@ -5,6 +5,7 @@ import { useSocketStore } from '@/store/socket';
 import { useChatStore } from '@/store/chat';
 import { pushNotify } from './simpleNotify';
 import { useRoute } from 'vue-router';
+import { bootstrapGameSocket } from './game.socket';
 
 
 const init = (): boolean => {
@@ -54,6 +55,7 @@ const showNotification = (content: string, title: string) => {
 
 // bootstaping socket
 export const bootstrap = () => {
+  bootstrapGameSocket();
   if(init()) {
     listen();
   }
