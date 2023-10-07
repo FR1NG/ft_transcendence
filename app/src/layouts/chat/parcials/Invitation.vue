@@ -18,7 +18,6 @@ roomStore.getInvitation(invitationId).then(result => {
   data.value = result
   appearance.value = true;
 }).catch((error: any) => {
-  pushNotify({status:'error', title:'error', text:error.data.message})
   appearance.value = false;
   errorMessage.value = error?.data?.message
 });
@@ -29,9 +28,7 @@ const handleAccept = () => {
   roomStore.acceptInvitation(invitationId).then(() => {
     loading.value = false;
     router.push({ name:  'Room', params: { id: data.value.byId }});
-    pushNotify({status:'success', title:'Action completed', text:'room joined successfully'})
   }).catch(() => {
-    pushNotify({status:'error', title:'error', text:"error while accepting the invitation"})
     loading.value = false;
   });
 }
@@ -42,7 +39,6 @@ const handleDecline = () => {
     loading.value = false;
     router.go(-1);
   }).catch(() => {
-    pushNotify({status:'error', title:'error', text:"error while accepting the invitation"})
     loading.value = false;
   });
 }
