@@ -10,6 +10,7 @@ import InfoBar from './parcials/InfoBar.vue'
 import UsersList from './parcials/UsersList.vue'
 import { RouterView } from 'vue-router';
 import { bootstrapGameSocket } from '@/composables/game.socket';
+import { useSocketStore } from '@/store/socket';
 
 // bootstrapping the socket if not initialized on home  component
 bootstrap();
@@ -20,11 +21,14 @@ const chatStore = useChatStore();
 const { selectedUser, selectedRoom, users } = storeToRefs(chatStore);
 const drawer = ref(window.innerWidth < 1280 ? false : true)
 
-// getting conversations
-chatStore.getConversationsUsers();
-
-// getting list of blocked users
-chatStore.getBlocked();
+try {
+  // getting conversations
+  chatStore.getConversationsUsers();
+  
+  // getting list of blocked users
+  chatStore.getBlocked();
+  useSocketStore().subscribHotReloadEvent({scope: 'user', cp: chatStore.getBlocked});
+} catch (error) {}
 
 // type of the conversation (dm / room)
 type Type = 'dm' | 'room';

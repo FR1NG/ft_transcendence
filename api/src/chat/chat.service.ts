@@ -460,7 +460,7 @@ export class ChatService {
     });
 
     if(!conversation)
-      throw new NotFoundException('conversation not found');
+      return {message: 'no message to read'};
     const result = await this.prisma.messages.updateMany({
       where: {
         converstion: {

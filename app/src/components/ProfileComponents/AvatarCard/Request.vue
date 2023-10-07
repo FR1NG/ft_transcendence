@@ -72,22 +72,18 @@ const unblockUser = async () => {
 // unfriend a user
 
 const unfriend = (userId: string) => {
-  userStore.unfriend(userId)
+  try {
+    userStore.unfriend(userId)
+
+  } catch (error: any) {
+  }
 }
 
-// invite for a geme<<<<<<< responsiveness
-89
- 
-  <div class="mt-8 mr-5 mb-8 ml-5">
-90
- 
-  <v-row>
-91
- 
-=======
 const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
     router.push({ name: 'Game'});
+  }).catch(() => {
+
   })
 }
 

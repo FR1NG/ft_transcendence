@@ -43,7 +43,10 @@
   }
 
   const handleSearch = () => {
-    searchStore.searchUsers(search.value);
+    try {
+      searchStore.searchUsers(search.value);
+  }
+  catch (error){}
   }
 
   const handlekeyUp = () => {

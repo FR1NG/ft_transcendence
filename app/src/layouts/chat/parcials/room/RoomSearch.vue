@@ -19,7 +19,11 @@ const handleKeyUp = () => {
 }
 
 const handleSearch = () => {
-  roomStore.searchRoom(search.value);
+  try {
+    roomStore.searchRoom(search.value);
+  }
+  catch (error){}
+
 }
 
 const setTimeout = () => {

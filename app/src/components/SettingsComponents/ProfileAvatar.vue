@@ -109,7 +109,9 @@ const submitChoose = async (choice: string) => {
 const callback = async (response: any) => {
   loading.value = false;
   dialog.value = false;
-  await props.update();
+  try {
+    await props.update();
+  } catch (error) {}
   avatar.value = null;
   if(response.data.message) {
     pushNotify({status:'success', title:'Action status', text:response.data.message})
@@ -137,7 +139,8 @@ watch(() => chooseddAvatar.value,(newValue: string, oldValue: string) => {
     showInput.value = false;
     if (oldValue?.length > 0 && oldValue !== newValue) {
       const index = pics.value.findIndex(el => el.path === oldValue);
-      pics.value[index].clicked = false;
+      if (index > 0)
+        pics.value[index].clicked = false;
     }
   }
   else {

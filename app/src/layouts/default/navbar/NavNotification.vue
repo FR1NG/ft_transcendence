@@ -14,7 +14,7 @@ const { notifications, unseenIds } = storeToRefs(notificationStore);
 
 // calling get notification action to get user notifications
 notificationStore.getNotifications().then(() => {
-});
+}).catch(()=>{});
 
 const markRead = (value: boolean) => {
   if (!value && unseenIds.value.length !== 0)

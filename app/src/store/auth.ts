@@ -22,10 +22,15 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async whoami() {
-      if(this.me.id)
+      try {
+        if(this.me.id)
+          return this.me;
+        await this.getMe();
         return this.me;
-      await this.getMe();
-      return this.me;
+      }
+      catch (error){
+        return null;
+      }
     },
     async getMe() {
       return new Promise(async (resolve, reject) => {
@@ -41,10 +46,15 @@ export const useAuthStore = defineStore('auth', {
       })
     },
     async isSetup() {
-      if(this.me.id)
+      try {
+        if(this.me.id)
+          return this.me.isSetup;
+        await this.getMe();
         return this.me.isSetup;
-      await this.getMe();
-      return this.me.isSetup;
+      }
+      catch (error){
+        return false;
+      }
     },
     async attemptLogin(code: string) {
       if (code) {

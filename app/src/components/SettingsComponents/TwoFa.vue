@@ -58,7 +58,7 @@ const disable = async () => {
 const getQrCode = async () => {
   authStore.getQr().then((result: any) => {
     qrCode.value = result.image
-  })
+  }).catch(() => {})
 }
 
 const focus = (value: boolean) => {

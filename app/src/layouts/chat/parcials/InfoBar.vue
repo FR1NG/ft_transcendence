@@ -37,7 +37,7 @@ const inviteGame = (userId: string) => {
     return;
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
    router.push({ name: 'Game'});
-  })
+  }).catch(() => {})
 }
 
 </script>
