@@ -354,6 +354,7 @@ async kickUser(roomId: string, userId: string) {
         id: room.id
       }
     });
+    this.eventEmitter.emit('user.kick', {userId, roomId});
     return result;
 }
 
@@ -374,7 +375,7 @@ async banUser(roomId: string, userId: string) {
     if(!room)
       throw new NotFoundException('room not found');
     if(room.role === 'OWNER')
-      throw new ForbiddenException(`you cannot kick a ${room.role}, are you stupid`);
+      throw new ForbiddenException(`you cannot ban a ${room.role}, are you stupid`);
     const result = await this.prisma.usersRooms.update({
       where: {
         id: room.id
@@ -383,6 +384,7 @@ async banUser(roomId: string, userId: string) {
         baned: true
       }
     });
+    this.eventEmitter.emit('user.kick', {userId, roomId});
     return result;
 }
 // unban a youser from a room
@@ -400,8 +402,6 @@ async unbanUser(roomId: string, userId: string) {
 
     if(!room)
       throw new NotFoundException('room not found');
-    if(room.role === 'OWNER')
-      throw new ForbiddenException(`you cannot kick a ${room.role}, are you stupid`);
     const result = await this.prisma.usersRooms.update({
       where: {
         id: room.id

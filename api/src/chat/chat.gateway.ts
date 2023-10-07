@@ -170,6 +170,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.emit('notification', payload.data);
   }
 
+  @OnEvent('user.kick')
+  handleKick(payload) {
+    const client = this.clients.get(payload.userId);
+    if(client)
+      client.leave(payload.roomId);
+  }
+
   //client getters
   getClient(id: string): Socket {
     return this.clients.get(id);
