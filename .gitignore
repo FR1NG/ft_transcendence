@@ -3,5 +3,4 @@ api/upload/users/*
 api/.env
 app/node_modules
 app/.env
-nginx/ssl/*
 .env
