@@ -28,7 +28,9 @@ const loadMoreLoader = ref(false);
 
 const loadMore = async () => {
   loadMoreLoader.value = true;
-  await useChatStore().loadMore(props.type);
+  try {
+    await useChatStore().loadMore(props.type);
+  } catch(error) {}
   loadMoreLoader.value = false;
 }
 </script>

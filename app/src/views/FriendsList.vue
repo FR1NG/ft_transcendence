@@ -17,7 +17,20 @@ import { ref } from 'vue';
   useSocketStore().subscribHotReloadEvent({scope: 'user', cb: friendsStore.getFriends});
 
     const couleur = ref("");
-
+const getColor = (isInGame: boolean, isOnline: boolean) => {
+  if(isInGame)
+  {
+    couleur.value = 'blue';
+    return 'blue';
+  }
+  if(isOnline)
+  {
+    couleur.value = 'green'
+    return 'green';
+  }
+  couleur.value = 'gray';
+  return 'gray'
+}
 </script>
 
 <template>
@@ -45,7 +58,7 @@ import { ref } from 'vue';
               </v-list-item>
           </td>
           <td class="abc text-center">
-            <v-list-item v-vind="friend.isInGame ?  couleur='blue' :  friend.isOnline ? couleur = 'green' : couleur = 'red'" :style="`color:${couleur}`">{{ friend.status }}</v-list-item>
+            <v-list-item :class="`text-${getColor(friend.isInGame, friend.isOnline)}`">{{ friend.status }}</v-list-item>
           </td>
           <td class="text-right">
             <v-btn :to="{name: 'UserProfile', params: {username: friend.username}}">view</v-btn>
@@ -84,7 +97,7 @@ import { ref } from 'vue';
   }
   .v-list-item__content  {
     .avatar {
-      border: 2px solid v-bind(couleur);
+      border: 3px solid v-bind(couleur);
     }
   }
 }

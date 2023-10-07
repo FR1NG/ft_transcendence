@@ -8,13 +8,6 @@ const props = defineProps<{
   rooms: UserRoom[]
 }>();
 
-
-
-// room settings
-const roomSettings = (room: UserRoom) => {
-  // roomStore.showSettings(room);
-}
-
 </script>
 
 

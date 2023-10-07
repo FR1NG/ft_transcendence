@@ -3,7 +3,10 @@
   import { storeToRefs } from 'pinia'
 
   const { unreadedCount } = storeToRefs(useChatStore());
-  useChatStore().getUnreadedMessagesCount();
+  try {
+    useChatStore().getUnreadedMessagesCount();
+  }
+  catch (error){}
 </script>
 
 <template>

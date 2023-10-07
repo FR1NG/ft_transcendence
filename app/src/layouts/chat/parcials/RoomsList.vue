@@ -26,8 +26,9 @@ const joinClose = () => {
   joinAppearance.value = false;
 }
 
-
-roomStore.getRooms();
+try {
+  roomStore.getRooms();
+} catch(error) {}
 </script>
 
 <template>

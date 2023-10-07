@@ -64,11 +64,16 @@ onBeforeRouteLeave((to) => {
 const handleLeaveRoom = () => {
   roomSettings.value = false;
   chatStore.deleteConversation(route.params.id as string);
-  roomStore.getRooms();
+  try {
+    roomStore.getRooms();
+  } catch(error) {}
 }
 
 const focus = () => {
-  chatStore.markeRead(chatId);
+  try {
+    if(type.value === 'dm')
+      chatStore.markeRead(chatId);
+  } catch (error) {}
 }
 
 </script>
