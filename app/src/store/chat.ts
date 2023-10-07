@@ -95,8 +95,6 @@ export const useChatStore = defineStore('chat', {
       return conversation;
     },
     playNotificationSound() {
-      const audio = new Audio('/audio/notification.wav')
-      audio.play();
     },
     scrollDown() {
       const html = document.querySelector('html')

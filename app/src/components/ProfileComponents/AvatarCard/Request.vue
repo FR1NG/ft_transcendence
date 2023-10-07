@@ -103,19 +103,19 @@ const inviteGame = (userId: string) => {
   </v-row>
   <v-row>
     <v-col lg="6" cols="12">
-      <v-btn density="comfortable" v-if="user.friendshipStatus === 'INVITATION_SENT'" block rounded="lg" :loading="data.sending"
+      <v-btn density="comfortable" v-if="user.friendshipStatus === 'INVITATION_SENT' && !user.blocked" block rounded="lg" :loading="data.sending"
         @click="cancelFriendRequest(user.invitationId)" color="colorThree" variant="flat">
         cancel request
       </v-btn>
-      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED'" block rounded="lg" :loading="data.sending"
+      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'INVITATION_RECIEVED' && !user.blocked" block rounded="lg" :loading="data.sending"
         @click="confirmFriendInvitaion(user.invitationId)" color="secondary" variant="flat">
         confirm
       </v-btn>
-      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'FRIENDS'" block variant="outlined" rounded="lg" prepend-icon="mdi-minus"
+      <v-btn density="comfortable" v-else-if="user.friendshipStatus === 'FRIENDS' && !user.blocked" block variant="outlined" rounded="lg" prepend-icon="mdi-minus"
         :loading="data.sending" @click="unfriend(user.id)">
         unfriend
       </v-btn>
-      <v-btn density="comfortable" v-else="user.friendshipStatus === 'NONE'" block variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
+      <v-btn density="comfortable" v-else="user.friendshipStatus === 'NONE' && !user.blocked" block variant="outlined" rounded="lg" prepend-icon="mdi-plus-thick"
         :loading="data.sending" @click="sendFrienRequest(user.id)">
         add friend
       </v-btn>
