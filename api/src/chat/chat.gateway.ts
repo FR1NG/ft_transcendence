@@ -14,6 +14,10 @@ import { AuthenticatedUser } from 'src/types';
 import { WsPrismaFilter } from 'src/exception-filters/ws-prisma.filter';
 
 type AuthSocket = Socket & { user: AuthenticatedUser};
+type HotReloadPayload = {
+  userId: string
+  scope: string
+}
 
 @WebSocketGateway()
 @UseFilters(new WsPrismaFilter())
@@ -180,5 +184,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   //client getters
   getClient(id: string): Socket {
     return this.clients.get(id);
+  }
+
+  @OnEvent('hot.reload')
+  hotReload(payload: HotReloadPayload) {
+    console.log('hot reloading')
+    console.log(payload);
+    const client = this.clients.get(payload.userId);
+    if(client) {
+      client.emit('hot-reload', {scope: payload.scope});
+    }
   }
 }

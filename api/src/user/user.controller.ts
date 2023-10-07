@@ -76,7 +76,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('avatar', {
       limits: {
-        fileSize: 500000
+        fileSize: 5000000
       },
       fileFilter: (req: any, file: any, cb: any) => {
               if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -101,8 +101,7 @@ export class UserController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({maxSize: 5000, message: 'File is too large'}),
-          new FileTypeValidator({fileType: /\.(jpg|jpeg|png)$/})
+          new MaxFileSizeValidator({maxSize: 5000000, message: 'File is too large'}),
         ]
       })
     ) file: Express.Multer.File,

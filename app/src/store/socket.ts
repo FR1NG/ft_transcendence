@@ -4,6 +4,7 @@ import type { Message } from '@/types/chat';
 import { useNotificationStore } from './notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from './auth';
+import { HotReloadEvent, HotReloadPayload } from '@/types/socket';
 
 type Auth = {
   auth: Token
@@ -12,12 +13,15 @@ type Auth = {
 type Token = {
   token?: string
 }
+
+
 type MySocket = Socket & Auth;
 export const useSocketStore = defineStore('socket', {
   // state
   state: () => ({
     socket: null as MySocket | null,
     gameSocket: null as MySocket | null,
+    hotReloadEvents: [] as HotReloadEvent[]
   }),
   // getters
   getters: {
@@ -65,12 +69,24 @@ export const useSocketStore = defineStore('socket', {
 
       //listning on notification event
       this.socket.on('notification', (data) => {
-
         if(eventCallback)
           eventCallback('notification', data);
         this.handleNotification(data);
       });
 
+      //listning on hot reload event
+      this.socket.on('hot-reload', (payload: HotReloadPayload) => {
+        this.hotReloadEvents.forEach((event: HotReloadEvent) => {
+          if(event.scope === payload.scope) {
+            const params = event.getParams?.call(event.getParams);
+            event.cb?.call(event.cb, params)
+          }
+        });
+      });
+
+    },
+    subscribHotReloadEvent(event: HotReloadEvent) {
+      this.hotReloadEvents.push(event);
     },
     handleMessage(data: any) {
     },

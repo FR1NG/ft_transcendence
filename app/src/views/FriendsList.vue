@@ -1,5 +1,6 @@
 <script setup lang="ts">
     import { useFriendsStore } from '@/store/friends'
+import { useSocketStore } from '@/store/socket';
     import { storeToRefs } from 'pinia'
 import { ref } from 'vue';
 
@@ -13,6 +14,7 @@ import { ref } from 'vue';
     }).catch(() => {
         loader.value = false;
       });
+  useSocketStore().subscribHotReloadEvent({scope: 'user', cb: friendsStore.getFriends});
 
     const couleur = ref("");
 

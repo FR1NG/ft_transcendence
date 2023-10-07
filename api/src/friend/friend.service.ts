@@ -2,10 +2,14 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { PrismaService } from 'src/prisma.service';
 import { FriendRequestStatus, Friends } from '@prisma/client';
 import { AuthenticatedUser } from 'src/types';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class FriendService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    private emiter: EventEmitter2
+  ) { }
 
   async getFriends(user: AuthenticatedUser) {
       const friends = await this.prisma.friends.findMany({
@@ -153,6 +157,11 @@ export class FriendService {
       where: {
         id: friend.id
       }
+    });
+
+    this.emiter.emit('hot.reload', {
+      userId: userId,
+      scope: 'user'
     });
     return result;
   }
