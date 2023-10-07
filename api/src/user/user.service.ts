@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthenticatedUser } from 'src/types';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 type FriendshipStatus = 'FRIENDS' | 'INVITATION_SENT' | 'INVITATION_RECIEVED' | 'NONE'
 type InvitationStatus = 'SENT' | 'RECIEVED' | 'NONE'
@@ -14,8 +15,8 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
-    // private authService: AuthService
     private jwtService: JwtService,
+    private eventEmitter: EventEmitter2
   ) { }
 
   async create(createUserDto: CreateUserDto) {
@@ -238,6 +239,10 @@ export class UserService {
       if (!user) {
         throw new HttpException('user not found', HttpStatus.NOT_FOUND);
       }
+      this.eventEmitter.emit('hot.reload', {
+      userId: id,
+      scope: 'user'
+    });
       return user;
   }
 

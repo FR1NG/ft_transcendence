@@ -5,6 +5,7 @@ import { reactive } from 'vue'
 import { useInvitationStore } from '@/store/invitation'
 import { User } from '@/types/user'
 import { pushNotify } from '@/composables/simpleNotify'
+import { useSocketStore } from '@/store/socket'
 
 const props = defineProps<{ user: User }>()
 const userStore = useUserStore();
@@ -80,8 +81,6 @@ const inviteGame = (userId: string) => {
     router.push({ name: 'Game'});
   })
 }
-
-// invite user for a game
 
 </script>
 

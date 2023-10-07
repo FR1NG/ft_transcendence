@@ -97,6 +97,11 @@ export class InvitationService {
       }
     });
     this.deleteInvitation(inviter.id, invit.id);
+
+      this.emiter.emit('hot.reload', {
+      userId: invit.byId,
+      scope: 'user'
+    });
     return { message: `you and ${inviter.username} are friends now` };
   }
 
@@ -222,6 +227,10 @@ export class InvitationService {
       data: {
         notificationId: notification.id
       }
+    });
+    this.emiter.emit('hot.reload', {
+      userId: data.userId,
+      scope: 'user'
     });
     return connected;
   }

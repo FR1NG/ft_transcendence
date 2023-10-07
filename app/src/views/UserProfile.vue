@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 import { useAuthStore } from '@/store/auth'
+import { useSocketStore } from '@/store/socket'
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -19,6 +20,11 @@ const route = useRoute()
 const loading = ref(true);
 const league = ref('')
 
+// subscript hot reload event to get user
+const getUsername = () => {
+  return user.value.username
+}
+useSocketStore().subscribHotReloadEvent({scope: 'user', cb: userStore.getUser, getParams: getUsername});
 // watching the username change on route parame to refetch data
 watch(
   () => route.params.username, async newUsername => {

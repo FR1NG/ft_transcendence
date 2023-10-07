@@ -52,6 +52,8 @@ export const useUserStore = defineStore('user', {
         const { data } = await axios.get(`/user/filter/?username=${username}`);
         this.user = data;
       } catch (error: any) {
+        if(error?.response?.status === 403)
+          this.router.push({name: 'Home'});
         pushNotify({status:'error', title:'error', text:error.response.data.message})
       }
     },
