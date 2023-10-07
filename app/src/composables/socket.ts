@@ -35,8 +35,8 @@ const listen = () => {
       const { room } = data;
       data["loading"] = false;
       chatStore.addMessageToConversation(data, room.id, 'room');
-      if (data.sender.id !== me.value.id && !useChatStore().blocked.includes(data.sender.id))
-        showNotification(data.content, `${data.sender.username}#${room.name}`);
+      if (data.sender.id !== me.value.id && !useChatStore().isBlocked(data?.sender?.id))
+        showNotification(data?.content, `${data?.sender?.username}#${room?.name}`);
     }
     else if(event === 'notification') {
       showNotification(data.content, data.content);

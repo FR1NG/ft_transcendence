@@ -40,7 +40,7 @@ onBeforeRouteLeave(() => {
             </v-badge>
           </v-btn>
       </template>
-      <v-card min-width="300" min-height="70" max-height="300" max-width="300">
+      <v-card min-width="300" rounded="xl" min-height="70" max-height="300" max-width="300">
         <v-list color="secodary">
           <v-list-item v-for="notification in notifications" :key="notification.id" :title="notification.content"
             :to="notification.link" :active="!notification.seen">

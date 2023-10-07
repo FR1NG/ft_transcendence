@@ -4,7 +4,7 @@ import { useRoomStore } from '@/store/room'
 import { ref } from 'vue'
 import { pushNotify } from '@/composables/simpleNotify';
 
-const model = true;
+const model = ref(true);
 const invitationId = useRoute().params.id as string;
 const roomStore = useRoomStore();
 const appearance = ref(false);
@@ -37,7 +37,7 @@ const handleDecline = () => {
   loading.value = true;
   roomStore.declineInvitation(invitationId).then(() => {
     loading.value = false;
-    router.go(-1);
+    router.push({name: 'Home'});
   }).catch(() => {
     loading.value = false;
   });

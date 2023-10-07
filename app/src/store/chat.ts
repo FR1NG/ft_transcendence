@@ -158,6 +158,11 @@ export const useChatStore = defineStore('chat', {
         this.users.unshift(newobj)
       }
     },
+    isBlocked(id: string) {
+      console.log(id)
+      console.log(this.blocked.includes(id))
+      return this.blocked.includes(id);
+    },
     reset() {
       this.conversations = new Map();
       this.activeConversation = {} as Conversation;
@@ -193,6 +198,7 @@ export const useChatStore = defineStore('chat', {
     async getBlocked() {
       return new Promise(async (resolve, reject) => {
         try {
+          console.log('getting blocked users');
           const response = await axios.get('friend/blocked');
           const {data} = response;
           this.blocked = data;
