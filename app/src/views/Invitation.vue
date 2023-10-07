@@ -34,6 +34,7 @@ const handleDecline = () => {
     loading.value = false;
     back();
   }).catch(() => {
+    back();
     loading.value = false;
   });
 }
@@ -50,7 +51,7 @@ const getData = (invitId: string) => {
 }
 
 const back = () => {
-  router.go(-1);
+  router.push({name: 'Home'});
 }
 
 // getting data

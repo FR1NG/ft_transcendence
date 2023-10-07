@@ -102,9 +102,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseFilters(WebSocketExceptionFilter)
   @UseGuards(WsAuthGuard)
   async joinRoom(client: AuthSocket, payload) {
-    console.log(payload)
     const allowed = await this.roomService.isInRoom(client.user, payload.id);
-    console.log(allowed);
     if(allowed)
       client.join(payload.id);
   }
@@ -188,8 +186,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @OnEvent('hot.reload')
   hotReload(payload: HotReloadPayload) {
-    console.log('hot reloading')
-    console.log(payload);
     const client = this.clients.get(payload.userId);
     if(client) {
       client.emit('hot-reload', {scope: payload.scope});
