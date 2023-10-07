@@ -164,9 +164,9 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   @OnEvent('game.clear')
   clearGame(game: Games) {
     this.logger.log('cleaning event triggred');
-    delete this.readyPlayers[game.id];
-    clearInterval(this.gameLoopIntervalIds[game.id]);
-    delete this.gameLoopIntervalIds[game.id];
+    delete this.readyPlayers[game?.id];
+    clearInterval(this.gameLoopIntervalIds[game?.id]);
+    delete this.gameLoopIntervalIds[game?.id];
     delete this.clients.get(game.hostId)?.game;
     delete this.clients.get(game.guestId)?.game;
   }
@@ -209,12 +209,12 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   // to be optimized
   joinRoon(game: Games) {
-    const hostSocket = this.clients.get(game.hostId)?.socket;
-    const guestSocket = this.clients.get(game.guestId)?.socket;
+    const hostSocket = this.clients.get(game?.hostId)?.socket;
+    const guestSocket = this.clients.get(game?.guestId)?.socket;
     if(!hostSocket || !guestSocket)
       this.logger.error('some of the clients is not there')
-    this.clients.get(game.guestId).socket.join(game.id);
-    this.clients.get(game.hostId).socket.join(game.id);
+    this.clients.get(game?.guestId).socket.join(game?.id);
+    this.clients.get(game?.hostId).socket.join(game?.id);
   }
 
   @SubscribeMessage('startGame')
@@ -345,6 +345,8 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
           return;
         this.logger.verbose('both want to restart game');
         const game = await this.gameService.createGame(invit[0], invit[1], 'NORMAL');
+        if(!game)
+          return;
         const client1 = this.clients.get(invit[0]);
         const client2 = this.clients.get(invit[1]);
         client1.game = game;
