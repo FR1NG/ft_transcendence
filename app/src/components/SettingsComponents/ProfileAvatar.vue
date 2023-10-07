@@ -73,7 +73,8 @@ const handleSubmit = async () => {
   isSelected.value = false;
   avatar.value = null;
   const index = pics.value.findIndex((el: any) => el.clicked === true);
-  pics.value[index].clicked = false;
+  if(index > 0)
+    pics.value[index].clicked = false;
 
 }
 
