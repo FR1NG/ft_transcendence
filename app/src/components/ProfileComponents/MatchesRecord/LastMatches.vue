@@ -50,7 +50,7 @@ defineProps<{user: User, loading: Boolean}>()
   align-items: center;
   max-height: 600px;
   overflow: hidden;
-  min-width: 400px !important;
+  // min-width: 400px !important;
 
   .matchesHeader {
     padding-top: 0.5rem;

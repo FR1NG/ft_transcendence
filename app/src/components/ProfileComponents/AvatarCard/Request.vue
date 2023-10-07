@@ -75,7 +75,16 @@ const unfriend = (userId: string) => {
   userStore.unfriend(userId)
 }
 
-// invite for a geme
+// invite for a geme<<<<<<< responsiveness
+89
+ 
+  <div class="mt-8 mr-5 mb-8 ml-5">
+90
+ 
+  <v-row>
+91
+ 
+=======
 const inviteGame = (userId: string) => {
   useInvitationStore().createInvitation(userId, 'GAME').then((result: any) => {
     router.push({ name: 'Game'});
@@ -85,7 +94,7 @@ const inviteGame = (userId: string) => {
 </script>
 
 <template>
-  <div class="mt-8 mr-5">
+  <div class="mt-8 mr-5 mb-8 ml-5">
   <v-row v-if="!user.blocked">
     <v-col lg="6" cols="12">
       <v-btn density="comfortable" :to="{ name: 'Dm', params: { id: user.id } }" block variant="outlined" rounded="lg"
@@ -133,64 +142,10 @@ const inviteGame = (userId: string) => {
   </div>
 </template>
 
-<style lang="scss">
-.interactWrapper {
-  position: absolute;
-  right: 0px;
-  width: 100%;
-  height: 100%;
-  padding: 1rem;
-  display: grid;
-  justify-items: end;
-  gap: 0.9rem;
+<style lang="scss" scoped>
 
-  .btn {
-    border: 2px solid rgb(var(--v-theme-colorTwo));
-    color: rgb(var(--v-theme-colorTwo));
-    width: 150px;
-  }
-
-  .btn:hover {
-    color: rgb(var(--v-theme-colorOne));
-    font-weight: bolder;
-    background-color: rgb(var(--v-theme-colorTwo));
-    border: 2px solid rgb(var(--v-theme-colorTwo));
-  }
-
-  grid-template-rows: repeat(10, 1fr);
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-
-  .request {
-    grid-row: 5;
-    grid-column: 7;
-    transition: grid-column 0.5s;
-  }
-
-  .message {
-    grid-row: 5;
-    grid-column: 8;
-    transition: grid-column 0.5s;
-  }
-
-  .gameInvite {
-    grid-row: 6;
-    grid-column: 8;
-    transition: grid-column 0.5s;
-  }
-
-  .block {
-    grid-row: 6;
-    grid-column: 7;
-    transition: grid-column 0.5s;
-  }
-}
-@media (width < 1160px) {
-  .interactWrapper {
-    .btn {
-      width: 128px;
-      transition: width 0.5s;
-    }
-  }
+v-btn {
+  width: 300px !important;
 }
 
 @media (width < 1280px) {
@@ -200,53 +155,6 @@ const inviteGame = (userId: string) => {
   .v-col-lg-6 {
 
     padding: 10px;
-  }
-}
-
-@media (width < 600px) {
-  .interactWrapper {
-    .btn {
-      width: 100px;
-      font-size: 0.6rem;
-      transition: width 0.5s;
-    }
-  }
-}
-
-@media (width < 480px) {
-  .interactWrapper {
-    grid-template-rows: repeat(10, 1fr);
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: .2rem;
-    padding-bottom: 0.1rem;
-
-    .request {
-      grid-row: 7;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-
-    .message {
-      grid-row: 8;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-
-    .gameInvite {
-      grid-row: 9;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-
-    .block {
-      grid-row: 10;
-      grid-column: 8;
-      transition: grid-column 0.5s;
-    }
-
-    .btn {
-      height: 20px;
-    }
   }
 }
 </style>
