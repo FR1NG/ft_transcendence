@@ -14,6 +14,8 @@ import { ref } from 'vue';
         loader.value = false;
       });
 
+    const couleur = ref("");
+
 </script>
 
 <template>
@@ -24,7 +26,7 @@ import { ref } from 'vue';
           <th class="text-left">
             Friend
           </th>
-          <th class="text-center">
+          <th class="text-center abc">
             Status
           </th>
           <th class="text-right">
@@ -35,10 +37,13 @@ import { ref } from 'vue';
       <tbody>
         <tr v-for="friend in friends" :key="friend.id">
           <td>
-            <v-list-item :prepend-avatar="friend.avatar">{{ friend.username }}</v-list-item>
+            <v-list-item>
+              <img class="avatar" :src="friend.avatar" alt="">
+              <div class="username">{{ friend.username }}</div>
+              </v-list-item>
           </td>
-          <td class="text-center" :style="friend.status === 'online' ? 'color: green;' : friend.status === 'offline' ? 'color: red;' : 'color:blue;'">
-            <v-list-item>{{ friend.status }}</v-list-item>
+          <td class="abc text-center">
+            <v-list-item v-vind="friend.isInGame ?  couleur='blue' :  friend.isOnline ? couleur = 'green' : couleur = 'red'" :style="`color:${couleur}`">{{ friend.status }}</v-list-item>
           </td>
           <td class="text-right">
             <v-btn :to="{name: 'UserProfile', params: {username: friend.username}}">view</v-btn>
@@ -56,6 +61,30 @@ import { ref } from 'vue';
     height: 100%;
     width: 100%;
     padding: 2rem;
+}
+
+.v-list-item__content  {
+  display: flex;
+  align-items: center;
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  text-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media(width < 450px){
+  .abc{
+    display: none;
+  }
+  .v-list-item__content  {
+    .avatar {
+      border: 2px solid v-bind(couleur);
+    }
+  }
 }
 
 </style>
