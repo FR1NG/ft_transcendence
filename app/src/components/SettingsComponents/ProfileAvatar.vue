@@ -86,11 +86,14 @@ const submitUpload = async () => {
     callback(response);
     useAuthStore().getMe();
   } catch (error: any) {
-      loading.value = false;
+    pushNotify({status:'error', title:'error', text:error.response.data.message})
+    loading.value = false;
   }
 }
 
 const submitChoose = async (choice: string) => {
+  if(choice.length === 0)
+    return;
   try {
     const response = await axios.post('/user/avatar/choose', {
       link: choice

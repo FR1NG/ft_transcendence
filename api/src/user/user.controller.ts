@@ -13,6 +13,9 @@ import {
   Req,
   Query,
   BadRequestException,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -96,6 +99,12 @@ export class UserController {
   )
   async uploadAvatar(
     @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({maxSize: 5000, message: 'File is too large'}),
+          new FileTypeValidator({fileType: /\.(jpg|jpeg|png)$/})
+        ]
+      })
     ) file: Express.Multer.File,
     @User() user: AuthenticatedUser
   ) {
